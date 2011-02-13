@@ -1,10 +1,17 @@
 package FIT_8201_Sviridov_Lines;
 
+import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.util.List;
 
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.MenuElement;
+import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
+import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
 
 import ru.nsu.cg.MainFrame;
 
@@ -91,19 +98,51 @@ public class LinesFrame extends MainFrame {
 				"About Lines", JOptionPane.INFORMATION_MESSAGE);
 	}
 
-	private void switchState(int state){
-		_state = state;
-		if(_state == LinesFrame.VIEW_STATE){
-			// enable UI
-		} else if(state == LinesFrame.EDIT_STATE){
-			// disable UI
+	private void switchState(int state) {
+
+		String[] elems = new String[] { "File/New", "File/Load",
+				"File/Save as...", "Edit/Preferences" };
+
+		// this looks as weird as weird is the implementation of the MainFrame;
+		// still works
+
+		if (_state == LinesFrame.EDIT_STATE && state == LinesFrame.VIEW_STATE) {
+			// enable UI elements
+			for (String name : elems) {
+				((JMenuItem) getMenuElement(name)).setEnabled(true);
+				for (Component comp : toolBar.getComponents()) {
+					if (comp instanceof JButton) {
+						((JButton) comp).setEnabled(true);
+					}
+				}
+			}
+		} else if (_state == LinesFrame.VIEW_STATE
+				&& state == LinesFrame.EDIT_STATE) {
+			// disable UI elements
+			for (String name : elems) {
+				JMenuItem menuitem = (JMenuItem) getMenuElement(name);
+
+				menuitem.setEnabled(false);
+
+				for (Component comp : toolBar.getComponents()) {
+					if (comp instanceof JButton) {
+						JButton button = (JButton) comp;
+						
+						if (!button.getName().equals("Exit") && !button.getName().equals("About")){
+							button.setEnabled(false);
+							System.out.println(button.getName());
+						}
+					}
+				}
+			}
 		}
+		_state = state;
 	}
-	
+
 	public void leftClick(Point point) {
 		if (_state == LinesFrame.VIEW_STATE) {
 			switchState(LinesFrame.EDIT_STATE);
-			
+
 		} else if (_state == LinesFrame.EDIT_STATE) {
 			// adding new Polyline point
 		}
@@ -114,6 +153,7 @@ public class LinesFrame extends MainFrame {
 			// ignore
 		} else if (_state == LinesFrame.EDIT_STATE) {
 			// add current polyline to polylines list
+			switchState(LinesFrame.VIEW_STATE);
 		}
 	}
 

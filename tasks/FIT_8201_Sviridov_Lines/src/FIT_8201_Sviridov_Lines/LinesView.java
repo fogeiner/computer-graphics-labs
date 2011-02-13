@@ -19,7 +19,7 @@ public class LinesView extends JPanel {
 				int button = event.getButton();
 				if(button == MouseEvent.BUTTON1){
 					LinesView.this._lines_frame.leftClick(event.getPoint());
-				} else if(button == MouseEvent.BUTTON2){
+				} else if(button == MouseEvent.BUTTON3){
 					LinesView.this._lines_frame.rightClick(event.getPoint());
 				}
 			}

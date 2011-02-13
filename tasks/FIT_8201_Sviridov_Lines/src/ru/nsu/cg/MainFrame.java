@@ -265,6 +265,7 @@ public class MainFrame extends JFrame {
 	public JButton createToolBarButton(JMenuItem item)
 	{
 		JButton button = new JButton(item.getIcon());
+		button.setName(item.getText());
 		for(ActionListener listener: item.getActionListeners())
 			button.addActionListener(listener);
 		button.setToolTipText(item.getToolTipText());
