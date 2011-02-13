@@ -3,6 +3,12 @@ package FIT_8201_Sviridov_Init;
 import ru.nsu.cg.MainFrame;
 
 public class InitMainWindow extends MainFrame {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3080695783872445789L;
+
 	public InitMainWindow(int x, int y, String title){
 		super(x, y, title);
 	}
