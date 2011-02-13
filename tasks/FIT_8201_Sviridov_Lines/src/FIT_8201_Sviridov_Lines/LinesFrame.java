@@ -6,12 +6,8 @@ import java.awt.event.KeyEvent;
 import java.util.List;
 
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.MenuElement;
-import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
-import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
 
 import ru.nsu.cg.MainFrame;
 
@@ -127,10 +123,10 @@ public class LinesFrame extends MainFrame {
 				for (Component comp : toolBar.getComponents()) {
 					if (comp instanceof JButton) {
 						JButton button = (JButton) comp;
-						
-						if (!button.getName().equals("Exit") && !button.getName().equals("About")){
+
+						if (!button.getName().equals("Exit")
+								&& !button.getName().equals("About")) {
 							button.setEnabled(false);
-							System.out.println(button.getName());
 						}
 					}
 				}
