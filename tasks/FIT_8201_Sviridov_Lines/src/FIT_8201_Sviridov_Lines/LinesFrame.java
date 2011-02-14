@@ -1,6 +1,9 @@
 package FIT_8201_Sviridov_Lines;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
@@ -8,17 +11,21 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.border.TitledBorder;
 
 import ru.nsu.cg.MainFrame;
 
 public class LinesFrame extends MainFrame {
 
 	private static final long serialVersionUID = 5852264472785688626L;
-	private final static int WIDTH = 800;
-	private final static int HEIGHT = 600;
+	private final static int WIDTH = 600;
+	private final static int HEIGHT = 400;
 	private final static String TITLE = "Lines";
 
 	private LinesView _lines_view;
@@ -29,7 +36,15 @@ public class LinesFrame extends MainFrame {
 
 	private List<Polyline> _polylines = new LinkedList<Polyline>();
 	private Polyline _new_polyline;
+	
+	private PreferencesDialog _preferences_dialog = null;
 
+	Color _polyline_color = Color.black;
+	Color _background_color = Color.white;
+	int _polyline_type = Polyline.CONTINIOUS;
+	int _polyline_thickness = 1;
+	int _circle_radius = 5;
+	
 	public LinesFrame(int width, int height, String title) {
 		super(width, height, title);
 
@@ -71,7 +86,7 @@ public class LinesFrame extends MainFrame {
 			_lines_view = new LinesView(this);
 			add(_lines_view);
 		} catch (Exception ex) {
-			System.err.print(ex.getStackTrace());
+			ex.printStackTrace();
 		}
 	}
 
@@ -81,11 +96,15 @@ public class LinesFrame extends MainFrame {
 	}
 
 	public void onLoad() {
-
+		
 	}
 
 	public void onSave() {
-
+		int size = _polylines.size();
+		System.out.println(size);
+		for(int i = 0; i < size; ++i){
+			System.out.print(_polylines.get(i).toString());
+		}
 	}
 
 	public void onExit() {
@@ -93,7 +112,11 @@ public class LinesFrame extends MainFrame {
 	}
 
 	public void onPreferences() {
-
+		if(_preferences_dialog == null){
+			_preferences_dialog = new PreferencesDialog(this, "Lines Preferences", true);
+		}
+		_preferences_dialog.setVisible(true);
+		
 	}
 
 	public void onAbout() {
@@ -143,7 +166,7 @@ public class LinesFrame extends MainFrame {
 	public void leftClick(Point point) {
 		if (_state == LinesFrame.VIEW_STATE) {
 			switchState(LinesFrame.EDIT_STATE);
-			_new_polyline = new Polyline();
+			_new_polyline = new Polyline(_polyline_type, _polyline_thickness, _polyline_color);
 			_new_polyline.addPoint(point);
 			_polylines.add(_new_polyline);
 
@@ -164,10 +187,48 @@ public class LinesFrame extends MainFrame {
 		}
 	}
 
+	public int getCircleRadius(){
+		return _circle_radius;
+	}
+	
+	public Color getBackgroundColor(){
+		return new Color(_background_color.getRGB());
+	}
+	
 	public List<Polyline> getPolylines() {
 		return Collections.unmodifiableList(_polylines);
 	}
 
+	private class PreferencesDialog extends javax.swing.JDialog {
+		
+		private static final long serialVersionUID = -3486091859979955990L;
+		
+		public PreferencesDialog(LinesFrame lines_frame, String title, boolean modal) {
+			super(lines_frame, title, modal);
+
+			setLayout(new BorderLayout());
+			
+			JPanel groups_group = new JPanel();
+			groups_group.setLayout(new BorderLayout());
+			
+			JPanel colors_group = new JPanel();
+			colors_group.setBorder(BorderFactory.createTitledBorder("Colors"));
+			groups_group.add(colors_group, BorderLayout.WEST);
+			
+			JPanel polyline_type_group = new JPanel();
+			polyline_type_group.setBorder(BorderFactory.createTitledBorder("Polyline Types"));
+			groups_group.add(polyline_type_group, BorderLayout.CENTER);
+			
+			JPanel radius_thickness_group = new JPanel();
+			radius_thickness_group.setBorder(BorderFactory.createTitledBorder("Radius/Thickness"));
+			groups_group.add(radius_thickness_group, BorderLayout.EAST);
+			
+			add(groups_group, BorderLayout.CENTER);
+			pack();
+		}
+	}
+
+	
 	public static void main(String args[]) {
 		// TODO: alter _title with "Untitled"
 		EventQueue.invokeLater(new Runnable() {
@@ -180,4 +241,3 @@ public class LinesFrame extends MainFrame {
 		});
 	}
 }
-

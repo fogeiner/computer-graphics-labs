@@ -1,15 +1,13 @@
 package FIT_8201_Sviridov_Lines;
 
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.MouseInfo;
 import java.awt.Point;
+import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Date;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import javax.swing.JPanel;
 
 public class LinesView extends JPanel {
@@ -18,17 +16,16 @@ public class LinesView extends JPanel {
 
 	private LinesFrame _lines_frame;
 	private boolean _rubber_line = false;
+	private final Object _monitor = new Object();
 
-	private Timer _timer;
-	private TimerTask _timer_task;
 	private int _refresh_period = 100;
-	
+
 	public LinesView(LinesFrame lines_frame) {
 		_lines_frame = lines_frame;
 
 		this.addMouseListener(new MouseAdapter() {
 			@Override
-			public void mouseClicked(MouseEvent event) {
+			public void mousePressed(MouseEvent event) {
 				int button = event.getButton();
 				if (button == MouseEvent.BUTTON1) {
 					LinesView.this._lines_frame.leftClick(event.getPoint());
@@ -37,37 +34,45 @@ public class LinesView extends JPanel {
 				}
 			}
 		});
-		
-		_timer = new Timer();
-		_timer_task = new TimerTask() {
-			
+
+		Thread thread = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				LinesView.this.repaint();
+				try {
+					while (true) {
+						synchronized (LinesView.this._monitor) {
+							if (LinesView.this._rubber_line == false) {
+								_monitor.wait();
+								continue;
+							}
+						}
+						LinesView.this.repaint();
+						Thread.sleep(LinesView.this._refresh_period);
+					}
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
-		};
-		
-		_timer.scheduleAtFixedRate(_timer_task, new Date(), _refresh_period);
+		});
 
+		thread.start();
 	}
 
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
+		Graphics2D g2 = (Graphics2D) g;
+		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_ON);
+
+		g2.setColor(_lines_frame.getBackgroundColor());
+		g2.fillRect(0, 0, getWidth(), getHeight());
+
 		List<Polyline> polylines = _lines_frame.getPolylines();
+		int radius = _lines_frame.getCircleRadius();
 
 		for (Polyline polyline : polylines) {
-			List<Point> points = polyline.getPoints();
-			for (int i = 1; i < points.size(); ++i) {
-				Point p1 = points.get(i - 1);
-				Point p2 = points.get(i);
-
-				int x1 = p1.x, y1 = p1.y, x2 = p2.x, y2 = p2.y;
-
-				// System.out.println("("+x1+","+y1+")" + "->" + "(" + x2
-				// +","+y2+")");
-				g.drawLine(x1, y1, x2, y2);
-			}
+			polyline.draw(g2, radius);
 		}
 
 		if (_rubber_line) {
@@ -81,16 +86,24 @@ public class LinesView extends JPanel {
 					- this.getLocationOnScreen().x, y2 = pointer_location.y
 					- this.getLocationOnScreen().y;
 
-			g.drawLine(x1, y1, x2, y2);
+			g2.drawLine(x1, y1, x2, y2);
 		}
 	}
 
 	public void enableRubberLine() {
-		_rubber_line = true;
+		synchronized (_monitor) {
+			_rubber_line = true;
+			_monitor.notifyAll();
+		}
+		repaint();
 	}
 
 	public void disableRubberLine() {
-		_rubber_line = false;
+		synchronized (_monitor) {
+			_rubber_line = false;
+			_monitor.notifyAll();
+		}
+		repaint();
 	}
 
 }
