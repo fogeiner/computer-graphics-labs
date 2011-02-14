@@ -1,8 +1,11 @@
 package FIT_8201_Sviridov_Lines;
 
 import java.awt.Component;
+import java.awt.EventQueue;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -14,15 +17,18 @@ import ru.nsu.cg.MainFrame;
 public class LinesFrame extends MainFrame {
 
 	private static final long serialVersionUID = 5852264472785688626L;
-	private final static int _width = 800;
-	private final static int _height = 600;
-	private final static String _title = "Lines";
+	private final static int WIDTH = 800;
+	private final static int HEIGHT = 600;
+	private final static String TITLE = "Lines";
+
+	private LinesView _lines_view;
 
 	private final static int VIEW_STATE = 0;
 	private final static int EDIT_STATE = 1;
 	private int _state = VIEW_STATE;
 
-	List<Polyline> _polylines;
+	private List<Polyline> _polylines = new LinkedList<Polyline>();
+	private Polyline _new_polyline;
 
 	public LinesFrame(int width, int height, String title) {
 		super(width, height, title);
@@ -62,14 +68,16 @@ public class LinesFrame extends MainFrame {
 			addToolBarSeparator();
 			addToolBarButton("Help/About");
 
-			add(new LinesView(this));
+			_lines_view = new LinesView(this);
+			add(_lines_view);
 		} catch (Exception ex) {
 			System.err.print(ex.getStackTrace());
 		}
 	}
 
 	public void onNew() {
-
+		_polylines = new LinkedList<Polyline>();
+		_lines_view.repaint();
 	}
 
 	public void onLoad() {
@@ -81,7 +89,7 @@ public class LinesFrame extends MainFrame {
 	}
 
 	public void onExit() {
-
+		System.exit(0);
 	}
 
 	public void onPreferences() {
@@ -98,9 +106,6 @@ public class LinesFrame extends MainFrame {
 
 		String[] elems = new String[] { "File/New", "File/Load",
 				"File/Save as...", "Edit/Preferences" };
-
-		// this looks as weird as weird is the implementation of the MainFrame;
-		// still works
 
 		if (_state == LinesFrame.EDIT_STATE && state == LinesFrame.VIEW_STATE) {
 			// enable UI elements
@@ -138,9 +143,14 @@ public class LinesFrame extends MainFrame {
 	public void leftClick(Point point) {
 		if (_state == LinesFrame.VIEW_STATE) {
 			switchState(LinesFrame.EDIT_STATE);
+			_new_polyline = new Polyline();
+			_new_polyline.addPoint(point);
+			_polylines.add(_new_polyline);
 
+			_lines_view.enableRubberLine();
 		} else if (_state == LinesFrame.EDIT_STATE) {
 			// adding new Polyline point
+			_new_polyline.addPoint(point);
 		}
 	}
 
@@ -148,15 +158,26 @@ public class LinesFrame extends MainFrame {
 		if (_state == LinesFrame.VIEW_STATE) {
 			// ignore
 		} else if (_state == LinesFrame.EDIT_STATE) {
-			// add current polyline to polylines list
 			switchState(LinesFrame.VIEW_STATE);
+			_lines_view.disableRubberLine();
+			_new_polyline = null;
 		}
+	}
+
+	public List<Polyline> getPolylines() {
+		return Collections.unmodifiableList(_polylines);
 	}
 
 	public static void main(String args[]) {
 		// TODO: alter _title with "Untitled"
-		LinesFrame lines_frame = new LinesFrame(LinesFrame._width,
-				LinesFrame._height, LinesFrame._title);
-		lines_frame.setVisible(true);
+		EventQueue.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				LinesFrame lines_frame = new LinesFrame(LinesFrame.WIDTH,
+						LinesFrame.HEIGHT, LinesFrame.TITLE);
+				lines_frame.setVisible(true);
+			}
+		});
 	}
 }
+
