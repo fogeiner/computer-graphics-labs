@@ -10,6 +10,14 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -30,7 +38,6 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-
 import ru.nsu.cg.MainFrame;
 
 public class LinesFrame extends MainFrame {
@@ -40,7 +47,7 @@ public class LinesFrame extends MainFrame {
 	private final static int HEIGHT = 400;
 	private final static String LINES = "Lines";
 	private final static String UNTITLED_DOCUMENT = "Untitled";
-	private String _document_name = UNTITLED_DOCUMENT; 
+	private String _document_name = UNTITLED_DOCUMENT;
 	private boolean _is_document_saved = false;
 
 	private LinesView _lines_view;
@@ -69,19 +76,68 @@ public class LinesFrame extends MainFrame {
 	int _polyline_thickness = DEFAULT_POLYLINE_THICKNESS;
 	int _circle_radius = DEFAULT_CIRCLE_RADIUS;
 
-	public boolean isSaved(){
+	public boolean isSaved() {
 		return _is_document_saved;
 	}
-	
-	public void setSaved(boolean value){
+
+	public void setSaved(boolean value) {
 		_is_document_saved = value;
 	}
-	
+
+	public static String nextNormalizedLine(BufferedReader br)
+			throws IOException {
+		while (true) {
+			String str = br.readLine();
+			if (str == null)
+				return null;
+			StringBuffer sb = new StringBuffer();
+
+			str = str.trim();
+
+			if (str.length() == 0)
+				continue;
+
+			int IN = 0;
+			int OUT = 1;
+			int state = IN;
+
+			for (int i = 0; i < str.length(); ++i) {
+
+				if (str.substring(i).startsWith("//"))
+					break;
+
+				Character c = str.charAt(i);
+
+				if (Character.isWhitespace(c)) {
+					if (state == IN) {
+						state = OUT;
+						sb.append(" ");
+					} else {
+						continue;
+					}
+				} else {
+					if (state == IN) {
+						sb.append(c);
+					} else {
+						state = IN;
+						sb.append(c);
+					}
+				}
+			}
+
+			str = sb.toString().trim();
+
+			if (str.length() > 0) {
+				return str;
+			}
+		}
+	}
+
 	public LinesFrame(int width, int height) {
 		super(width, height, "");
 		setTitle(_document_name + " - " + LINES);
 		setSaved(false);
-		
+
 		try {
 
 			// constructing Menu
@@ -125,6 +181,11 @@ public class LinesFrame extends MainFrame {
 	}
 
 	public void onNew() {
+
+		if (!isSaved()) {
+
+		}
+
 		_polylines = new LinkedList<Polyline>();
 
 		_polyline_color = DEFAULT_POLYLINE_COLOR;
@@ -132,36 +193,111 @@ public class LinesFrame extends MainFrame {
 		_polyline_type = DEFAULT_POLYLINE_TYPE;
 		_polyline_thickness = DEFAULT_POLYLINE_THICKNESS;
 		_circle_radius = DEFAULT_CIRCLE_RADIUS;
+		_document_name = UNTITLED_DOCUMENT;
 
-		if(!isSaved()){
-			
-		}
-		
 		setTitle(_document_name + " - " + LINES);
 		setSaved(false);
-		
+
 		_lines_view.repaint();
 	}
 
 	public void onLoad() {
+		try {
+			if (!isSaved()) {
+			}
 
+			File file = getOpenFileName("txt", "Text files");
+			if (file == null) {
+				return;
+			}
+
+			FileInputStream fstream = new FileInputStream(file);
+			// Get the object of DataInputStream
+			DataInputStream in = new DataInputStream(fstream);
+			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+
+			int polylines_count = Integer.parseInt(nextNormalizedLine(br));
+
+			_polylines = new LinkedList<Polyline>();
+
+			for (int i = 0; i < polylines_count; ++i) {
+				int points_count = Integer.parseInt(nextNormalizedLine(br));
+
+				int type = Integer.parseInt(nextNormalizedLine(br));
+
+				int thickness = Integer.parseInt(nextNormalizedLine(br));
+
+				String str = nextNormalizedLine(br);
+				String rgb[] = str.split(" ");
+
+				Color color = new Color(Integer.parseInt(rgb[0]),
+						Integer.parseInt(rgb[1]), Integer.parseInt(rgb[2]));
+				Polyline polyline = new Polyline(type, thickness, color);
+				for (int j = 0; j < points_count; ++j) {
+					str = nextNormalizedLine(br);
+
+					String coord[] = str.split(" ");
+
+					polyline.addPoint(new Point(Integer.parseInt(coord[0]),
+							Integer.parseInt(coord[1])));
+				}
+
+				_polylines.add(polyline);
+			}
+
+			_polyline_color = DEFAULT_POLYLINE_COLOR;
+			_background_color = DEFAULT_BACKGROUND_COLOR;
+			_polyline_type = DEFAULT_POLYLINE_TYPE;
+			_polyline_thickness = DEFAULT_POLYLINE_THICKNESS;
+			_circle_radius = DEFAULT_CIRCLE_RADIUS;
+			_document_name = file.getName();
+			setTitle(_document_name + " - " + LINES);
+
+			repaint();
+
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public void onSave() {
-		int size = _polylines.size();
-		System.out.println(size);
-		for (int i = 0; i < size; ++i) {
-			System.out.print(_polylines.get(i).toString());
+
+		try {
+			File file = getSaveFileName("txt", "Text files");
+			if (file == null) {
+				return;
+			}
+
+			FileWriter fw = new FileWriter(file);
+
+			int size = _polylines.size();
+			// System.out.println(size);
+			fw.write(size + "\n");
+			for (int i = 0; i < size; ++i) {
+				// System.out.print(_polylines.get(i).toString());
+				fw.write(_polylines.get(i).toString());
+			}
+			fw.close();
+
+			setTitle(file.getName() + " - " + LINES);
+			setSaved(true);
+		} catch (IOException e) {
+			// TODO Error saving to the file
+			e.printStackTrace();
 		}
-		
-		setSaved(true);
+
 	}
 
 	public void onExit() {
-		if(!isSaved()){
-			
+		if (!isSaved()) {
+
 		}
-		
+
 		System.exit(0);
 	}
 
