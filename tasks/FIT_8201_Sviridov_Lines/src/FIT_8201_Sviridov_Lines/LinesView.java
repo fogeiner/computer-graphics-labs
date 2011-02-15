@@ -18,7 +18,7 @@ public class LinesView extends JPanel {
 	private boolean _rubber_line = false;
 	private final Object _monitor = new Object();
 
-	private int _refresh_period = 100;
+	private int _refresh_period = 40;
 
 	public LinesView(LinesFrame lines_frame) {
 		_lines_frame = lines_frame;
