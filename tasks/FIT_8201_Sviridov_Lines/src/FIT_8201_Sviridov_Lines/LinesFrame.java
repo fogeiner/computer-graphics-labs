@@ -10,6 +10,8 @@ import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -530,9 +532,9 @@ public class LinesFrame extends MainFrame {
 				Runtime.getRuntime().exec(
 						"gedit FIT_8201_Sviridov_Lines_About.txt");
 		} catch (IOException e) {
-			JOptionPane.showMessageDialog(this,
-					"Error staring text editor: \n" + e.getLocalizedMessage(),
-					"Exec error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, "Error staring text editor: \n"
+					+ e.getLocalizedMessage(), "Exec error",
+					JOptionPane.ERROR_MESSAGE);
 			newDocument();
 		}
 	}
@@ -829,10 +831,10 @@ public class LinesFrame extends MainFrame {
 			 * @author alstein
 			 */
 			class TextFieldSliderDocumentFilter extends DocumentFilter {
-				JTextField _textfield;
-				JSlider _slider;
-				int _slider_max;
-				int _slider_min;
+				final JTextField _textfield;
+				final JSlider _slider;
+				final int _slider_max;
+				final int _slider_min;
 
 				/**
 				 * Constructor which creates <code>DocumentFilter</code> to keep
@@ -844,10 +846,26 @@ public class LinesFrame extends MainFrame {
 				 */
 				public TextFieldSliderDocumentFilter(JTextField textfield,
 						JSlider slider) {
+
 					_textfield = textfield;
 					_slider = slider;
 					_slider_max = slider.getMaximum();
 					_slider_min = slider.getMinimum();
+					
+					_textfield.addFocusListener(new FocusListener() {
+
+						@Override
+						public void focusLost(FocusEvent e) {
+							if (_textfield.getText().length() == 0)
+								_textfield.setText(Integer.toString(_slider
+										.getValue()));
+
+						}
+
+						@Override
+						public void focusGained(FocusEvent e) {
+						}
+					});
 				}
 
 				/**
