@@ -6,13 +6,13 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.util.Collections;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Polyline {
-	public static final int CONTINIOUS = 0;
-	public static final int DASH_AND_DOT = 1;
-	public static final int DOTTED_DASH_AND_DOT = 2;
+	public static final int CONTINIOUS = 1;
+	public static final int DASH_AND_DOT = 2;
+	public static final int DOTTED_DASH_AND_DOT = 3;
 
 	private List<Point> _points;
 	private int _type;
@@ -24,8 +24,7 @@ public class Polyline {
 		_type = type;
 		_thickness = thickness;
 		_color = new Color(color.getRGB());
-		// TODO Change for ArrayList or Vector
-		_points = new LinkedList<Point>();
+		_points = new ArrayList<Point>();
 	}
 
 	public List<Point> getPoints() {

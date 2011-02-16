@@ -10,17 +10,16 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -28,15 +27,20 @@ import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
-import javax.swing.JFormattedTextField;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSlider;
+import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
 
 import ru.nsu.cg.MainFrame;
 
@@ -47,7 +51,6 @@ public class LinesFrame extends MainFrame {
 	private final static int HEIGHT = 400;
 	private final static String LINES = "Lines";
 	private final static String UNTITLED_DOCUMENT = "Untitled";
-	private String _document_name = UNTITLED_DOCUMENT;
 	private boolean _is_document_saved = false;
 
 	private LinesView _lines_view;
@@ -56,7 +59,7 @@ public class LinesFrame extends MainFrame {
 	private final static int EDIT_STATE = 1;
 	private int _state = VIEW_STATE;
 
-	private List<Polyline> _polylines = new LinkedList<Polyline>();
+	private List<Polyline> _polylines = new ArrayList<Polyline>();
 	private Polyline _new_polyline = null;
 
 	private PreferencesDialog _preferences_dialog = null;
@@ -70,11 +73,63 @@ public class LinesFrame extends MainFrame {
 	public static final int MAX_THICKNESS = 16;
 	public static final int MAX_RADIUS = 36;
 
-	Color _polyline_color = DEFAULT_POLYLINE_COLOR;
-	Color _background_color = DEFAULT_BACKGROUND_COLOR;
-	int _polyline_type = DEFAULT_POLYLINE_TYPE;
-	int _polyline_thickness = DEFAULT_POLYLINE_THICKNESS;
-	int _circle_radius = DEFAULT_CIRCLE_RADIUS;
+	private Color _polyline_color = DEFAULT_POLYLINE_COLOR;
+	private Color _background_color;
+	private int _polyline_type;
+	private int _polyline_thickness;
+	private int _circle_radius;
+
+	public List<Polyline> getPolylines() {
+		return Collections.unmodifiableList(_polylines);
+	}
+
+	public void addPolyline(Polyline polyline) {
+		_polylines.add(polyline);
+	}
+
+	public void clearPolylines() {
+		_polylines.clear();
+	}
+
+	public Color getPolylineColor() {
+		return _polyline_color;
+	}
+
+	public void setPolylineColor(Color polyline_color) {
+		this._polyline_color = polyline_color;
+	}
+
+	public Color getBackgroundColor() {
+		return _background_color;
+	}
+
+	public void setBackgroundColor(Color background_color) {
+		this._background_color = background_color;
+	}
+
+	public int getPolylineType() {
+		return _polyline_type;
+	}
+
+	public void setPolylineType(int polyline_type) {
+		this._polyline_type = polyline_type;
+	}
+
+	public int getPolylineThickness() {
+		return _polyline_thickness;
+	}
+
+	public void setPolylineThickness(int polyline_thickness) {
+		this._polyline_thickness = polyline_thickness;
+	}
+
+	public int getCircleRadius() {
+		return _circle_radius;
+	}
+
+	public void setCircleRadius(int circle_radius) {
+		this._circle_radius = circle_radius;
+	}
 
 	public boolean isSaved() {
 		return _is_document_saved;
@@ -84,59 +139,28 @@ public class LinesFrame extends MainFrame {
 		_is_document_saved = value;
 	}
 
-	public static String nextNormalizedLine(BufferedReader br)
-			throws IOException {
-		while (true) {
-			String str = br.readLine();
-			if (str == null)
-				return null;
-			StringBuffer sb = new StringBuffer();
+	public void resetPreferences() {
+		_polyline_color = DEFAULT_POLYLINE_COLOR;
+		_background_color = DEFAULT_BACKGROUND_COLOR;
+		_polyline_type = DEFAULT_POLYLINE_TYPE;
+		_polyline_thickness = DEFAULT_POLYLINE_THICKNESS;
+		_circle_radius = DEFAULT_CIRCLE_RADIUS;
+	}
 
-			str = str.trim();
+	public void newDocument() {
+		resetPreferences();
+		setDocumentName(UNTITLED_DOCUMENT);
+		clearPolylines();
+		setSaved(true);
+		repaint();
+	}
 
-			if (str.length() == 0)
-				continue;
-
-			int IN = 0;
-			int OUT = 1;
-			int state = IN;
-
-			for (int i = 0; i < str.length(); ++i) {
-
-				if (str.substring(i).startsWith("//"))
-					break;
-
-				Character c = str.charAt(i);
-
-				if (Character.isWhitespace(c)) {
-					if (state == IN) {
-						state = OUT;
-						sb.append(" ");
-					} else {
-						continue;
-					}
-				} else {
-					if (state == IN) {
-						sb.append(c);
-					} else {
-						state = IN;
-						sb.append(c);
-					}
-				}
-			}
-
-			str = sb.toString().trim();
-
-			if (str.length() > 0) {
-				return str;
-			}
-		}
+	public void setDocumentName(String name) {
+		setTitle(name + " - " + LINES);
 	}
 
 	public LinesFrame(int width, int height) {
 		super(width, height, "");
-		setTitle(_document_name + " - " + LINES);
-		setSaved(false);
 
 		try {
 
@@ -175,36 +199,59 @@ public class LinesFrame extends MainFrame {
 
 			_lines_view = new LinesView(this);
 			add(_lines_view);
+
+			setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+			newDocument();
+			addWindowListener(new WindowAdapter() {
+				@Override
+				public void windowClosing(WindowEvent e) {
+					if ((isSaved() == false) && (showSaveMessage() == false)) {
+						return;
+					}
+
+					System.exit(0);
+				}
+			});
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 	}
 
-	public void onNew() {
+	public boolean showSaveMessage() {
+		int answer = JOptionPane.showConfirmDialog(this,
+				"All unsaved data will be lost. Continue?");
 
-		if (!isSaved()) {
-
+		if (answer != JOptionPane.OK_OPTION) {
+			return false;
 		}
 
-		_polylines = new LinkedList<Polyline>();
+		return true;
+	}
 
-		_polyline_color = DEFAULT_POLYLINE_COLOR;
-		_background_color = DEFAULT_BACKGROUND_COLOR;
-		_polyline_type = DEFAULT_POLYLINE_TYPE;
-		_polyline_thickness = DEFAULT_POLYLINE_THICKNESS;
-		_circle_radius = DEFAULT_CIRCLE_RADIUS;
-		_document_name = UNTITLED_DOCUMENT;
+	public void onNew() {
 
-		setTitle(_document_name + " - " + LINES);
-		setSaved(false);
+		if ((isSaved() == false) && (showSaveMessage() == false)) {
+			return;
+		}
 
-		_lines_view.repaint();
+		newDocument();
+	}
+
+	public void onExit() {
+		if ((isSaved() == false) && (showSaveMessage() == false)) {
+			return;
+		}
+
+		System.exit(0);
 	}
 
 	public void onLoad() {
 		try {
-			if (!isSaved()) {
+			if ((isSaved() == false) && (showSaveMessage() == false)) {
+				return;
 			}
+
+			newDocument();
 
 			File file = getOpenFileName("txt", "Text files");
 			if (file == null) {
@@ -216,25 +263,43 @@ public class LinesFrame extends MainFrame {
 			DataInputStream in = new DataInputStream(fstream);
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 
-			int polylines_count = Integer.parseInt(nextNormalizedLine(br));
+			int polylines_count = Integer.parseInt(LineParseUtils
+					.nextNormalizedLine(br));
 
-			_polylines = new LinkedList<Polyline>();
+			if (polylines_count < 0)
+				throw new IllegalArgumentException();
 
 			for (int i = 0; i < polylines_count; ++i) {
-				int points_count = Integer.parseInt(nextNormalizedLine(br));
+				int points_count = Integer.parseInt(LineParseUtils
+						.nextNormalizedLine(br));
 
-				int type = Integer.parseInt(nextNormalizedLine(br));
+				if (points_count < 0)
+					throw new IllegalArgumentException();
 
-				int thickness = Integer.parseInt(nextNormalizedLine(br));
+				int type = Integer.parseInt(LineParseUtils
+						.nextNormalizedLine(br));
 
-				String str = nextNormalizedLine(br);
+				if (type != Polyline.CONTINIOUS
+						&& type != Polyline.DASH_AND_DOT
+						&& type != Polyline.DOTTED_DASH_AND_DOT)
+					throw new IllegalArgumentException();
+
+				int thickness = Integer.parseInt(LineParseUtils
+						.nextNormalizedLine(br));
+
+				if (thickness < 1 || thickness > MAX_THICKNESS)
+					throw new IllegalArgumentException();
+
+				String str = LineParseUtils.nextNormalizedLine(br);
 				String rgb[] = str.split(" ");
 
 				Color color = new Color(Integer.parseInt(rgb[0]),
 						Integer.parseInt(rgb[1]), Integer.parseInt(rgb[2]));
+
 				Polyline polyline = new Polyline(type, thickness, color);
+
 				for (int j = 0; j < points_count; ++j) {
-					str = nextNormalizedLine(br);
+					str = LineParseUtils.nextNormalizedLine(br);
 
 					String coord[] = str.split(" ");
 
@@ -242,26 +307,24 @@ public class LinesFrame extends MainFrame {
 							Integer.parseInt(coord[1])));
 				}
 
-				_polylines.add(polyline);
+				addPolyline(polyline);
 			}
 
-			_polyline_color = DEFAULT_POLYLINE_COLOR;
-			_background_color = DEFAULT_BACKGROUND_COLOR;
-			_polyline_type = DEFAULT_POLYLINE_TYPE;
-			_polyline_thickness = DEFAULT_POLYLINE_THICKNESS;
-			_circle_radius = DEFAULT_CIRCLE_RADIUS;
-			_document_name = file.getName();
-			setTitle(_document_name + " - " + LINES);
+			resetPreferences();
+			setDocumentName(file.getName());
 
 			repaint();
 
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (IllegalArgumentException ex) {
+			JOptionPane.showMessageDialog(this,
+					"Document is of unknown format", "Loading document",
+					JOptionPane.ERROR_MESSAGE);
+			newDocument();
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(this,
+					"Error loading file: \n" + e.getLocalizedMessage(),
+					"Loading document", JOptionPane.ERROR_MESSAGE);
+			newDocument();
 		}
 	}
 
@@ -275,30 +338,25 @@ public class LinesFrame extends MainFrame {
 
 			FileWriter fw = new FileWriter(file);
 
-			int size = _polylines.size();
-			// System.out.println(size);
+			List<Polyline> polylines = getPolylines();
+			int size = polylines.size();
+
 			fw.write(size + "\n");
 			for (int i = 0; i < size; ++i) {
-				// System.out.print(_polylines.get(i).toString());
-				fw.write(_polylines.get(i).toString());
+				fw.write(polylines.get(i).toString());
 			}
 			fw.close();
 
 			setTitle(file.getName() + " - " + LINES);
+
 			setSaved(true);
-		} catch (IOException e) {
-			// TODO Error saving to the file
-			e.printStackTrace();
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(this,
+					"Error saving file: \n" + e.getLocalizedMessage(),
+					"Saving document", JOptionPane.ERROR_MESSAGE);
+			newDocument();
 		}
 
-	}
-
-	public void onExit() {
-		if (!isSaved()) {
-
-		}
-
-		System.exit(0);
 	}
 
 	public void onPreferences() {
@@ -355,12 +413,15 @@ public class LinesFrame extends MainFrame {
 	}
 
 	public void leftClick(Point point) {
+		setSaved(false);
+
 		if (_state == LinesFrame.VIEW_STATE) {
 			switchState(LinesFrame.EDIT_STATE);
 			_new_polyline = new Polyline(_polyline_type, _polyline_thickness,
 					_polyline_color);
 			_new_polyline.addPoint(point);
-			_polylines.add(_new_polyline);
+
+			addPolyline(_new_polyline);
 
 			_lines_view.enableRubberLine();
 		} else if (_state == LinesFrame.EDIT_STATE) {
@@ -379,18 +440,6 @@ public class LinesFrame extends MainFrame {
 		}
 	}
 
-	public int getCircleRadius() {
-		return _circle_radius;
-	}
-
-	public Color getBackgroundColor() {
-		return new Color(_background_color.getRGB());
-	}
-
-	public List<Polyline> getPolylines() {
-		return Collections.unmodifiableList(_polylines);
-	}
-
 	private class PreferencesDialog extends javax.swing.JDialog {
 
 		private static final long serialVersionUID = -3486091859979955990L;
@@ -405,46 +454,52 @@ public class LinesFrame extends MainFrame {
 		private JButton _cancel_button = new JButton("Cancel");
 		private JSlider _radius_slider = new JSlider(1, MAX_RADIUS);
 		private JSlider _thickness_slider = new JSlider(1, MAX_THICKNESS);
-		private JFormattedTextField _radius_textfield = new JFormattedTextField(
-				NumberFormat.getInstance());
-		private JFormattedTextField _thickness_textfield = new JFormattedTextField(
-				NumberFormat.getInstance());
+		private JTextField _radius_textfield = new JTextField(5);
+		private JTextField _thickness_textfield = new JTextField(5);
 
 		public void showDialog() {
-			_bg_color_button.setBackground(_background_color);
-			_polyline_color_button.setBackground(_polyline_color);
+			_bg_color_button
+					.setBackground(LinesFrame.this.getBackgroundColor());
+			_polyline_color_button.setBackground(LinesFrame.this
+					.getPolylineColor());
 
-			if (_polyline_type == Polyline.CONTINIOUS) {
+			int polyline_type = LinesFrame.this.getPolylineType();
+
+			if (polyline_type == Polyline.CONTINIOUS) {
 				_polylines_button_group.setSelected(_r1.getModel(), true);
-			} else if (_polyline_type == Polyline.DASH_AND_DOT) {
+			} else if (polyline_type == Polyline.DASH_AND_DOT) {
 				_polylines_button_group.setSelected(_r2.getModel(), true);
-			} else if (_polyline_type == Polyline.DOTTED_DASH_AND_DOT) {
+			} else if (polyline_type == Polyline.DOTTED_DASH_AND_DOT) {
 				_polylines_button_group.setSelected(_r3.getModel(), true);
 			}
 
-			_radius_textfield.setText(Integer.toString(_circle_radius));
-			_thickness_textfield.setText(Integer.toString(_polyline_thickness));
+			_radius_slider.setValue(LinesFrame.this.getCircleRadius());
+			_thickness_slider.setValue(LinesFrame.this.getPolylineThickness());
 
-			_radius_slider.setValue(_circle_radius);
-			_thickness_slider.setValue(_polyline_thickness);
+			_radius_textfield.setText(Integer.toString(LinesFrame.this
+					.getCircleRadius()));
+			_thickness_textfield.setText(Integer.toString(LinesFrame.this
+					.getPolylineThickness()));
 
 			setVisible(true);
 		}
 
 		public void confirm() {
-			_background_color = _bg_color_button.getBackground();
-			_polyline_color = _polyline_color_button.getBackground();
+			LinesFrame.this
+					.setBackgroundColor(_bg_color_button.getBackground());
+			LinesFrame.this.setPolylineColor(_polyline_color_button
+					.getBackground());
 
 			if (_polylines_button_group.getSelection() == _r1.getModel()) {
-				_polyline_type = Polyline.CONTINIOUS;
+				LinesFrame.this.setPolylineType(Polyline.CONTINIOUS);
 			} else if (_polylines_button_group.getSelection() == _r2.getModel()) {
-				_polyline_type = Polyline.DASH_AND_DOT;
+				LinesFrame.this.setPolylineType(Polyline.DASH_AND_DOT);
 			} else if (_polylines_button_group.getSelection() == _r3.getModel()) {
-				_polyline_type = Polyline.DOTTED_DASH_AND_DOT;
+				LinesFrame.this.setPolylineType(Polyline.DOTTED_DASH_AND_DOT);
 			}
 
-			_circle_radius = _radius_slider.getValue();
-			_polyline_thickness = _thickness_slider.getValue();
+			LinesFrame.this.setCircleRadius(_radius_slider.getValue());
+			LinesFrame.this.setPolylineThickness(_thickness_slider.getValue());
 			setVisible(false);
 		}
 
@@ -522,7 +577,6 @@ public class LinesFrame extends MainFrame {
 
 			radius_panel.add(_radius_textfield);
 			radius_panel.add(_radius_slider);
-			_radius_textfield.setColumns(5);
 
 			JPanel thickness_panel = new JPanel();
 			thickness_panel.setLayout(new FlowLayout());
@@ -531,7 +585,6 @@ public class LinesFrame extends MainFrame {
 					JLabel.CENTER);
 			thickness_label.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-			_thickness_textfield.setColumns(5);
 			thickness_panel.add(_thickness_textfield);
 			thickness_panel.add(_thickness_slider);
 
@@ -552,50 +605,59 @@ public class LinesFrame extends MainFrame {
 			add(buttons_panel);
 			pack();
 
-			_radius_textfield.addActionListener(new ActionListener() {
+			class TextFieldSliderDocumentFilter extends DocumentFilter {
+				JTextField _textfield;
+				JSlider _slider;
+				int _slider_max;
+				int _slider_min;
+
+				public TextFieldSliderDocumentFilter(JTextField textfield,
+						JSlider slider) {
+					_textfield = textfield;
+					_slider = slider;
+					_slider_max = slider.getMaximum();
+					_slider_min = slider.getMinimum();
+				}
 
 				@Override
-				public void actionPerformed(ActionEvent event) {
-					Long value = (Long) _radius_textfield.getValue();
+				public void replace(FilterBypass fb, int offset, int length,
+						String text, AttributeSet attrs)
+						throws BadLocationException {
 
-					if (value == null || value <= 0
-							|| value > Integer.MAX_VALUE) {
-						_radius_textfield.setValue(1);
-						_radius_slider.setValue(1);
+					String textfield_text = _textfield.getText();
+					String result = textfield_text.substring(0, offset)
+							+ text
+							+ textfield_text.substring(offset + length,
+									textfield_text.length());
+
+					try {
+						Integer value = Integer.parseInt(result);
+
+						if (value > _slider_max) {
+							_slider.setValue(_slider_max);
+							return;
+						}
+
+						if (value < _slider_min) {
+							_slider.setValue(_slider_min);
+							return;
+						}
+
+						super.replace(fb, offset, length, text, attrs);
+						_slider.setValue(value);
+					} catch (NumberFormatException ex) {
 						return;
 					}
-
-					if (value >= _radius_slider.getMaximum()) {
-						_radius_slider.setValue(_radius_slider.getMaximum());
-						_radius_textfield.setValue(_radius_slider.getMaximum());
-					} else {
-						_radius_slider.setValue(value.intValue());
-					}
 				}
-			});
+			}
 
-			_thickness_textfield.addActionListener(new ActionListener() {
+			((AbstractDocument) _radius_textfield.getDocument())
+					.setDocumentFilter(new TextFieldSliderDocumentFilter(
+							_radius_textfield, _radius_slider));
 
-				@Override
-				public void actionPerformed(ActionEvent event) {
-					Long value = (Long) _thickness_textfield.getValue();
-
-					if (value == null || value <= 0
-							|| value > Integer.MAX_VALUE) {
-						_thickness_textfield.setValue(1);
-						_thickness_slider.setValue(1);
-						return;
-					}
-
-					if (value >= _thickness_slider.getMaximum()) {
-						_thickness_slider.setValue(_radius_slider.getMaximum());
-						_thickness_textfield.setValue(_radius_slider
-								.getMaximum());
-					} else {
-						_thickness_slider.setValue(value.intValue());
-					}
-				}
-			});
+			((AbstractDocument) _thickness_textfield.getDocument())
+					.setDocumentFilter(new TextFieldSliderDocumentFilter(
+							_thickness_textfield, _thickness_slider));
 
 			_radius_slider.addChangeListener(new ChangeListener() {
 
@@ -660,7 +722,9 @@ public class LinesFrame extends MainFrame {
 	}
 
 	public static void main(String args[]) {
-		// TODO: alter _title with "Untitled"
+		System.setProperty("user.dir", System.getProperty("user.dir") + "/"
+				+ "FIT_8201_Sviridov_Lines_Data");
+
 		EventQueue.invokeLater(new Runnable() {
 			@Override
 			public void run() {
