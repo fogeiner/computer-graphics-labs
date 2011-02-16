@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
+import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -44,6 +45,11 @@ import javax.swing.text.DocumentFilter;
 
 import ru.nsu.cg.MainFrame;
 
+/**
+ * Lines Frame - Lines application main frame
+ * 
+ * @author alstein
+ */
 public class LinesFrame extends MainFrame {
 
 	private static final long serialVersionUID = 5852264472785688626L;
@@ -79,66 +85,157 @@ public class LinesFrame extends MainFrame {
 	private int _polyline_thickness;
 	private int _circle_radius;
 
+	/**
+	 * Returns list of current (i.e. which are present on screen right away)
+	 * polylines
+	 * 
+	 * @return Unmodifiable list of current polylines
+	 */
 	public List<Polyline> getPolylines() {
 		return Collections.unmodifiableList(_polylines);
 	}
 
+	/**
+	 * Adds polyline to list of current polylines
+	 * 
+	 * @param polyline
+	 *            Polyline to be added to list of current polylines
+	 */
 	public void addPolyline(Polyline polyline) {
 		_polylines.add(polyline);
 	}
 
+	/**
+	 * Clears list of current polylines
+	 */
 	public void clearPolylines() {
 		_polylines.clear();
 	}
 
+	/**
+	 * Returns current color of polyline
+	 * 
+	 * @return color of current polyline
+	 */
 	public Color getPolylineColor() {
 		return _polyline_color;
 	}
 
+	/**
+	 * Sets current polyline color
+	 * 
+	 * @param polyline_color
+	 *            Color to be set as current polyline color
+	 */
 	public void setPolylineColor(Color polyline_color) {
 		this._polyline_color = polyline_color;
 	}
 
+	/**
+	 * Returns current color of canvas
+	 * 
+	 * @return current color of canvas
+	 */
 	public Color getBackgroundColor() {
 		return _background_color;
 	}
 
+	/**
+	 * Sets current color of canvas
+	 * 
+	 * @param background_color
+	 *            Color to be set as color of canvas
+	 */
 	public void setBackgroundColor(Color background_color) {
 		this._background_color = background_color;
 	}
 
+	/**
+	 * Returns type of current polyline (one of <code>Polyline.CONTINIOUS</code>
+	 * ,<code>Polyline.DASH_AND_DOT</code>,
+	 * <code>Polyline.DOTTED_DASH_AND_DOT</code>).
+	 * 
+	 * @return type of current polyline
+	 * @see Polyline
+	 */
 	public int getPolylineType() {
 		return _polyline_type;
 	}
 
+	/**
+	 * Sets type of current polyline (one of <code>Polyline.CONTINIOUS</code>,
+	 * <code>Polyline.DASH_AND_DOT</code>,
+	 * <code>Polyline.DOTTED_DASH_AND_DOT</code>).
+	 * 
+	 * @param polyline_type
+	 *            new type of current polyline
+	 */
 	public void setPolylineType(int polyline_type) {
 		this._polyline_type = polyline_type;
 	}
 
+	/**
+	 * Returns thickness of current polyline
+	 * 
+	 * @return thickness of current polyline
+	 */
 	public int getPolylineThickness() {
 		return _polyline_thickness;
 	}
 
+	/**
+	 * Sets thickness of current polyline
+	 * 
+	 * @param polyline_thickness
+	 *            new thickness of current polyline
+	 */
 	public void setPolylineThickness(int polyline_thickness) {
 		this._polyline_thickness = polyline_thickness;
 	}
 
+	/**
+	 * Returns current circles radius
+	 * 
+	 * @return current circles radius
+	 */
 	public int getCircleRadius() {
 		return _circle_radius;
 	}
 
+	/**
+	 * Sets current circles radius
+	 * 
+	 * @param circle_radius
+	 *            current circles radius
+	 */
 	public void setCircleRadius(int circle_radius) {
 		this._circle_radius = circle_radius;
 	}
 
+	/**
+	 * Checks if there unsaved data in current document
+	 * 
+	 * @return <code>true</code> if document needs no saving, <code>false</code>
+	 *         otherwise
+	 */
 	public boolean isSaved() {
 		return _is_document_saved;
 	}
 
+	/**
+	 * Sets saved flag (are there unsaved data in current document or not)
+	 * 
+	 * @param value
+	 *            value of saved flag
+	 */
 	public void setSaved(boolean value) {
 		_is_document_saved = value;
 	}
 
+	/**
+	 * Sets polyline color, polyline thickness, polyline type, canvas color and
+	 * circle radius to default values
+	 */
 	public void resetPreferences() {
 		_polyline_color = DEFAULT_POLYLINE_COLOR;
 		_background_color = DEFAULT_BACKGROUND_COLOR;
@@ -147,6 +244,11 @@ public class LinesFrame extends MainFrame {
 		_circle_radius = DEFAULT_CIRCLE_RADIUS;
 	}
 
+	/**
+	 * Brings application to the state of new document: resets preferences
+	 * changes, sets document name to "Untitled" and clears all current
+	 * polylines
+	 */
 	public void newDocument() {
 		resetPreferences();
 		setDocumentName(UNTITLED_DOCUMENT);
@@ -155,10 +257,25 @@ public class LinesFrame extends MainFrame {
 		repaint();
 	}
 
+	/**
+	 * Sets application title to "<code>name</code> - Lines"
+	 * 
+	 * @param name
+	 *            first part of application title
+	 */
+
 	public void setDocumentName(String name) {
 		setTitle(name + " - " + LINES);
 	}
 
+	/**
+	 * Constructs application frame with given width and height
+	 * 
+	 * @param width
+	 *            width of frame
+	 * @param height
+	 *            height of frame
+	 */
 	public LinesFrame(int width, int height) {
 		super(width, height, "");
 
@@ -217,6 +334,12 @@ public class LinesFrame extends MainFrame {
 		}
 	}
 
+	/**
+	 * Shows message to find out if user wills to save current document
+	 * 
+	 * @return <code>true</code> if user confirms, <code>false</code> otherwise
+	 */
+
 	public boolean showSaveMessage() {
 		int answer = JOptionPane.showConfirmDialog(this,
 				"All unsaved data will be lost. Continue?");
@@ -228,6 +351,12 @@ public class LinesFrame extends MainFrame {
 		return true;
 	}
 
+	/**
+	 * Method called when user chooses "New" in menu or on toolbar Asks user to
+	 * save current document (if needed) and sets application to new document
+	 * state
+	 */
+
 	public void onNew() {
 
 		if ((isSaved() == false) && (showSaveMessage() == false)) {
@@ -237,6 +366,11 @@ public class LinesFrame extends MainFrame {
 		newDocument();
 	}
 
+	/**
+	 * Method called when user chooses "Exit" in menu or on toolbar Asks user to
+	 * save current document (if needed) and terminates application
+	 */
+
 	public void onExit() {
 		if ((isSaved() == false) && (showSaveMessage() == false)) {
 			return;
@@ -245,6 +379,11 @@ public class LinesFrame extends MainFrame {
 		System.exit(0);
 	}
 
+	/**
+	 * Method called when user chooses "Load" in menu or on toolbar Asks user to
+	 * save current document (if needed), shows dialog to choose file and loads
+	 * document from it
+	 */
 	public void onLoad() {
 		try {
 			if ((isSaved() == false) && (showSaveMessage() == false)) {
@@ -328,6 +467,11 @@ public class LinesFrame extends MainFrame {
 		}
 	}
 
+	/**
+	 * Method called when user chooses "Save" in menu or on toolbar Shows dialog
+	 * to choose/create file and saves document to it
+	 */
+
 	public void onSave() {
 
 		try {
@@ -359,6 +503,10 @@ public class LinesFrame extends MainFrame {
 
 	}
 
+	/**
+	 * Method called when user chooses "Preferences" in menu or on toolbar Shows
+	 * dialog where user can set parameters
+	 */
 	public void onPreferences() {
 		if (_preferences_dialog == null) {
 			_preferences_dialog = new PreferencesDialog(this,
@@ -368,12 +516,25 @@ public class LinesFrame extends MainFrame {
 		repaint();
 	}
 
+	/**
+	 * Method called when user chooses "About" in menu or on toolbar Shows
+	 * dialog which displays application version and author information
+	 */
 	public void onAbout() {
 		JOptionPane.showMessageDialog(this,
 				"Lines, version 1.0\n2011 Valentin Sviridov, FIT, group 8201",
 				"About Lines", JOptionPane.INFORMATION_MESSAGE);
 	}
 
+	/**
+	 * Changes state of the application state machine (drawing or viewing modes)
+	 * which enables/disables menu entries and toolbar icons depending on state
+	 * 
+	 * @param state
+	 *            state for state machine to come (one of
+	 *            <code>LinesFrane.VIEW_STATE</code>,
+	 *            <code>LinesFrane.EDIT_STATE</code>)
+	 */
 	private void switchState(int state) {
 
 		String[] elems = new String[] { "File/New", "File/Load",
@@ -412,6 +573,15 @@ public class LinesFrame extends MainFrame {
 		_state = state;
 	}
 
+	/**
+	 * Method called when user clicks with left button on canvas and
+	 * corresponding coordinate. Depending on current state either starts new
+	 * polyline or continues current
+	 * 
+	 * @param point
+	 *            coordinates of mouse click
+	 */
+
 	public void leftClick(Point point) {
 		setSaved(false);
 
@@ -430,6 +600,15 @@ public class LinesFrame extends MainFrame {
 		}
 	}
 
+	/**
+	 * Method called when user clicks with right button on canvas and
+	 * corresponding coordinate. If current state is
+	 * <code>LidesFrame.EDIT_STATE</code> ends current polyline, otherwise does
+	 * nothing
+	 * 
+	 * @param point
+	 *            coordinates of mouse click
+	 */
 	public void rightClick(Point point) {
 		if (_state == LinesFrame.VIEW_STATE) {
 			// ignore
@@ -439,6 +618,14 @@ public class LinesFrame extends MainFrame {
 			_new_polyline = null;
 		}
 	}
+
+	/**
+	 * Preferences dialog class. Lets user set all parameters. New parameters
+	 * may be confirmed and saved or dismissed
+	 * 
+	 * @author alstein
+	 * 
+	 */
 
 	private class PreferencesDialog extends javax.swing.JDialog {
 
@@ -457,6 +644,10 @@ public class LinesFrame extends MainFrame {
 		private JTextField _radius_textfield = new JTextField(5);
 		private JTextField _thickness_textfield = new JTextField(5);
 
+		/**
+		 * Reads out current preferences, sets up UI widgets to correnspond to
+		 * them and makes dialog visible
+		 */
 		public void showDialog() {
 			_bg_color_button
 					.setBackground(LinesFrame.this.getBackgroundColor());
@@ -484,6 +675,10 @@ public class LinesFrame extends MainFrame {
 			setVisible(true);
 		}
 
+		/**
+		 * Method called in case user confirms changes. Sets new parameters to
+		 * application and hides dialog
+		 */
 		public void confirm() {
 			LinesFrame.this
 					.setBackgroundColor(_bg_color_button.getBackground());
@@ -503,9 +698,19 @@ public class LinesFrame extends MainFrame {
 			setVisible(false);
 		}
 
-		public PreferencesDialog(LinesFrame lines_frame, String title,
-				boolean modal) {
-			super(lines_frame, title, modal);
+		/**
+		 * Constructor with given LinesFrame title, modality value
+		 * 
+		 * @param owner
+		 *            Frame from which the dialog is displayed
+		 * @param title
+		 *            String to display in the dialog's title bar
+		 * @param modal
+		 *            specifies whether dialog blocks user input to other
+		 *            top-level windows when shown
+		 */
+		public PreferencesDialog(Frame owner, String title, boolean modal) {
+			super(owner, title, modal);
 			setResizable(false);
 
 			setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
@@ -721,6 +926,12 @@ public class LinesFrame extends MainFrame {
 		}
 	}
 
+	/**
+	 * Application main entry point
+	 * 
+	 * @param args
+	 *            command line arguments (unused)
+	 */
 	public static void main(String args[]) {
 		System.setProperty("user.dir", System.getProperty("user.dir") + "/"
 				+ "FIT_8201_Sviridov_Lines_Data");

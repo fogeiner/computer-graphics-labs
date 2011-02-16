@@ -3,7 +3,23 @@ package FIT_8201_Sviridov_Lines;
 import java.io.BufferedReader;
 import java.io.IOException;
 
+/**
+ * Utility class with method of line normalization (trim, get rid of C-style
+ * one-line comments, empty lines)
+ * 
+ * @author alstein
+ */
 public class LineParseUtils {
+	/**
+	 * Reads line from BufferedReader, trims, gets rid of C-style one-line
+	 * comments and empty lines
+	 * 
+	 * @param br
+	 *            BufferedReader
+	 * @return String with next normalized line
+	 * @throws IOException
+	 *             If an I/O error occurs
+	 */
 	public static String nextNormalizedLine(BufferedReader br)
 			throws IOException {
 		while (true) {

@@ -10,6 +10,11 @@ import java.awt.event.MouseEvent;
 import java.util.List;
 import javax.swing.JPanel;
 
+/**
+ * Canvas class of application. Does drawing and mouse tracking.
+ * @author alstein
+ * 
+ */
 public class LinesView extends JPanel {
 
 	private static final long serialVersionUID = -456307332612783435L;
@@ -20,6 +25,12 @@ public class LinesView extends JPanel {
 
 	private int _refresh_period = 40;
 
+	/**
+	 * Constructor with reference to LinesFrame
+	 * 
+	 * @param lines_frame
+	 *            application main frame
+	 */
 	public LinesView(LinesFrame lines_frame) {
 		_lines_frame = lines_frame;
 
@@ -58,6 +69,9 @@ public class LinesView extends JPanel {
 		thread.start();
 	}
 
+	/**
+	 * Paints background, polylines and rubber line
+	 */
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -90,6 +104,9 @@ public class LinesView extends JPanel {
 		}
 	}
 
+	/**
+	 * Sets flag to enable rubber line drawing
+	 */
 	public void enableRubberLine() {
 		synchronized (_monitor) {
 			_rubber_line = true;
@@ -98,6 +115,9 @@ public class LinesView extends JPanel {
 		repaint();
 	}
 
+	/**
+	 * Sets flag to disable rubber line drawing
+	 */
 	public void disableRubberLine() {
 		synchronized (_monitor) {
 			_rubber_line = false;

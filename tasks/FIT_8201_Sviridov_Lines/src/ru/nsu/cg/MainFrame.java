@@ -276,7 +276,6 @@ public class MainFrame extends JFrame {
 	 * Creates toolbar button which will behave exactly like specified menuitem
 	 * @param menuPath - path to menu item to create toolbar button from
 	 * @return created toolbar button
-	 * @see MainFrame.getMenuItem
 	 */
 	public JButton createToolBarButton(String menuPath)
 	{
@@ -308,7 +307,6 @@ public class MainFrame extends JFrame {
 	 * @param extension - preferred file extension (example: "txt") 
 	 * @param description - description of specified file type (example: "Text files")
 	 * @return File specified by user or null if user canceled operation
-	 * @see MainFrame.getOpenFileName
 	 */
 	public File getSaveFileName(String extension, String description)
 	{
@@ -320,7 +318,6 @@ public class MainFrame extends JFrame {
 	 * @param extension - preferred file extension (example: "txt") 
 	 * @param description - description of specified file type (example: "Text files")
 	 * @return File specified by user or null if user canceled operation
-	 * @see MainFrame.getSaveFileName
 	 */
 	public File getOpenFileName(String extension, String description)
 	{

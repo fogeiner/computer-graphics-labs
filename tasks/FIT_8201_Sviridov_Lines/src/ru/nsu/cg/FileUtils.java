@@ -47,7 +47,6 @@ public class FileUtils {
 	 * @param extension - preferred file extension (example: "txt") 
 	 * @param description - description of specified file type (example: "Text files")
 	 * @return File specified by user or null if user canceled operation
-	 * @see MainFrame.getOpenFileName
 	 */
 	public static File getSaveFileName(JFrame parent, String extension, String description)
 	{
@@ -71,7 +70,6 @@ public class FileUtils {
 	 * @param extension - preferred file extension (example: "txt") 
 	 * @param description - description of specified file type (example: "Text files")
 	 * @return File specified by user or null if user canceled operation
-	 * @see MainFrame.getSaveFileName
 	 */
 	public static File getOpenFileName(JFrame parent, String extension, String description)
 	{
