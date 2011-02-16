@@ -159,6 +159,11 @@ public class Polyline {
 		_color = color;
 	}
 
+	/**
+	 * Returns color of polyline
+	 * 
+	 * @return color of polyline
+	 */
 	public Color getColor() {
 		return new Color(_color.getRGB());
 	}
