@@ -1,0 +1,25 @@
+Lines, version 1.0
+Valentin Sviridov, FIT, group 8201
+
+Polylines drawing tool using Java Swing library.
+Meets requirements listed in Task_Lines_2011.pdf created on 07-Feb-2011.
+
+1. 
+Working area is white (by default) rectangle area under the toolbar. 
+2. 
+To start new polyline click the left mouse button on working area.
+Other clicks on the working area will result in new points added to the current polyline.
+To finish the current polyline click the right mouse button on working area.
+When the application is in polyline drawing mode user can see 'rubber' line drawn from the last point of polyline to the current location of the mouse (even if the mouse pointer is off the application frame). This feature was implemented with thread keeping track of the mouse pointer location on screen and repaiting working area (when no 'rubber' line is active this thread 'sleeps' which is quite good for performance).
+3.
+Preferences dialog lets user change all parameters listed in task document.
+Slider and edit box are 'coherent' (with use of 'handlers' which are implied by event-driven approach).
+4.
+Standard controls are widely used: color chooser dialogs, file chooser dialog, (yes-no-cancel) user dialogs.
+5. Icons on toolbar:
+	4.1 New - create new document 
+	4.2 Load - load document from the specified file
+	4.3 Save as... - save current document to the specified file
+	4.4 Exit - terminate application
+	4.5 Preferences - show dialog with preferences
+	4.6 About - run text editor with FIT_8201_Sviridov_About.txt file open

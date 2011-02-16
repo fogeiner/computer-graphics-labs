@@ -18,6 +18,7 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -101,14 +102,14 @@ public class LinesFrame extends MainFrame {
 	 * @param polyline
 	 *            Polyline to be added to list of current polylines
 	 */
-	public void addPolyline(Polyline polyline) {
+	private void addPolyline(Polyline polyline) {
 		_polylines.add(polyline);
 	}
 
 	/**
 	 * Clears list of current polylines
 	 */
-	public void clearPolylines() {
+	private void clearPolylines() {
 		_polylines.clear();
 	}
 
@@ -218,7 +219,7 @@ public class LinesFrame extends MainFrame {
 	 * @return <code>true</code> if document needs no saving, <code>false</code>
 	 *         otherwise
 	 */
-	public boolean isSaved() {
+	private boolean isSaved() {
 		return _is_document_saved;
 	}
 
@@ -228,7 +229,7 @@ public class LinesFrame extends MainFrame {
 	 * @param value
 	 *            value of saved flag
 	 */
-	public void setSaved(boolean value) {
+	private void setSaved(boolean value) {
 		_is_document_saved = value;
 	}
 
@@ -236,7 +237,7 @@ public class LinesFrame extends MainFrame {
 	 * Sets polyline color, polyline thickness, polyline type, canvas color and
 	 * circle radius to default values
 	 */
-	public void resetPreferences() {
+	private void resetPreferences() {
 		_polyline_color = DEFAULT_POLYLINE_COLOR;
 		_background_color = DEFAULT_BACKGROUND_COLOR;
 		_polyline_type = DEFAULT_POLYLINE_TYPE;
@@ -249,7 +250,7 @@ public class LinesFrame extends MainFrame {
 	 * changes, sets document name to "Untitled" and clears all current
 	 * polylines
 	 */
-	public void newDocument() {
+	private void newDocument() {
 		resetPreferences();
 		setDocumentName(UNTITLED_DOCUMENT);
 		clearPolylines();
@@ -264,7 +265,7 @@ public class LinesFrame extends MainFrame {
 	 *            first part of application title
 	 */
 
-	public void setDocumentName(String name) {
+	private void setDocumentName(String name) {
 		setTitle(name + " - " + LINES);
 	}
 
@@ -340,7 +341,7 @@ public class LinesFrame extends MainFrame {
 	 * @return <code>true</code> if user confirms, <code>false</code> otherwise
 	 */
 
-	public boolean showSaveMessage() {
+	private boolean showSaveMessage() {
 		int answer = JOptionPane.showConfirmDialog(this,
 				"All unsaved data will be lost. Continue?");
 
@@ -352,7 +353,7 @@ public class LinesFrame extends MainFrame {
 	}
 
 	/**
-	 * Method called when user chooses "New" in menu or on toolbar Asks user to
+	 * Method called when user chooses "New" in menu or on toolbar. Asks user to
 	 * save current document (if needed) and sets application to new document
 	 * state
 	 */
@@ -367,8 +368,8 @@ public class LinesFrame extends MainFrame {
 	}
 
 	/**
-	 * Method called when user chooses "Exit" in menu or on toolbar Asks user to
-	 * save current document (if needed) and terminates application
+	 * Method called when user chooses "Exit" in menu or on toolbar. Asks user
+	 * to save current document (if needed) and terminates application
 	 */
 
 	public void onExit() {
@@ -380,9 +381,9 @@ public class LinesFrame extends MainFrame {
 	}
 
 	/**
-	 * Method called when user chooses "Load" in menu or on toolbar Asks user to
-	 * save current document (if needed), shows dialog to choose file and loads
-	 * document from it
+	 * Method called when user chooses "Load" in menu or on toolbar. Asks user
+	 * to save current document (if needed), shows dialog to choose file and
+	 * loads document from it
 	 */
 	public void onLoad() {
 		try {
@@ -468,8 +469,8 @@ public class LinesFrame extends MainFrame {
 	}
 
 	/**
-	 * Method called when user chooses "Save" in menu or on toolbar Shows dialog
-	 * to choose/create file and saves document to it
+	 * Method called when user chooses "Save" in menu or on toolbar. Shows
+	 * dialog to choose/create file and saves document to it
 	 */
 
 	public void onSave() {
@@ -504,8 +505,8 @@ public class LinesFrame extends MainFrame {
 	}
 
 	/**
-	 * Method called when user chooses "Preferences" in menu or on toolbar Shows
-	 * dialog where user can set parameters
+	 * Method called when user chooses "Preferences" in menu or on toolbar.
+	 * Shows dialog where user can set parameters
 	 */
 	public void onPreferences() {
 		if (_preferences_dialog == null) {
@@ -517,13 +518,23 @@ public class LinesFrame extends MainFrame {
 	}
 
 	/**
-	 * Method called when user chooses "About" in menu or on toolbar Shows
-	 * dialog which displays application version and author information
+	 * Method called when user chooses "About" in menu or on toolbar. Loads text
+	 * editor with <tt>FIT_8201_Sviridov_About.txt</tt> open
 	 */
 	public void onAbout() {
-		JOptionPane.showMessageDialog(this,
-				"Lines, version 1.0\n2011 Valentin Sviridov, FIT, group 8201",
-				"About Lines", JOptionPane.INFORMATION_MESSAGE);
+		try {
+			if (System.getProperty("os.name").startsWith("Windows"))
+				Runtime.getRuntime().exec(
+						"notepad.exe FIT_8201_Sviridov_Lines_About.txt");
+			else
+				Runtime.getRuntime().exec(
+						"gedit FIT_8201_Sviridov_Lines_About.txt");
+		} catch (IOException e) {
+			JOptionPane.showMessageDialog(this,
+					"Error staring text editor: \n" + e.getLocalizedMessage(),
+					"Exec error", JOptionPane.ERROR_MESSAGE);
+			newDocument();
+		}
 	}
 
 	/**
@@ -679,7 +690,7 @@ public class LinesFrame extends MainFrame {
 		 * Method called in case user confirms changes. Sets new parameters to
 		 * application and hides dialog
 		 */
-		public void confirm() {
+		private void confirm() {
 			LinesFrame.this
 					.setBackgroundColor(_bg_color_button.getBackground());
 			LinesFrame.this.setPolylineColor(_polyline_color_button
@@ -810,12 +821,27 @@ public class LinesFrame extends MainFrame {
 			add(buttons_panel);
 			pack();
 
+			/**
+			 * Class for JEditField -> JSlider interaction filtering non-numeric
+			 * input. Adding <code>ChangeListners</code> to <code>JSlider</code>
+			 * is necessary.
+			 * 
+			 * @author alstein
+			 */
 			class TextFieldSliderDocumentFilter extends DocumentFilter {
 				JTextField _textfield;
 				JSlider _slider;
 				int _slider_max;
 				int _slider_min;
 
+				/**
+				 * Constructor which creates <code>DocumentFilter</code> to keep
+				 * track of given <code>JTextEdit</code> and
+				 * <code>JSlider</code>
+				 * 
+				 * @param textfield
+				 * @param slider
+				 */
 				public TextFieldSliderDocumentFilter(JTextField textfield,
 						JSlider slider) {
 					_textfield = textfield;
@@ -824,6 +850,10 @@ public class LinesFrame extends MainFrame {
 					_slider_min = slider.getMinimum();
 				}
 
+				/**
+				 * Method called on JTextField alteration with typing. Checks if
+				 * changes are valid and if not - ignores them
+				 */
 				@Override
 				public void replace(FilterBypass fb, int offset, int length,
 						String text, AttributeSet attrs)
