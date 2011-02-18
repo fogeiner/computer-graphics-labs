@@ -13,6 +13,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
@@ -58,7 +60,7 @@ public class LinesFrame extends MainFrame {
 	private static final long serialVersionUID = 5852264472785688626L;
 	private final static int WIDTH = 600;
 	private final static int HEIGHT = 400;
-	private final static String LINES = "Lines";
+	private final static String LINES_NAME = "FIT_8201_Sviridov_Lines";
 	private final static String UNTITLED_DOCUMENT = "Untitled";
 	private boolean _is_document_saved = false;
 
@@ -253,7 +255,6 @@ public class LinesFrame extends MainFrame {
 	 * polylines
 	 */
 	private void newDocument() {
-		resetPreferences();
 		setDocumentName(UNTITLED_DOCUMENT);
 		clearPolylines();
 		setSaved(true);
@@ -268,7 +269,7 @@ public class LinesFrame extends MainFrame {
 	 */
 
 	private void setDocumentName(String name) {
-		setTitle(name + " - " + LINES);
+		setTitle(name + " - " + LINES_NAME);
 	}
 
 	/**
@@ -281,7 +282,6 @@ public class LinesFrame extends MainFrame {
 	 */
 	public LinesFrame(int width, int height) {
 		super(width, height, "");
-
 		try {
 
 			// constructing Menu
@@ -317,10 +317,13 @@ public class LinesFrame extends MainFrame {
 			addToolBarSeparator();
 			addToolBarButton("Help/About");
 
+			toolBar.setFloatable(false);
+
 			_lines_view = new LinesView(this);
 			add(_lines_view);
 
 			setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+			resetPreferences();
 			newDocument();
 			addWindowListener(new WindowAdapter() {
 				@Override
@@ -421,15 +424,14 @@ public class LinesFrame extends MainFrame {
 				int type = Integer.parseInt(LineParseUtils
 						.nextNormalizedLine(br));
 
-				if (type != Polyline.CONTINIOUS
-						&& type != Polyline.DASH_AND_DOT
-						&& type != Polyline.DOTTED_DASH_AND_DOT)
+				if (type != Polyline.CONTINIOUS && type != Polyline.DASHED
+						&& type != Polyline.DOTTED_DASHED)
 					throw new IllegalArgumentException();
 
 				int thickness = Integer.parseInt(LineParseUtils
 						.nextNormalizedLine(br));
 
-				if (thickness < 1 || thickness > MAX_THICKNESS)
+				if (thickness < 1)
 					throw new IllegalArgumentException();
 
 				String str = LineParseUtils.nextNormalizedLine(br);
@@ -494,7 +496,7 @@ public class LinesFrame extends MainFrame {
 			}
 			fw.close();
 
-			setTitle(file.getName() + " - " + LINES);
+			setTitle(file.getName() + " - " + LINES_NAME);
 
 			setSaved(true);
 		} catch (Exception e) {
@@ -644,12 +646,12 @@ public class LinesFrame extends MainFrame {
 
 		private static final long serialVersionUID = -3486091859979955990L;
 
-		private JButton _bg_color_button = new JButton();
-		private JButton _polyline_color_button = new JButton();
+		private JLabel _bg_color_label = new JLabel();
+		private JLabel _polyline_color_label = new JLabel();
 		private ButtonGroup _polylines_button_group = new ButtonGroup();
 		private JRadioButton _r1 = new JRadioButton("Continious");
-		private JRadioButton _r2 = new JRadioButton("Dash and dot");
-		private JRadioButton _r3 = new JRadioButton("Dotted dash and dot");
+		private JRadioButton _r2 = new JRadioButton("Dashed");
+		private JRadioButton _r3 = new JRadioButton("Dotted-dashed");
 		private JButton _confirm_button = new JButton("Confirm");
 		private JButton _cancel_button = new JButton("Cancel");
 		private JSlider _radius_slider = new JSlider(1, MAX_RADIUS);
@@ -662,18 +664,17 @@ public class LinesFrame extends MainFrame {
 		 * them and makes dialog visible
 		 */
 		public void showDialog() {
-			_bg_color_button
-					.setBackground(LinesFrame.this.getBackgroundColor());
-			_polyline_color_button.setBackground(LinesFrame.this
+			_bg_color_label.setBackground(LinesFrame.this.getBackgroundColor());
+			_polyline_color_label.setBackground(LinesFrame.this
 					.getPolylineColor());
 
 			int polyline_type = LinesFrame.this.getPolylineType();
 
 			if (polyline_type == Polyline.CONTINIOUS) {
 				_polylines_button_group.setSelected(_r1.getModel(), true);
-			} else if (polyline_type == Polyline.DASH_AND_DOT) {
+			} else if (polyline_type == Polyline.DASHED) {
 				_polylines_button_group.setSelected(_r2.getModel(), true);
-			} else if (polyline_type == Polyline.DOTTED_DASH_AND_DOT) {
+			} else if (polyline_type == Polyline.DOTTED_DASHED) {
 				_polylines_button_group.setSelected(_r3.getModel(), true);
 			}
 
@@ -693,17 +694,16 @@ public class LinesFrame extends MainFrame {
 		 * application and hides dialog
 		 */
 		private void confirm() {
-			LinesFrame.this
-					.setBackgroundColor(_bg_color_button.getBackground());
-			LinesFrame.this.setPolylineColor(_polyline_color_button
+			LinesFrame.this.setBackgroundColor(_bg_color_label.getBackground());
+			LinesFrame.this.setPolylineColor(_polyline_color_label
 					.getBackground());
 
 			if (_polylines_button_group.getSelection() == _r1.getModel()) {
 				LinesFrame.this.setPolylineType(Polyline.CONTINIOUS);
 			} else if (_polylines_button_group.getSelection() == _r2.getModel()) {
-				LinesFrame.this.setPolylineType(Polyline.DASH_AND_DOT);
+				LinesFrame.this.setPolylineType(Polyline.DASHED);
 			} else if (_polylines_button_group.getSelection() == _r3.getModel()) {
-				LinesFrame.this.setPolylineType(Polyline.DOTTED_DASH_AND_DOT);
+				LinesFrame.this.setPolylineType(Polyline.DOTTED_DASHED);
 			}
 
 			LinesFrame.this.setCircleRadius(_radius_slider.getValue());
@@ -740,13 +740,13 @@ public class LinesFrame extends MainFrame {
 			colors_panel.add(new JLabel("Background:"));
 			JPanel color_button_panel = new JPanel();
 			color_button_panel.setLayout(new BorderLayout());
-			color_button_panel.add(_bg_color_button);
+			color_button_panel.add(_bg_color_label);
 
 			colors_panel.add(color_button_panel);
 			colors_panel.add(new JLabel("Polyline:"));
 			color_button_panel = new JPanel();
 			color_button_panel.setLayout(new BorderLayout());
-			color_button_panel.add(_polyline_color_button);
+			color_button_panel.add(_polyline_color_label);
 			colors_panel.add(color_button_panel);
 
 			upper_panel.add(colors_panel);
@@ -851,7 +851,7 @@ public class LinesFrame extends MainFrame {
 					_slider = slider;
 					_slider_max = slider.getMaximum();
 					_slider_min = slider.getMinimum();
-					
+
 					_textfield.addFocusListener(new FocusListener() {
 
 						@Override
@@ -882,7 +882,6 @@ public class LinesFrame extends MainFrame {
 							+ text
 							+ textfield_text.substring(offset + length,
 									textfield_text.length());
-
 					try {
 						Integer value = Integer.parseInt(result);
 
@@ -930,36 +929,38 @@ public class LinesFrame extends MainFrame {
 				}
 			});
 
-			_polyline_color_button.addActionListener(new ActionListener() {
-
+			_polyline_color_label.setOpaque(true);
+			_polyline_color_label.addMouseListener(new MouseAdapter() {
 				@Override
-				public void actionPerformed(ActionEvent e) {
+				public void mouseClicked(MouseEvent e) {
 					Color new_color = JColorChooser.showDialog(
 							PreferencesDialog.this, "Choose polyline color",
-							_polyline_color_button.getBackground());
+							_polyline_color_label.getBackground());
 					if (new_color != null) {
-						_polyline_color_button.setBackground(new_color);
+						_polyline_color_label.setBackground(new_color);
 					}
 				}
 			});
 
-			_bg_color_button.addActionListener(new ActionListener() {
+			_bg_color_label.setOpaque(true);
+			_bg_color_label.addMouseListener(new MouseAdapter() {
 
 				@Override
-				public void actionPerformed(ActionEvent e) {
+				public void mouseClicked(MouseEvent arg0) {
 					Color new_color = JColorChooser.showDialog(
 							PreferencesDialog.this, "Choose canvas color",
-							_bg_color_button.getBackground());
+							_bg_color_label.getBackground());
 					if (new_color != null) {
-						_bg_color_button.setBackground(new_color);
+						_bg_color_label.setBackground(new_color);
 					}
+
 				}
 			});
 
 			_confirm_button.addActionListener(new ActionListener() {
 
 				@Override
-				public void actionPerformed(ActionEvent e) {
+				public void actionPerformed(ActionEvent arg0) {
 					confirm();
 				}
 			});

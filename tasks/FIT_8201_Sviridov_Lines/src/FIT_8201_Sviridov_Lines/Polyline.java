@@ -18,8 +18,8 @@ import java.util.List;
  */
 public class Polyline {
 	public static final int CONTINIOUS = 1;
-	public static final int DASH_AND_DOT = 2;
-	public static final int DOTTED_DASH_AND_DOT = 3;
+	public static final int DASHED = 2;
+	public static final int DOTTED_DASHED = 3;
 
 	private List<Point> _points;
 	private int _type;
@@ -81,16 +81,16 @@ public class Polyline {
 		if (_stroke == null) {
 
 			if (_type == Polyline.CONTINIOUS) {
-				_stroke = new BasicStroke(_thickness);
-			} else if (_type == Polyline.DASH_AND_DOT) {
-
+				_stroke = new BasicStroke(_thickness, BasicStroke.CAP_ROUND,
+						BasicStroke.JOIN_ROUND);
+			} else if (_type == Polyline.DASHED) {
 				_stroke = new BasicStroke(_thickness, BasicStroke.CAP_BUTT,
-						BasicStroke.JOIN_BEVEL, 10.0f, new float[] { 20.0f,
-								10.0f }, 0.0f);
-			} else if (_type == Polyline.DOTTED_DASH_AND_DOT) {
-				_stroke = new BasicStroke(_thickness, BasicStroke.CAP_BUTT,
-						BasicStroke.JOIN_BEVEL, 10.0f, new float[] { 10.0f,
-								5.0f, _thickness, 5.0f }, 0.0f);
+						BasicStroke.JOIN_ROUND, 10.0f, new float[] {
+								3 * _thickness, 3 * _thickness }, 0.0f);
+			} else if (_type == Polyline.DOTTED_DASHED) {
+				_stroke = new BasicStroke(_thickness, BasicStroke.CAP_ROUND,
+						BasicStroke.JOIN_ROUND, 10.0f, new float[] {
+								3 * _thickness, 3 * _thickness, 1 }, 0.0f);
 
 			}
 

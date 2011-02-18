@@ -1,8 +1,8 @@
-Lines, version 1.0
-Valentin Sviridov, FIT, group 8201
+Lines, версия 1.1
+Валентин Свиридов, ФИТ, группа 8201
 
-Polylines drawing tool using Java Swing library.
-Meets requirements listed in Task_Lines_2011.pdf created on 07-Feb-2011.
+Программа рисования ломаных кривых с использованием библиотеки Java Swing.
+Отвечает требованиям, перечисленным в файле Task_Lines_2011.pdf от 07 февраля 2011.
 
 1. 
 Working area is white (by default) rectangle area under the toolbar. 

@@ -64,6 +64,7 @@ public class LineParseUtils {
 			str = sb.toString().trim();
 
 			if (str.length() > 0) {
+				System.out.println(str);
 				return str;
 			}
 		}
