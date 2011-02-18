@@ -1,25 +1,57 @@
 Lines, версия 1.1
-Валентин Свиридов, ФИТ, группа 8201
-
+Валентин Свиридов, ФИТ, группа 8201.
 Программа рисования ломаных кривых с использованием библиотеки Java Swing.
-Отвечает требованиям, перечисленным в файле Task_Lines_2011.pdf от 07 февраля 2011.
 
-1. 
-Working area is white (by default) rectangle area under the toolbar. 
-2. 
-To start new polyline click the left mouse button on working area.
-Other clicks on the working area will result in new points added to the current polyline.
-To finish the current polyline click the right mouse button on working area.
-When the application is in polyline drawing mode user can see 'rubber' line drawn from the last point of polyline to the current location of the mouse (even if the mouse pointer is off the application frame). This feature was implemented with thread keeping track of the mouse pointer location on screen and repaiting working area (when no 'rubber' line is active this thread 'sleeps' which is quite good for performance).
-3.
-Preferences dialog lets user change all parameters listed in task document.
-Slider and edit box are 'coherent' (with use of 'handlers' which are implied by event-driven approach).
-4.
-Standard controls are widely used: color chooser dialogs, file chooser dialog, (yes-no-cancel) user dialogs.
-5. Icons on toolbar:
-	4.1 New - create new document 
-	4.2 Load - load document from the specified file
-	4.3 Save as... - save current document to the specified file
-	4.4 Exit - terminate application
-	4.5 Preferences - show dialog with preferences
-	4.6 About - run text editor with FIT_8201_Sviridov_About.txt file open
+1. Есть ли меню?
+Да.
+
+2. Что какая кнопка тулбара делает - слева направо:
+	2.1 New - создать новый документ
+	2.2 Load - загрузить документ из файла
+	2.3 Save as... - сохранить файл под определенным именем
+	2.4 Exit - завершить приложение
+	2.5 Preferences - показать диалог с настройками
+	2.6 About - запустить текстовый редактор с открытым файлом 
+FIT_8201_Sviridov_About.txt
+
+3. Как строится ПЛ?
+	3.1 Очередная точка ставится по клику, т.е. режим резиновой линии при 
+отжатых кнопках.
+	3.2 Завершение линии по клику правой кнопки.
+
+4. Могут ли быть разные радиусы у разных ПЛ?
+Нет.
+
+5. Разрешается ли ресайз окна?
+Да.
+
+Проблемы с 18.02:
+1. Не запускается (меняем jdk в свойствах проекта и запускается)
+Скорее всего разница в минорной версии JDK (номер версии присутствует 
+в пути до JDK). Как вариант: сообщите, где располагается JDK на 
+тестовой системе.
+
+2. Сбрасываются настройки, когда нажимаешь New
+Вообще так и задумывалось, исправил.
+
+3. При открытии файла сразу удаляет старое содержимое. Если в диалоге открытия 
+нажать cancel то поле будет пустым.
+Исправил (замечу, что это было актуально только для документов, не требующих 
+сохранения).
+
+4. Не открывает файл Конышевой, Мифтахутдинова, Савенко …
+Не открывалось из-за проверки на максимальную ширину ломаной 
+(т.е. не баг), исправил.
+
+5. Неверная штрих-пунктирная линия, сравните с Стененко
+Исправил.
+
+6. Описание Lfeed/CR –
+Исправил.
+
+7. Выбор цвета, какой цвет-то?
+Проблема в windows look'n'feel (игнорирование изменения цвета фона у 
+кнопок), исправил. 
+
+8. About на английском 
+Исправил.
