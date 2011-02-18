@@ -461,11 +461,11 @@ public class LinesFrame extends MainFrame {
 			}
 
 			FileWriter fw = new FileWriter(file);
-
+			
 			List<Polyline> polylines = getPolylines();
 			int size = polylines.size();
 
-			fw.write(size + "\n");
+			fw.write(size + "\r\n");
 			for (int i = 0; i < size; ++i) {
 				fw.write(polylines.get(i).toString());
 			}

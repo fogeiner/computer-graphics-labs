@@ -181,12 +181,12 @@ public class Polyline {
 
 		int num_of_points = _points.size();
 
-		sb.append(num_of_points + "\n" + _type + "\n" + _thickness + "\n"
+		sb.append(num_of_points + "\r\n" + _type + "\r\n" + _thickness + "\r\n"
 				+ _color.getRed() + " " + _color.getGreen() + " "
-				+ _color.getBlue() + "\n");
+				+ _color.getBlue() + "\r\n");
 
 		for (Point point : _points) {
-			sb.append(point.x + " " + point.y + "\n");
+			sb.append(point.x + " " + point.y + "\r\n");
 		}
 
 		return sb.toString();
