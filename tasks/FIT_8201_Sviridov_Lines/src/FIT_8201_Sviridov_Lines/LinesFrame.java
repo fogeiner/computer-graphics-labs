@@ -303,8 +303,10 @@ public class LinesFrame extends MainFrame {
 			addWindowListener(new WindowAdapter() {
 				@Override
 				public void windowClosing(WindowEvent e) {
-					if ((isSaved() == false) && (showSaveMessage() == false)) {
-						return;
+					if ((isSaved() == false) && (showSaveMessage() == true)) {
+						onSave();
+						if (!isSaved())
+							return;
 					}
 
 					System.exit(0);
@@ -323,7 +325,7 @@ public class LinesFrame extends MainFrame {
 
 	private boolean showSaveMessage() {
 		int answer = JOptionPane.showConfirmDialog(this,
-				"All unsaved data will be lost. Continue?");
+				"The document was modified. Save?");
 
 		if (answer != JOptionPane.OK_OPTION) {
 			return false;
@@ -340,8 +342,10 @@ public class LinesFrame extends MainFrame {
 
 	public void onNew() {
 
-		if ((isSaved() == false) && (showSaveMessage() == false)) {
-			return;
+		if ((isSaved() == false) && (showSaveMessage() == true)) {
+			onSave();
+			if (!isSaved())
+				return;
 		}
 
 		newDocument();
@@ -353,8 +357,10 @@ public class LinesFrame extends MainFrame {
 	 */
 
 	public void onExit() {
-		if ((isSaved() == false) && (showSaveMessage() == false)) {
-			return;
+		if ((isSaved() == false) && (showSaveMessage() == true)) {
+			onSave();
+			if (!isSaved())
+				return;
 		}
 
 		System.exit(0);
@@ -367,8 +373,10 @@ public class LinesFrame extends MainFrame {
 	 */
 	public void onLoad() {
 		try {
-			if ((isSaved() == false) && (showSaveMessage() == false)) {
-				return;
+			if ((isSaved() == false) && (showSaveMessage() == true)) {
+				onSave();
+				if (!isSaved())
+					return;
 			}
 
 			File file = getOpenFileName("txt", "Text files");
@@ -377,7 +385,7 @@ public class LinesFrame extends MainFrame {
 			}
 
 			newDocument();
-			
+
 			FileInputStream fstream = new FileInputStream(file);
 			// Get the object of DataInputStream
 			DataInputStream in = new DataInputStream(fstream);
@@ -461,7 +469,7 @@ public class LinesFrame extends MainFrame {
 			}
 
 			FileWriter fw = new FileWriter(file);
-			
+
 			List<Polyline> polylines = getPolylines();
 			int size = polylines.size();
 
