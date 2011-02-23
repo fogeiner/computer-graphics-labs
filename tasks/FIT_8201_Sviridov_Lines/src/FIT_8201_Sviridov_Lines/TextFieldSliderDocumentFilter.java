@@ -51,6 +51,30 @@ class TextFieldSliderDocumentFilter extends DocumentFilter {
 	}
 
 	/**
+	 * Method is called on JTextField alteration with removing text. Checks if
+	 * changes are valid and if not - ignores them
+	 */
+	@Override
+	public void remove(FilterBypass fb, int offset, int length)
+			throws BadLocationException {
+
+		String textfield_text = _textfield.getText();
+		String result = textfield_text.substring(0, offset)
+				+ textfield_text.substring(offset + length);
+
+		try {
+			if (result.length() != 0) {
+				Integer value = Integer.parseInt(result);
+				_slider.setValue(value);
+			}
+
+			super.remove(fb, offset, length);
+		} catch (NumberFormatException ex) {
+			return;
+		}
+	}
+
+	/**
 	 * Method called on JTextField alteration with typing. Checks if changes are
 	 * valid and if not - ignores them
 	 */

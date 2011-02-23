@@ -387,7 +387,6 @@ public class LinesFrame extends MainFrame {
 			newDocument();
 
 			FileInputStream fstream = new FileInputStream(file);
-			// Get the object of DataInputStream
 			DataInputStream in = new DataInputStream(fstream);
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 
@@ -437,7 +436,6 @@ public class LinesFrame extends MainFrame {
 				addPolyline(polyline);
 			}
 
-			resetPreferences();
 			setDocumentName(file.getName());
 
 			repaint();
