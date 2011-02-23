@@ -41,7 +41,6 @@ class TextFieldSliderDocumentFilter extends DocumentFilter {
 			public void focusLost(FocusEvent e) {
 				if (_textfield.getText().length() == 0)
 					_textfield.setText(Integer.toString(_slider.getValue()));
-
 			}
 
 			@Override
@@ -61,14 +60,18 @@ class TextFieldSliderDocumentFilter extends DocumentFilter {
 		String textfield_text = _textfield.getText();
 		String result = textfield_text.substring(0, offset)
 				+ textfield_text.substring(offset + length);
+		super.remove(fb, offset, length);
 
 		try {
-			if (result.length() != 0) {
-				Integer value = Integer.parseInt(result);
+
+			Integer value = Integer.parseInt(result);
+
+			if (value != 0) {
 				_slider.setValue(value);
+			} else {
+				_slider.setValue(_slider_min);
 			}
 
-			super.remove(fb, offset, length);
 		} catch (NumberFormatException ex) {
 			return;
 		}
@@ -87,9 +90,9 @@ class TextFieldSliderDocumentFilter extends DocumentFilter {
 				+ text
 				+ textfield_text.substring(offset + length,
 						textfield_text.length());
+
 		try {
 			Integer value = Integer.parseInt(result);
-
 			if (value > _slider_max) {
 				_slider.setValue(_slider_max);
 				return;
