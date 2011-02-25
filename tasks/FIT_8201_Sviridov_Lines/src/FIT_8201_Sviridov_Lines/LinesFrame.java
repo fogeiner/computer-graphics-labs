@@ -33,8 +33,8 @@ import ru.nsu.cg.MainFrame;
 public class LinesFrame extends MainFrame {
 
 	private static final long serialVersionUID = 5852264472785688626L;
-	private final static int WIDTH = 600;
-	private final static int HEIGHT = 400;
+	private final static int WIDTH = 800;
+	private final static int HEIGHT = 600;
 	private final static String LINES_NAME = "FIT_8201_Sviridov_Lines";
 	private final static String UNTITLED_DOCUMENT = "Untitled";
 	private boolean _is_document_saved = false;
@@ -233,6 +233,7 @@ public class LinesFrame extends MainFrame {
 		setDocumentName(UNTITLED_DOCUMENT);
 		clearPolylines();
 		setSaved(true);
+		_lines_view.rerender();
 		repaint();
 	}
 
@@ -300,12 +301,13 @@ public class LinesFrame extends MainFrame {
 			setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 			resetPreferences();
 			newDocument();
+
 			addWindowListener(new WindowAdapter() {
 				@Override
 				public void windowClosing(WindowEvent e) {
 					if (isSaved() == false) {
 						switch (showSaveMessage()) {
-						
+
 						case JOptionPane.OK_OPTION:
 							onSave();
 							if (!isSaved())
@@ -316,7 +318,6 @@ public class LinesFrame extends MainFrame {
 						case JOptionPane.NO_OPTION:
 							break;
 						}
-
 					}
 
 					System.exit(0);
@@ -470,6 +471,7 @@ public class LinesFrame extends MainFrame {
 
 			setDocumentName(file.getName());
 
+			_lines_view.rerender();
 			repaint();
 
 		} catch (IllegalArgumentException ex) {
@@ -530,6 +532,7 @@ public class LinesFrame extends MainFrame {
 					"Lines Preferences", true);
 		}
 		_preferences_dialog.showDialog();
+		_lines_view.rerender();
 		repaint();
 	}
 
@@ -621,9 +624,11 @@ public class LinesFrame extends MainFrame {
 			addPolyline(_new_polyline);
 
 			_lines_view.enableRubberLine();
+			_lines_view.rerender();
 		} else if (_state == LinesFrame.EDIT_STATE) {
 			// adding new Polyline point
 			_new_polyline.addPoint(point);
+			_lines_view.rerender();
 		}
 	}
 

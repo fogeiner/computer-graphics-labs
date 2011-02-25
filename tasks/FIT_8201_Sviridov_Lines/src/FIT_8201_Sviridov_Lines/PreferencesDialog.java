@@ -29,8 +29,8 @@ import javax.swing.text.AbstractDocument;
 import FIT_8201_Sviridov_Lines.TextFieldSliderDocumentFilter;
 
 /**
- * Preferences dialog class. Lets user set all parameters. New parameters
- * may be confirmed and saved or dismissed
+ * Preferences dialog class. Lets user set all parameters. New parameters may be
+ * confirmed and saved or dismissed
  * 
  * @author alstein
  * 
@@ -54,19 +54,16 @@ class PreferencesDialog extends javax.swing.JDialog {
 	private JButton _confirm_button = new JButton("Confirm");
 	private JButton _cancel_button = new JButton("Cancel");
 	private JSlider _radius_slider = new JSlider(1, LinesFrame.MAX_RADIUS);
-//	private JSlider _thickness_slider = new JSlider(1, LinesFrame.MAX_THICKNESS);
 	private JTextField _radius_textfield = new JTextField(5);
 	private JSpinner _thickness_spinner;
-//	private JTextField _thickness_textfield = new JTextField(5);
 
 	/**
-	 * Reads out current preferences, sets up UI widgets to correnspond to
-	 * them and makes dialog visible
+	 * Reads out current preferences, sets up UI widgets to correnspond to them
+	 * and makes dialog visible
 	 */
 	public void showDialog() {
 		_bg_color_label.setBackground(lines_frame.getBackgroundColor());
-		_polyline_color_label.setBackground(lines_frame
-				.getPolylineColor());
+		_polyline_color_label.setBackground(lines_frame.getPolylineColor());
 
 		int polyline_type = lines_frame.getPolylineType();
 
@@ -79,13 +76,10 @@ class PreferencesDialog extends javax.swing.JDialog {
 		}
 
 		_radius_slider.setValue(lines_frame.getCircleRadius());
-//		_thickness_slider.setValue(lines_frame.getPolylineThickness());
 		_thickness_spinner.setValue(lines_frame.getPolylineThickness());
-		
+
 		_radius_textfield.setText(Integer.toString(lines_frame
 				.getCircleRadius()));
-	//	_thickness_textfield.setText(Integer.toString(lines_frame
-		//		.getPolylineThickness()));
 
 		setVisible(true);
 	}
@@ -96,8 +90,7 @@ class PreferencesDialog extends javax.swing.JDialog {
 	 */
 	private void confirm() {
 		lines_frame.setBackgroundColor(_bg_color_label.getBackground());
-		lines_frame.setPolylineColor(_polyline_color_label
-				.getBackground());
+		lines_frame.setPolylineColor(_polyline_color_label.getBackground());
 
 		if (_polylines_button_group.getSelection() == _r1.getModel()) {
 			lines_frame.setPolylineType(Polyline.CONTINIOUS);
@@ -108,8 +101,8 @@ class PreferencesDialog extends javax.swing.JDialog {
 		}
 
 		lines_frame.setCircleRadius(_radius_slider.getValue());
-	//	lines_frame.setPolylineThickness(_thickness_slider.getValue());
-		lines_frame.setPolylineThickness((Integer)_thickness_spinner.getValue());
+		lines_frame.setPolylineThickness((Integer) _thickness_spinner
+				.getValue());
 		setVisible(false);
 	}
 
@@ -121,17 +114,19 @@ class PreferencesDialog extends javax.swing.JDialog {
 	 * @param title
 	 *            String to display in the dialog's title bar
 	 * @param modal
-	 *            specifies whether dialog blocks user input to other
-	 *            top-level windows when shown
-	 * @param linesFrame reference to LinesFrame
+	 *            specifies whether dialog blocks user input to other top-level
+	 *            windows when shown
+	 * @param linesFrame
+	 *            reference to LinesFrame
 	 */
-	public PreferencesDialog(LinesFrame linesFrame, Frame owner, String title, boolean modal) {
+	public PreferencesDialog(LinesFrame linesFrame, Frame owner, String title,
+			boolean modal) {
 		super(owner, title, modal);
 		lines_frame = linesFrame;
-		
-		_thickness_spinner = new JSpinner(new SpinnerNumberModel(lines_frame.getPolylineThickness(),
-				1, Integer.MAX_VALUE, 1));
-		
+
+		_thickness_spinner = new JSpinner(new SpinnerNumberModel(
+				lines_frame.getPolylineThickness(), 1, Integer.MAX_VALUE, 1));
+
 		setResizable(false);
 
 		setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
@@ -190,11 +185,6 @@ class PreferencesDialog extends javax.swing.JDialog {
 		_radius_slider.setPaintTicks(true);
 		_radius_slider.setPaintLabels(true);
 
-		/*_thickness_slider.setMajorTickSpacing(LinesFrame.MAX_THICKNESS / 5);
-		_thickness_slider.setMinorTickSpacing(1);
-		_thickness_slider.setPaintTicks(true);
-		_thickness_slider.setPaintLabels(true);*/
-
 		JPanel radius_panel = new JPanel();
 		radius_panel.setLayout(new BorderLayout());
 
@@ -203,16 +193,15 @@ class PreferencesDialog extends javax.swing.JDialog {
 
 		radius_panel.add(_radius_slider, BorderLayout.CENTER);
 		radius_panel.add(_radius_textfield, BorderLayout.EAST);
-		
+
 		JPanel thickness_panel = new JPanel();
 		thickness_panel.setLayout(new BorderLayout());
 
-		JLabel thickness_label = new JLabel("Polyline thickness",
-				JLabel.CENTER);
+		JLabel thickness_label = new JLabel("Polyline thickness", JLabel.CENTER);
 		thickness_label.setAlignmentX(Component.CENTER_ALIGNMENT);
 
 		thickness_panel.add(_thickness_spinner, BorderLayout.CENTER);
-		
+
 		radius_thickness_panel.add(radius_label);
 		radius_thickness_panel.add(radius_panel);
 		radius_thickness_panel.add(thickness_label);
@@ -230,15 +219,10 @@ class PreferencesDialog extends javax.swing.JDialog {
 		add(buttons_panel);
 		pack();
 
-
 		((AbstractDocument) _radius_textfield.getDocument())
 				.setDocumentFilter(new TextFieldSliderDocumentFilter(
 						_radius_textfield, _radius_slider));
 
-		/*((AbstractDocument) _thickness_textfield.getDocument())
-				.setDocumentFilter(new TextFieldSliderDocumentFilter(
-						_thickness_textfield, _thickness_slider));
-*/
 		_radius_slider.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
@@ -251,8 +235,8 @@ class PreferencesDialog extends javax.swing.JDialog {
 		_polyline_color_label.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				Color new_color = JColorChooser.showDialog(
-						lines_frame, "Choose polyline color",
+				Color new_color = JColorChooser.showDialog(lines_frame,
+						"Choose polyline color",
 						_polyline_color_label.getBackground());
 				if (new_color != null) {
 					_polyline_color_label.setBackground(new_color);
@@ -265,9 +249,8 @@ class PreferencesDialog extends javax.swing.JDialog {
 
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				Color new_color = JColorChooser.showDialog(
-						lines_frame, "Choose canvas color",
-						_bg_color_label.getBackground());
+				Color new_color = JColorChooser.showDialog(lines_frame,
+						"Choose canvas color", _bg_color_label.getBackground());
 				if (new_color != null) {
 					_bg_color_label.setBackground(new_color);
 				}
