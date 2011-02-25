@@ -303,10 +303,20 @@ public class LinesFrame extends MainFrame {
 			addWindowListener(new WindowAdapter() {
 				@Override
 				public void windowClosing(WindowEvent e) {
-					if ((isSaved() == false) && (showSaveMessage() == true)) {
-						onSave();
-						if (!isSaved())
+					if (isSaved() == false) {
+						switch (showSaveMessage()) {
+						
+						case JOptionPane.OK_OPTION:
+							onSave();
+							if (!isSaved())
+								return;
+						case JOptionPane.CLOSED_OPTION:
+						case JOptionPane.CANCEL_OPTION:
 							return;
+						case JOptionPane.NO_OPTION:
+							break;
+						}
+
 					}
 
 					System.exit(0);
@@ -323,15 +333,12 @@ public class LinesFrame extends MainFrame {
 	 * @return <code>true</code> if user confirms, <code>false</code> otherwise
 	 */
 
-	private boolean showSaveMessage() {
+	private int showSaveMessage() {
 		int answer = JOptionPane.showConfirmDialog(this,
 				"The document was modified. Save?");
 
-		if (answer != JOptionPane.OK_OPTION) {
-			return false;
-		}
+		return answer;
 
-		return true;
 	}
 
 	/**
@@ -342,10 +349,19 @@ public class LinesFrame extends MainFrame {
 
 	public void onNew() {
 
-		if ((isSaved() == false) && (showSaveMessage() == true)) {
-			onSave();
-			if (!isSaved())
+		if (isSaved() == false) {
+			switch (showSaveMessage()) {
+			case JOptionPane.OK_OPTION:
+				onSave();
+				if (!isSaved())
+					return;
+			case JOptionPane.CLOSED_OPTION:
+			case JOptionPane.CANCEL_OPTION:
 				return;
+			case JOptionPane.NO_OPTION:
+				break;
+			}
+
 		}
 
 		newDocument();
@@ -357,10 +373,18 @@ public class LinesFrame extends MainFrame {
 	 */
 
 	public void onExit() {
-		if ((isSaved() == false) && (showSaveMessage() == true)) {
-			onSave();
-			if (!isSaved())
+		if (isSaved() == false) {
+			switch (showSaveMessage()) {
+			case JOptionPane.OK_OPTION:
+				onSave();
+				if (!isSaved())
+					return;
+			case JOptionPane.CLOSED_OPTION:
+			case JOptionPane.CANCEL_OPTION:
 				return;
+			case JOptionPane.NO_OPTION:
+				break;
+			}
 		}
 
 		System.exit(0);
@@ -373,10 +397,18 @@ public class LinesFrame extends MainFrame {
 	 */
 	public void onLoad() {
 		try {
-			if ((isSaved() == false) && (showSaveMessage() == true)) {
-				onSave();
-				if (!isSaved())
+			if (isSaved() == false) {
+				switch (showSaveMessage()) {
+				case JOptionPane.OK_OPTION:
+					onSave();
+					if (!isSaved())
+						return;
+				case JOptionPane.CLOSED_OPTION:
+				case JOptionPane.CANCEL_OPTION:
 					return;
+				case JOptionPane.NO_OPTION:
+					break;
+				}
 			}
 
 			File file = getOpenFileName("txt", "Text files");
@@ -484,7 +516,6 @@ public class LinesFrame extends MainFrame {
 			JOptionPane.showMessageDialog(this,
 					"Error saving file: \n" + e.getLocalizedMessage(),
 					"Saving document", JOptionPane.ERROR_MESSAGE);
-			newDocument();
 		}
 
 	}
