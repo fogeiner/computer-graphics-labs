@@ -57,7 +57,7 @@ public class LinesFrame extends MainFrame {
 	public static final int DEFAULT_CIRCLE_RADIUS = 5;
 
 	public static final int MAX_THICKNESS = 36;
-	public static final int MAX_RADIUS = 36;
+	public static final int MAX_RADIUS = 101;
 
 	private Color _polyline_color = DEFAULT_POLYLINE_COLOR;
 	private Color _background_color;
