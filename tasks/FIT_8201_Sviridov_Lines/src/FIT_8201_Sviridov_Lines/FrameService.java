@@ -2,8 +2,9 @@ package FIT_8201_Sviridov_Lines;
 
 /**
  * Interface for objects supporting blocking/unblocking
+ * 
  * @author alstein
- *
+ * 
  */
 public interface FrameService {
 	/**
@@ -15,7 +16,7 @@ public interface FrameService {
 	 * Method to set/unset modified flag
 	 */
 	public void setModified(boolean value);
-	
+
 	/**
 	 * Returns true if file needs saving after being modified, false otherwise
 	 */

@@ -13,11 +13,13 @@ import java.util.List;
 
 /**
  * Class for loading polylines from file/saving them to file
+ * 
  * @author admin
- *
+ * 
  */
 public class PolylinePersistenceManager {
-	public static void saveToFile(File file, PolylineSettings ps) throws IOException{
+	public static void saveToFile(File file, PolylineSettings ps)
+			throws IOException {
 
 		FileWriter fw = new FileWriter(file);
 
@@ -30,11 +32,10 @@ public class PolylinePersistenceManager {
 		}
 		fw.close();
 
-		
-
 	}
-	
-	public static void loadFromFile(File file, PolylineSettings ps) throws IOException{
+
+	public static void loadFromFile(File file, PolylineSettings ps)
+			throws IOException {
 		FileInputStream fstream = new FileInputStream(file);
 		DataInputStream in = new DataInputStream(fstream);
 		BufferedReader br = new BufferedReader(new InputStreamReader(in));
@@ -52,10 +53,10 @@ public class PolylinePersistenceManager {
 			if (points_count < 0)
 				throw new IllegalArgumentException();
 
-			int type = Integer.parseInt(LineParseUtils
-					.nextNormalizedLine(br));
+			int type = Integer.parseInt(LineParseUtils.nextNormalizedLine(br));
 
-			if (type != PolylineSettings.CONTINIOUS && type != PolylineSettings.DASHED
+			if (type != PolylineSettings.CONTINIOUS
+					&& type != PolylineSettings.DASHED
 					&& type != PolylineSettings.DOTTED_DASHED)
 				throw new IllegalArgumentException();
 
@@ -71,15 +72,16 @@ public class PolylinePersistenceManager {
 			Color color = new Color(Integer.parseInt(rgb[0]),
 					Integer.parseInt(rgb[1]), Integer.parseInt(rgb[2]));
 
-			Polyline polyline = new Polyline(type, thickness, PolylineSettings.DEFAULT_CIRCLE_RADIUS, color);
+			Polyline polyline = new Polyline(type, thickness,
+					PolylineSettings.DEFAULT_CIRCLE_RADIUS, color);
 
 			for (int j = 0; j < points_count; ++j) {
 				str = LineParseUtils.nextNormalizedLine(br);
 
 				String coord[] = str.split(" ");
 
-				polyline.addPoint(new Point(Integer.parseInt(coord[0]),
-						Integer.parseInt(coord[1])));
+				polyline.addPoint(new Point(Integer.parseInt(coord[0]), Integer
+						.parseInt(coord[1])));
 			}
 
 			ps.addPolyline(polyline);

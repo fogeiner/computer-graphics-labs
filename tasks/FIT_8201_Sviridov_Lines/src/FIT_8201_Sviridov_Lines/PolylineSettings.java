@@ -14,15 +14,13 @@ public interface PolylineSettings {
 	public static final int DASHED = 2;
 	public static final int DOTTED_DASHED = 3;
 
-	
 	public static final int MAX_THICKNESS = 36;
 	public static final int MAX_RADIUS = 101;
-	
+
 	public final static int FRAME_WIDTH = 800;
 	public final static int FRAME_HEIGHT = 600;
 	public final static String LINES_NAME = "FIT_8201_Sviridov_Lines";
 	public final static String UNTITLED_DOCUMENT = "Untitled";
-	
 
 	/**
 	 * Returns list of current (i.e. which are present on screen right away)
@@ -44,20 +42,22 @@ public interface PolylineSettings {
 	 * Clears list of current polylines
 	 */
 	public void clearPolylines();
-	
+
 	/**
 	 * Returns current color of polyline
 	 * 
 	 * @return color of current polyline
 	 */
-	public Color getPolylineColor() ;
+	public Color getPolylineColor();
+
 	/**
 	 * Sets current polyline color
 	 * 
 	 * @param polyline_color
 	 *            Color to be set as current polyline color
 	 */
-	public void setPolylineColor(Color polyline_color) ;
+	public void setPolylineColor(Color polyline_color);
+
 	/**
 	 * Returns current color of canvas
 	 * 
@@ -71,7 +71,8 @@ public interface PolylineSettings {
 	 * @param background_color
 	 *            Color to be set as color of canvas
 	 */
-	public void setBackgroundColor(Color background_color) ;
+	public void setBackgroundColor(Color background_color);
+
 	/**
 	 * Returns type of current polyline (one of <code>Polyline.CONTINIOUS</code>
 	 * ,<code>Polyline.DASH_AND_DOT</code>,
@@ -80,7 +81,7 @@ public interface PolylineSettings {
 	 * @return type of current polyline
 	 * @see Polyline
 	 */
-	public int getPolylineType() ;
+	public int getPolylineType();
 
 	/**
 	 * Sets type of current polyline (one of <code>Polyline.CONTINIOUS</code>,
@@ -91,12 +92,13 @@ public interface PolylineSettings {
 	 *            new type of current polyline
 	 */
 	public void setPolylineType(int polyline_type);
+
 	/**
 	 * Returns thickness of current polyline
 	 * 
 	 * @return thickness of current polyline
 	 */
-	public int getPolylineThickness() ;
+	public int getPolylineThickness();
 
 	/**
 	 * Sets thickness of current polyline
@@ -105,12 +107,13 @@ public interface PolylineSettings {
 	 *            new thickness of current polyline
 	 */
 	public void setPolylineThickness(int polyline_thickness);
+
 	/**
 	 * Returns current circles radius
 	 * 
 	 * @return current circles radius
 	 */
-	public int getCircleRadius() ;
+	public int getCircleRadius();
 
 	/**
 	 * Sets current circles radius
@@ -118,5 +121,5 @@ public interface PolylineSettings {
 	 * @param circle_radius
 	 *            current circles radius
 	 */
-	public void setCircleRadius(int circle_radius) ;
+	public void setCircleRadius(int circle_radius);
 }

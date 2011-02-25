@@ -29,6 +29,7 @@ public class LinesView extends JPanel implements PolylineSettings {
 	private static final long serialVersionUID = -456307332612783435L;
 	private Image _offscreen;
 	private boolean _full_repaint;
+	private boolean _mouse_blocked = false;
 
 	private FrameService _lines_frame;
 
@@ -198,10 +199,11 @@ public class LinesView extends JPanel implements PolylineSettings {
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-
+		
 		if (_offscreen == null)
 			return;
 
+		
 		Graphics2D front = (Graphics2D) g;
 		Graphics2D back = (Graphics2D) _offscreen.getGraphics();
 
@@ -287,7 +289,7 @@ public class LinesView extends JPanel implements PolylineSettings {
 		_polylines.clear();
 		setBackgroundColor(PolylineSettings.DEFAULT_BACKGROUND_COLOR);
 	}
-
+	
 	/**
 	 * Constructor with reference to LinesFrame
 	 * 
