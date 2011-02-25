@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.RenderingHints;
+import java.awt.Stroke;
 import java.util.Collections;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,13 +19,11 @@ import java.util.List;
  * 
  */
 public class Polyline {
-	public static final int CONTINIOUS = 1;
-	public static final int DASHED = 2;
-	public static final int DOTTED_DASHED = 3;
 
 	private List<Point> _points;
 	private int _type;
 	private int _thickness;
+	private int _radius;
 	private Color _color;
 	private BasicStroke _stroke = null;
 
@@ -39,9 +39,10 @@ public class Polyline {
 	 * @param color
 	 *            color of polyline
 	 */
-	public Polyline(int type, int thickness, Color color) {
+	public Polyline(int type, int thickness, int radius, Color color) {
 		_type = type;
 		_thickness = thickness;
+		_radius = radius;
 		_color = new Color(color.getRGB());
 		_points = new ArrayList<Point>();
 	}
@@ -66,40 +67,98 @@ public class Polyline {
 	}
 
 	/**
-	 * Draws polyline with given <code>Graphics</code> object making circles of
-	 * the given <code>radius</code> upon points
+	 * Creates stroke based on settings and saves it in field
+	 */
+	private void makeStroke() {
+
+		if (_type == PolylineSettings.CONTINIOUS) {
+			_stroke = new BasicStroke(_thickness, BasicStroke.CAP_ROUND,
+					BasicStroke.JOIN_ROUND);
+		} else if (_type == PolylineSettings.DASHED) {
+			_stroke = new BasicStroke(_thickness, BasicStroke.CAP_BUTT,
+					BasicStroke.JOIN_ROUND, 10.0f, new float[] {
+							3 * _thickness, 3 * _thickness }, 0.0f);
+		} else if (_type == PolylineSettings.DOTTED_DASHED) {
+			_stroke = new BasicStroke(_thickness, BasicStroke.CAP_ROUND,
+					BasicStroke.JOIN_ROUND, 10.0f, new float[] {
+							3 * _thickness, 3 * _thickness, 1 }, 0.0f);
+		}
+
+	}
+	
+	/**
+	 * Returns <code>Stroke</code> of polyline
+	 * @return <code>Stroke</code> of polyline
+	 */
+	public Stroke getStroke(){
+		if(_stroke == null){
+			makeStroke();
+		}
+		return _stroke;
+	}
+	
+	/**
+	 * Method for optimized drawing; draws the very last element of the
+	 * polyline: nothing if it's empty, dot if it consists just of a dot and
+	 * last edge if there's one at least
 	 * 
 	 * @param g
 	 *            Graphics object
-	 * @param radius
-	 *            radius of circle to draw upon points
 	 */
-	public void draw(Graphics g, int radius) {
+	public void drawPartial(Graphics g) {
+		int size = _points.size();
+		
+		if(size == 0)
+			return;
+		
 		Graphics2D g2 = (Graphics2D) g;
-
 		g2.setColor(_color);
 		if (_stroke == null) {
-
-			if (_type == Polyline.CONTINIOUS) {
-				_stroke = new BasicStroke(_thickness, BasicStroke.CAP_ROUND,
-						BasicStroke.JOIN_ROUND);
-			} else if (_type == Polyline.DASHED) {
-				_stroke = new BasicStroke(_thickness, BasicStroke.CAP_BUTT,
-						BasicStroke.JOIN_ROUND, 10.0f, new float[] {
-								3 * _thickness, 3 * _thickness }, 0.0f);
-			} else if (_type == Polyline.DOTTED_DASHED) {
-				_stroke = new BasicStroke(_thickness, BasicStroke.CAP_ROUND,
-						BasicStroke.JOIN_ROUND, 10.0f, new float[] {
-								3 * _thickness, 3 * _thickness, 1 }, 0.0f);
-
-			}
-
+			makeStroke();
 		}
-
 		g2.setStroke(_stroke);
 
-		g2.fillOval(_points.get(0).x - radius / 2, _points.get(0).y - radius
-				/ 2, radius, radius);
+		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_ON);
+
+		
+		if(size == 1){
+			g2.fillOval(_points.get(0).x - _radius / 2, _points.get(0).y - _radius
+					/ 2, _radius, _radius);
+			return;
+		}
+		
+		if(size > 1){
+			Point p1 = _points.get(size - 2);
+			Point p2 = _points.get(size - 1);
+
+			int x1 = p1.x, y1 = p1.y, x2 = p2.x, y2 = p2.y;
+
+			g2.drawLine(x1, y1, x2, y2);
+			g2.fillOval(x2 - _radius / 2, y2 - _radius / 2, _radius, _radius);
+		}
+	}
+
+	/**
+	 * Method for optimized drawing; draws whole the polyline
+	 * 
+	 * @param g
+	 *            Graphics object
+	 */
+	public void drawFull(Graphics g) {
+		Graphics2D g2 = (Graphics2D) g;
+		g2.setColor(_color);
+		if (_stroke == null) {
+			makeStroke();
+		}
+		g2.setStroke(_stroke);
+		
+		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_ON);
+
+		g2.fillOval(_points.get(0).x - _radius / 2, _points.get(0).y - _radius
+				/ 2, _radius, _radius);
+		
 		for (int i = 1; i < _points.size(); ++i) {
 			Point p1 = _points.get(i - 1);
 			Point p2 = _points.get(i);
@@ -107,8 +166,9 @@ public class Polyline {
 			int x1 = p1.x, y1 = p1.y, x2 = p2.x, y2 = p2.y;
 
 			g2.drawLine(x1, y1, x2, y2);
-			g2.fillOval(x2 - radius / 2, y2 - radius / 2, radius, radius);
+			g2.fillOval(x2 - _radius / 2, y2 - _radius / 2, _radius, _radius);
 		}
+
 	}
 
 	/**

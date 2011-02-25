@@ -41,8 +41,6 @@ class PreferencesDialog extends javax.swing.JDialog {
 	/**
 	 * 
 	 */
-	private final LinesFrame lines_frame;
-
 	private static final long serialVersionUID = -3486091859979955990L;
 
 	private JLabel _bg_color_label = new JLabel();
@@ -53,32 +51,32 @@ class PreferencesDialog extends javax.swing.JDialog {
 	private JRadioButton _r3 = new JRadioButton("Dotted-dashed");
 	private JButton _confirm_button = new JButton("Confirm");
 	private JButton _cancel_button = new JButton("Cancel");
-	private JSlider _radius_slider = new JSlider(1, LinesFrame.MAX_RADIUS);
+	private JSlider _radius_slider = new JSlider(1, PolylineSettings.MAX_RADIUS);
 	private JTextField _radius_textfield = new JTextField(5);
 	private JSpinner _thickness_spinner;
-
+	private PolylineSettings _settings_object;
 	/**
 	 * Reads out current preferences, sets up UI widgets to correnspond to them
 	 * and makes dialog visible
 	 */
 	public void showDialog() {
-		_bg_color_label.setBackground(lines_frame.getBackgroundColor());
-		_polyline_color_label.setBackground(lines_frame.getPolylineColor());
+		_bg_color_label.setBackground(_settings_object.getBackgroundColor());
+		_polyline_color_label.setBackground(_settings_object.getPolylineColor());
 
-		int polyline_type = lines_frame.getPolylineType();
+		int polyline_type = _settings_object.getPolylineType();
 
-		if (polyline_type == Polyline.CONTINIOUS) {
+		if (polyline_type == PolylineSettings.CONTINIOUS) {
 			_polylines_button_group.setSelected(_r1.getModel(), true);
-		} else if (polyline_type == Polyline.DASHED) {
+		} else if (polyline_type == PolylineSettings.DASHED) {
 			_polylines_button_group.setSelected(_r2.getModel(), true);
-		} else if (polyline_type == Polyline.DOTTED_DASHED) {
+		} else if (polyline_type == PolylineSettings.DOTTED_DASHED) {
 			_polylines_button_group.setSelected(_r3.getModel(), true);
 		}
 
-		_radius_slider.setValue(lines_frame.getCircleRadius());
-		_thickness_spinner.setValue(lines_frame.getPolylineThickness());
+		_radius_slider.setValue(_settings_object.getCircleRadius());
+		_thickness_spinner.setValue(_settings_object.getPolylineThickness());
 
-		_radius_textfield.setText(Integer.toString(lines_frame
+		_radius_textfield.setText(Integer.toString(_settings_object
 				.getCircleRadius()));
 
 		setVisible(true);
@@ -89,19 +87,19 @@ class PreferencesDialog extends javax.swing.JDialog {
 	 * application and hides dialog
 	 */
 	private void confirm() {
-		lines_frame.setBackgroundColor(_bg_color_label.getBackground());
-		lines_frame.setPolylineColor(_polyline_color_label.getBackground());
+		_settings_object.setBackgroundColor(_bg_color_label.getBackground());
+		_settings_object.setPolylineColor(_polyline_color_label.getBackground());
 
 		if (_polylines_button_group.getSelection() == _r1.getModel()) {
-			lines_frame.setPolylineType(Polyline.CONTINIOUS);
+			_settings_object.setPolylineType(PolylineSettings.CONTINIOUS);
 		} else if (_polylines_button_group.getSelection() == _r2.getModel()) {
-			lines_frame.setPolylineType(Polyline.DASHED);
+			_settings_object.setPolylineType(PolylineSettings.DASHED);
 		} else if (_polylines_button_group.getSelection() == _r3.getModel()) {
-			lines_frame.setPolylineType(Polyline.DOTTED_DASHED);
+			_settings_object.setPolylineType(PolylineSettings.DOTTED_DASHED);
 		}
 
-		lines_frame.setCircleRadius(_radius_slider.getValue());
-		lines_frame.setPolylineThickness((Integer) _thickness_spinner
+		_settings_object.setCircleRadius(_radius_slider.getValue());
+		_settings_object.setPolylineThickness((Integer) _thickness_spinner
 				.getValue());
 		setVisible(false);
 	}
@@ -119,13 +117,14 @@ class PreferencesDialog extends javax.swing.JDialog {
 	 * @param linesFrame
 	 *            reference to LinesFrame
 	 */
-	public PreferencesDialog(LinesFrame linesFrame, Frame owner, String title,
+	public PreferencesDialog(PolylineSettings settings_object, Frame owner, String title,
 			boolean modal) {
 		super(owner, title, modal);
-		lines_frame = linesFrame;
+		 setLocationRelativeTo(owner); 
+		_settings_object = settings_object;
 
 		_thickness_spinner = new JSpinner(new SpinnerNumberModel(
-				lines_frame.getPolylineThickness(), 1, Integer.MAX_VALUE, 1));
+				_settings_object.getPolylineThickness(), 1, Integer.MAX_VALUE, 1));
 
 		setResizable(false);
 
@@ -180,7 +179,7 @@ class PreferencesDialog extends javax.swing.JDialog {
 				.createTitledBorder("Drawing"));
 		radius_thickness_panel.setLayout(new GridLayout(0, 1));
 
-		_radius_slider.setMajorTickSpacing(LinesFrame.MAX_RADIUS / 5);
+		_radius_slider.setMajorTickSpacing(PolylineSettings.MAX_RADIUS / 5);
 		_radius_slider.setMinorTickSpacing(1);
 		_radius_slider.setPaintTicks(true);
 		_radius_slider.setPaintLabels(true);
@@ -235,7 +234,7 @@ class PreferencesDialog extends javax.swing.JDialog {
 		_polyline_color_label.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				Color new_color = JColorChooser.showDialog(lines_frame,
+				Color new_color = JColorChooser.showDialog(PreferencesDialog.this,
 						"Choose polyline color",
 						_polyline_color_label.getBackground());
 				if (new_color != null) {
@@ -249,7 +248,7 @@ class PreferencesDialog extends javax.swing.JDialog {
 
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				Color new_color = JColorChooser.showDialog(lines_frame,
+				Color new_color = JColorChooser.showDialog(PreferencesDialog.this,
 						"Choose canvas color", _bg_color_label.getBackground());
 				if (new_color != null) {
 					_bg_color_label.setBackground(new_color);
