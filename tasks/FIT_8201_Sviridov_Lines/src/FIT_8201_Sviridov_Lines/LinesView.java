@@ -306,7 +306,9 @@ public class LinesView extends JPanel implements PolylineSettings {
 				super.componentResized(e);
 				_offscreen = createImage(getWidth(), getHeight());
 				fullRepaint(true);
+				repaint();
 			}
+			
 		});
 
 		Thread thread = new Thread(new Runnable() {
