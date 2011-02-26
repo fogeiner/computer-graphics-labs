@@ -199,11 +199,10 @@ public class LinesView extends JPanel implements PolylineSettings {
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		
+
 		if (_offscreen == null)
 			return;
 
-		
 		Graphics2D front = (Graphics2D) g;
 		Graphics2D back = (Graphics2D) _offscreen.getGraphics();
 
@@ -212,7 +211,7 @@ public class LinesView extends JPanel implements PolylineSettings {
 
 		if (isFullRepaint()) {
 			back.setColor(getBackgroundColor());
-			back.fillRect(0, 0, getWidth(), getHeight());
+			back.fillRect(0, 0, _offscreen.getWidth(null), _offscreen.getHeight(null));
 
 			List<Polyline> polylines = getPolylines();
 
@@ -288,8 +287,9 @@ public class LinesView extends JPanel implements PolylineSettings {
 	public void reset() {
 		_polylines.clear();
 		setBackgroundColor(PolylineSettings.DEFAULT_BACKGROUND_COLOR);
+		fullRepaint(true);
 	}
-	
+
 	/**
 	 * Constructor with reference to LinesFrame
 	 * 
@@ -304,11 +304,21 @@ public class LinesView extends JPanel implements PolylineSettings {
 			@Override
 			public void componentResized(ComponentEvent e) {
 				super.componentResized(e);
-				_offscreen = createImage(getWidth(), getHeight());
-				fullRepaint(true);
+
+				if (_offscreen == null) {
+					_offscreen = createImage(getWidth(), getHeight());
+					fullRepaint(true);
+				} else {
+					if (getWidth() > _offscreen.getWidth(null)
+							|| getHeight() > _offscreen.getHeight(null)) {
+						_offscreen = createImage(getWidth(), getHeight());
+						fullRepaint(true);
+					}
+				}
+				
 				repaint();
 			}
-			
+
 		});
 
 		Thread thread = new Thread(new Runnable() {
