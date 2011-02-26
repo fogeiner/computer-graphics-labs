@@ -113,10 +113,14 @@ public class LinesView extends JPanel implements PolylineSettings {
 	 *            Color to be set as color of canvas
 	 */
 	public void setBackgroundColor(Color background_color) {
+		boolean new_background = !background_color.equals(_background_color);
+
 		this._background_color = background_color;
 
-		fullRepaint(true);
-		repaint();
+		if(new_background){
+			fullRepaint(true);
+			repaint();
+		}
 	}
 
 	/**
