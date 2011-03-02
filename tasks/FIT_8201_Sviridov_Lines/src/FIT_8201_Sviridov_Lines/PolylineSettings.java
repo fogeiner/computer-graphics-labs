@@ -19,7 +19,7 @@ public interface PolylineSettings {
 
 	public final static int FRAME_WIDTH = 800;
 	public final static int FRAME_HEIGHT = 600;
-	public final static String LINES_NAME = "FIT_8201_Sviridov_Lines";
+	public final static String LINES_NAME = "FIT_8201_Sviridov_Lines_7";
 	public final static String UNTITLED_DOCUMENT = "Untitled";
 
 	/**
