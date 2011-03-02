@@ -1,18 +1,17 @@
 package FIT_8201_Sviridov_Lines;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,9 +26,12 @@ import javax.swing.JPanel;
 public class LinesView extends JPanel implements PolylineSettings {
 
 	private static final long serialVersionUID = -456307332612783435L;
-	private Image _offscreen;
+	private BufferedImage _offscreen;
+	private static int IMAGE_WIDTH = 2000;
+	private static int IMAGE_HEIGHT = 1500;
+	
+	
 	private boolean _full_repaint;
-	private boolean _mouse_blocked = false;
 
 	private FrameService _lines_frame;
 
@@ -44,12 +46,11 @@ public class LinesView extends JPanel implements PolylineSettings {
 	private Polyline _new_polyline = null;
 
 	private Color _polyline_color = PolylineSettings.DEFAULT_POLYLINE_COLOR;
-	private Color _background_color = PolylineSettings.DEFAULT_BACKGROUND_COLOR;
 	private int _polyline_type = PolylineSettings.DEFAULT_POLYLINE_TYPE;
 	private int _polyline_thickness = PolylineSettings.DEFAULT_POLYLINE_THICKNESS;
 	private int _circle_radius = PolylineSettings.DEFAULT_CIRCLE_RADIUS;
 
-	private int _refresh_period = 50;
+	private int _refresh_period = 35;
 
 	/**
 	 * Returns list of current (i.e. which are present on screen right away)
@@ -103,7 +104,7 @@ public class LinesView extends JPanel implements PolylineSettings {
 	 * @return current color of canvas
 	 */
 	public Color getBackgroundColor() {
-		return _background_color;
+		return getBackground();
 	}
 
 	/**
@@ -113,14 +114,8 @@ public class LinesView extends JPanel implements PolylineSettings {
 	 *            Color to be set as color of canvas
 	 */
 	public void setBackgroundColor(Color background_color) {
-		boolean new_background = !background_color.equals(_background_color);
-
-		this._background_color = background_color;
-
-		if(new_background){
-			fullRepaint(true);
-			repaint();
-		}
+		setBackground(background_color);
+		repaint();
 	}
 
 	/**
@@ -191,7 +186,6 @@ public class LinesView extends JPanel implements PolylineSettings {
 	 */
 	private void resetPreferences() {
 		_polyline_color = DEFAULT_POLYLINE_COLOR;
-		_background_color = DEFAULT_BACKGROUND_COLOR;
 		_polyline_type = DEFAULT_POLYLINE_TYPE;
 		_polyline_thickness = DEFAULT_POLYLINE_THICKNESS;
 		_circle_radius = DEFAULT_CIRCLE_RADIUS;
@@ -208,15 +202,18 @@ public class LinesView extends JPanel implements PolylineSettings {
 			return;
 
 		Graphics2D front = (Graphics2D) g;
-		Graphics2D back = (Graphics2D) _offscreen.getGraphics();
+		Graphics2D back = (Graphics2D) _offscreen.createGraphics();
 
 		front.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
 
 		if (isFullRepaint()) {
-			back.setColor(getBackgroundColor());
-			back.fillRect(0, 0, _offscreen.getWidth(null), _offscreen.getHeight(null));
-
+			back.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR,
+					0.0f));
+			back.fillRect(0, 0, _offscreen.getWidth(), _offscreen.getHeight());
+			
+			back = _offscreen.createGraphics();
+			
 			List<Polyline> polylines = getPolylines();
 
 			for (Polyline polyline : polylines) {
@@ -246,6 +243,14 @@ public class LinesView extends JPanel implements PolylineSettings {
 		}
 	}
 
+	/**
+	 * Makes made model changed visible
+	 */
+	public void modelLoaded(){
+		fullRepaint(true);
+		repaint();
+	}
+	
 	/**
 	 * Sets state to <code>state</code> state (meant to be VIEW and EDIT)
 	 * 
@@ -290,8 +295,9 @@ public class LinesView extends JPanel implements PolylineSettings {
 	 */
 	public void reset() {
 		_polylines.clear();
-		setBackgroundColor(PolylineSettings.DEFAULT_BACKGROUND_COLOR);
+		setBackground(PolylineSettings.DEFAULT_BACKGROUND_COLOR);
 		fullRepaint(true);
+		repaint();
 	}
 
 	/**
@@ -310,16 +316,18 @@ public class LinesView extends JPanel implements PolylineSettings {
 				super.componentResized(e);
 
 				if (_offscreen == null) {
-					_offscreen = createImage(getWidth(), getHeight());
+					_offscreen = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT,
+							BufferedImage.TYPE_INT_ARGB);
 					fullRepaint(true);
 				} else {
 					if (getWidth() > _offscreen.getWidth(null)
 							|| getHeight() > _offscreen.getHeight(null)) {
-						_offscreen = createImage(getWidth(), getHeight());
+						_offscreen = new BufferedImage(getWidth(), getHeight(),
+								BufferedImage.TYPE_INT_ARGB);
 						fullRepaint(true);
 					}
 				}
-				
+
 				repaint();
 			}
 

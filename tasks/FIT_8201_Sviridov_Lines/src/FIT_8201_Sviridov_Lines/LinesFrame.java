@@ -75,10 +75,13 @@ public class LinesFrame extends MainFrame implements FrameService {
 			addToolBarButton("File/New");
 			addToolBarButton("File/Load");
 			addToolBarButton("File/Save as...");
-			addToolBarButton("File/Exit");
+
 			addToolBarSeparator();
 			addToolBarButton("Edit/Preferences");
+			addToolBarSeparator();
 			addToolBarButton("Help/About");
+			addToolBarSeparator();
+			addToolBarButton("File/Exit");
 
 			toolBar.setFloatable(false);
 
@@ -275,6 +278,17 @@ public class LinesFrame extends MainFrame implements FrameService {
 				return;
 			}
 
+			if (file.exists()) {
+				int answer = JOptionPane
+						.showConfirmDialog(
+								this,
+								"File already exists. Are you sure you want to overwrite it?",
+								"Saving file", JOptionPane.YES_NO_CANCEL_OPTION);
+
+				if (answer != JOptionPane.OK_OPTION)
+					return;
+			}
+
 			PolylinePersistenceManager.saveToFile(file, _lines_view);
 
 			setModified(false);
@@ -319,13 +333,8 @@ public class LinesFrame extends MainFrame implements FrameService {
 	public void setBlocked(boolean value) {
 		JMenuBar menu_bar = getJMenuBar();
 
-		// iterate over the menues
-		// File(New, Load, Save as, Exit), Edit(Preferences), Help(About)
-		// Exit and About can be left active
-
 		JMenu file = (JMenu) menu_bar.getComponent(0);
 		JMenu edit = (JMenu) menu_bar.getComponent(1);
-		JMenu help = (JMenu) menu_bar.getComponent(2);
 
 		for (int i = 0; i < file.getMenuComponentCount() - 1; ++i) {
 			file.getMenuComponent(i).setEnabled(!value);
@@ -335,9 +344,8 @@ public class LinesFrame extends MainFrame implements FrameService {
 			edit.getMenuComponent(i).setEnabled(!value);
 		}
 
-		// toolbar(New, Load, Save, Exit, separator, Settings, About)
 		for (int i = 0; i < toolBar.getComponentCount(); ++i) {
-			if (i != 3 && i != 4 && i != 6)
+			if (i != 6 && i != 8)
 				toolBar.getComponent(i).setEnabled(!value);
 		}
 	}

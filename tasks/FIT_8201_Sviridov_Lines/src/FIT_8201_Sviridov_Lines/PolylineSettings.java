@@ -122,4 +122,9 @@ public interface PolylineSettings {
 	 *            current circles radius
 	 */
 	public void setCircleRadius(int circle_radius);
+	
+	/**
+	 * Makes made model changed visible
+	 */
+	public void modelLoaded();
 }

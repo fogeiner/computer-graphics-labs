@@ -86,5 +86,7 @@ public class PolylinePersistenceManager {
 
 			ps.addPolyline(polyline);
 		}
+		
+		ps.modelLoaded();
 	}
 }
