@@ -46,10 +46,10 @@ class PreferencesDialog extends javax.swing.JDialog {
 	private JLabel _bg_color_label = new JLabel();
 	private JLabel _polyline_color_label = new JLabel();
 	private ButtonGroup _polylines_button_group = new ButtonGroup();
-	private JRadioButton _r1 = new JRadioButton("Continious");
+	private JRadioButton _r1 = new JRadioButton("Solid");
 	private JRadioButton _r2 = new JRadioButton("Dashed");
-	private JRadioButton _r3 = new JRadioButton("Dotted-dashed");
-	private JButton _confirm_button = new JButton("Confirm");
+	private JRadioButton _r3 = new JRadioButton("Dashed-dotted");
+	private JButton _confirm_button = new JButton("OK");
 	private JButton _cancel_button = new JButton("Cancel");
 	private JSlider _radius_slider = new JSlider(1, PolylineSettings.MAX_RADIUS);
 	private JTextField _radius_textfield = new JTextField(5);

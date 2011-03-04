@@ -295,7 +295,6 @@ public class LinesView extends JPanel implements PolylineSettings {
 	 */
 	public void reset() {
 		_polylines.clear();
-		setBackground(PolylineSettings.DEFAULT_BACKGROUND_COLOR);
 		fullRepaint(true);
 		repaint();
 	}
@@ -308,6 +307,7 @@ public class LinesView extends JPanel implements PolylineSettings {
 	 */
 	public LinesView(FrameService lines_frame) {
 		_lines_frame = lines_frame;
+		setBackground(PolylineSettings.DEFAULT_BACKGROUND_COLOR);
 		resetPreferences();
 
 		this.addComponentListener(new ComponentAdapter() {
