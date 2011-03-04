@@ -5,6 +5,8 @@ import java.awt.event.FocusListener;
 
 import javax.swing.JSlider;
 import javax.swing.JTextField;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
@@ -35,6 +37,14 @@ class TextFieldSliderDocumentFilter extends DocumentFilter {
 		_slider_max = slider.getMaximum();
 		_slider_min = slider.getMinimum();
 
+		_slider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				_textfield.setText(Integer.toString(_slider
+						.getValue()));
+			}
+		});
+		
 		_textfield.addFocusListener(new FocusListener() {
 
 			@Override

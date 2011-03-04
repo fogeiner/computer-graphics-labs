@@ -8,6 +8,8 @@ import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -23,8 +25,6 @@ import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.text.AbstractDocument;
 import FIT_8201_Sviridov_Lines.TextFieldSliderDocumentFilter;
 
@@ -49,19 +49,21 @@ class PreferencesDialog extends javax.swing.JDialog {
 	private JRadioButton _r1 = new JRadioButton("Solid");
 	private JRadioButton _r2 = new JRadioButton("Dashed");
 	private JRadioButton _r3 = new JRadioButton("Dashed-dotted");
-	private JButton _confirm_button = new JButton("OK");
+	private JButton _ok_button = new JButton("OK");
 	private JButton _cancel_button = new JButton("Cancel");
 	private JSlider _radius_slider = new JSlider(1, PolylineSettings.MAX_RADIUS);
 	private JTextField _radius_textfield = new JTextField(5);
 	private JSpinner _thickness_spinner;
 	private PolylineSettings _settings_object;
+
 	/**
 	 * Reads out current preferences, sets up UI widgets to correnspond to them
 	 * and makes dialog visible
 	 */
 	public void showDialog() {
 		_bg_color_label.setBackground(_settings_object.getBackgroundColor());
-		_polyline_color_label.setBackground(_settings_object.getPolylineColor());
+		_polyline_color_label
+				.setBackground(_settings_object.getPolylineColor());
 
 		int polyline_type = _settings_object.getPolylineType();
 
@@ -88,7 +90,8 @@ class PreferencesDialog extends javax.swing.JDialog {
 	 */
 	private void confirm() {
 		_settings_object.setBackgroundColor(_bg_color_label.getBackground());
-		_settings_object.setPolylineColor(_polyline_color_label.getBackground());
+		_settings_object
+				.setPolylineColor(_polyline_color_label.getBackground());
 
 		if (_polylines_button_group.getSelection() == _r1.getModel()) {
 			_settings_object.setPolylineType(PolylineSettings.CONTINIOUS);
@@ -117,14 +120,15 @@ class PreferencesDialog extends javax.swing.JDialog {
 	 * @param linesFrame
 	 *            reference to LinesFrame
 	 */
-	public PreferencesDialog(PolylineSettings settings_object, Frame owner, String title,
-			boolean modal) {
+	public PreferencesDialog(PolylineSettings settings_object, Frame owner,
+			String title, boolean modal) {
 		super(owner, title, modal);
-		 setLocationRelativeTo(owner); 
+		setLocationRelativeTo(owner);
 		_settings_object = settings_object;
 
 		_thickness_spinner = new JSpinner(new SpinnerNumberModel(
-				_settings_object.getPolylineThickness(), 1, Integer.MAX_VALUE, 1));
+				_settings_object.getPolylineThickness(), 1, Integer.MAX_VALUE,
+				1));
 
 		setResizable(false);
 
@@ -207,35 +211,41 @@ class PreferencesDialog extends javax.swing.JDialog {
 		radius_thickness_panel.add(thickness_panel);
 
 		// Buttons
+		JPanel buttons_inner_panel = new JPanel();
+		buttons_inner_panel.setLayout(new GridLayout(1, 2, 5, 0));
 		JPanel buttons_panel = new JPanel();
 		buttons_panel.setLayout(new FlowLayout(FlowLayout.TRAILING));
 
-		buttons_panel.add(_confirm_button);
-		buttons_panel.add(_cancel_button);
+		_ok_button.setSize(_cancel_button.getSize());
+
+		buttons_inner_panel.add(_ok_button);
+		buttons_inner_panel.add(_cancel_button);
+		buttons_panel.add(buttons_inner_panel);
 
 		add(upper_panel);
 		add(radius_thickness_panel);
 		add(buttons_panel);
 		pack();
 
+		((JSpinner.DefaultEditor) _thickness_spinner.getEditor())
+				.getTextField().addKeyListener(new KeyAdapter() {
+					public void keyTyped(KeyEvent e) {
+						if (!Character.isDigit(e.getKeyChar())) {
+							e.consume();
+						}
+					}
+				});
+		
 		((AbstractDocument) _radius_textfield.getDocument())
 				.setDocumentFilter(new TextFieldSliderDocumentFilter(
 						_radius_textfield, _radius_slider));
-
-		_radius_slider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				_radius_textfield.setText(Integer.toString(_radius_slider
-						.getValue()));
-			}
-		});
 
 		_polyline_color_label.setOpaque(true);
 		_polyline_color_label.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				Color new_color = JColorChooser.showDialog(PreferencesDialog.this,
-						"Choose polyline color",
+				Color new_color = JColorChooser.showDialog(
+						PreferencesDialog.this, "Choose polyline color",
 						_polyline_color_label.getBackground());
 				if (new_color != null) {
 					_polyline_color_label.setBackground(new_color);
@@ -248,8 +258,9 @@ class PreferencesDialog extends javax.swing.JDialog {
 
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				Color new_color = JColorChooser.showDialog(PreferencesDialog.this,
-						"Choose canvas color", _bg_color_label.getBackground());
+				Color new_color = JColorChooser.showDialog(
+						PreferencesDialog.this, "Choose canvas color",
+						_bg_color_label.getBackground());
 				if (new_color != null) {
 					_bg_color_label.setBackground(new_color);
 				}
@@ -257,7 +268,7 @@ class PreferencesDialog extends javax.swing.JDialog {
 			}
 		});
 
-		_confirm_button.addActionListener(new ActionListener() {
+		_ok_button.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
