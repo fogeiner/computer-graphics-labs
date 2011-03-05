@@ -23,13 +23,6 @@ public class WeilPersistenceManager {
 
 		FileWriter fw = new FileWriter(file);
 
-		List<Polyline> polylines = ps.getPolylines();
-		int size = polylines.size();
-
-		fw.write(size + "\r\n");
-		for (int i = 0; i < size; ++i) {
-			fw.write(polylines.get(i).toString());
-		}
 		fw.close();
 
 	}
@@ -40,52 +33,8 @@ public class WeilPersistenceManager {
 		DataInputStream in = new DataInputStream(fstream);
 		BufferedReader br = new BufferedReader(new InputStreamReader(in));
 
-		int polylines_count = Integer.parseInt(LineParseUtils
-				.nextNormalizedLine(br));
+		LineParseUtils.nextNormalizedLine(br);
 
-		if (polylines_count < 0)
-			throw new IllegalArgumentException();
-
-		for (int i = 0; i < polylines_count; ++i) {
-			int points_count = Integer.parseInt(LineParseUtils
-					.nextNormalizedLine(br));
-
-			if (points_count < 0)
-				throw new IllegalArgumentException();
-
-			int type = Integer.parseInt(LineParseUtils.nextNormalizedLine(br));
-
-			if (type != WeilSettings.CONTINIOUS
-					&& type != WeilSettings.DASHED
-					&& type != WeilSettings.DOTTED_DASHED)
-				throw new IllegalArgumentException();
-
-			int thickness = Integer.parseInt(LineParseUtils
-					.nextNormalizedLine(br));
-
-			if (thickness < 1)
-				throw new IllegalArgumentException();
-
-			String str = LineParseUtils.nextNormalizedLine(br);
-			String rgb[] = str.split(" ");
-
-			Color color = new Color(Integer.parseInt(rgb[0]),
-					Integer.parseInt(rgb[1]), Integer.parseInt(rgb[2]));
-
-			Polyline polyline = new Polyline(type, thickness,
-					WeilSettings.DEFAULT_CIRCLE_RADIUS, color);
-
-			for (int j = 0; j < points_count; ++j) {
-				str = LineParseUtils.nextNormalizedLine(br);
-
-				String coord[] = str.split(" ");
-
-				polyline.addPoint(new Point(Integer.parseInt(coord[0]), Integer
-						.parseInt(coord[1])));
-			}
-
-			ps.addPolyline(polyline);
-		}
 		
 		ps.modelLoaded();
 	}

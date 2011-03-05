@@ -71,19 +71,6 @@ public class Polyline {
 	 */
 	private void makeStroke() {
 
-		if (_type == WeilSettings.CONTINIOUS) {
-			_stroke = new BasicStroke(_thickness, BasicStroke.CAP_ROUND,
-					BasicStroke.JOIN_ROUND);
-		} else if (_type == WeilSettings.DASHED) {
-			_stroke = new BasicStroke(_thickness, BasicStroke.CAP_BUTT,
-					BasicStroke.JOIN_ROUND, 10.0f, new float[] {
-							3 * _thickness, 3 * _thickness }, 0.0f);
-		} else if (_type == WeilSettings.DOTTED_DASHED) {
-			_stroke = new BasicStroke(_thickness, BasicStroke.CAP_ROUND,
-					BasicStroke.JOIN_ROUND, 10.0f, new float[] {
-							3 * _thickness, 3 * _thickness, 1 }, 0.0f);
-		}
-
 	}
 	
 	/**

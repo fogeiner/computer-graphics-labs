@@ -8,6 +8,8 @@ public interface WeilSettings {
     public final static int FRAME_WIDTH = 800;
     public final static int FRAME_HEIGHT = 600;
     public final static String LINES_NAME = "FIT_8201_Sviridov_Weil_1";
+    public final static String ABOUT_FILE = "FIT_8201_Sviridov_Weil_About.txt";
+    public final static String DATA_DIR = "FIT_8201_Sviridov_Weil_Data";
     public final static String UNTITLED_DOCUMENT = "Untitled";
     public static final Color DEFAULT_SUBJECT_COLOR = Color.black;
     public static final Color DEFAULT_CLIP_COLOR = Color.blue;
@@ -17,7 +19,7 @@ public interface WeilSettings {
     public static final int DEFAULT_CLIP_THICKNESS = DEFAULT_THICKNESS;
     public static final int DEFAULT_INTERSECTING_THICKNESS = DEFAULT_THICKNESS;
     public static final int MAX_THICKNESS = 101;
-    
+
     /**
      * Returns list of current (i.e. which are present on screen right away)
      * polylines

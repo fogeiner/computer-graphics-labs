@@ -117,6 +117,14 @@ class PreferencesDialog extends javax.swing.JDialog {
         setVisible(false);
     }
 
+    /**
+     * Makes panel with settings for every type of polygon: color and thickness
+     * @param title Title for <code>TitledBorder</code>
+     * @param color_label color laber to add <code>MouseListener</code>
+     * @param slider slider assiciated with thickness
+     * @param textfield textfield assiciated with thickness
+     * @return panel with UI widgets
+     */
     private JPanel makeSubpanel(String title, final JLabel color_label, JSlider slider, JTextField textfield) {
 
         ((AbstractDocument) textfield.getDocument()).setDocumentFilter(new TextFieldSliderDocumentFilter(
@@ -174,6 +182,10 @@ class PreferencesDialog extends javax.swing.JDialog {
         return panel1;
     }
 
+    /**
+     * Makes <code>JPanel</code> with OK and Canel buttons; adds ActionListeners as well
+     * @return panel with OK and Canel buttons
+     */
     private JPanel makeButtons() {
         JPanel outer_buttons_panel = new JPanel(new BorderLayout());
         JPanel buttons_panel = new JPanel(new GridLayout(1, 0, 5, 0));
