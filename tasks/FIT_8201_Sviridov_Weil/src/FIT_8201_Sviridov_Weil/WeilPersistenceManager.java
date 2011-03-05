@@ -1,4 +1,4 @@
-package FIT_8201_Sviridov_Lines;
+package FIT_8201_Sviridov_Weil;
 
 import java.awt.Color;
 import java.awt.Point;
@@ -17,8 +17,8 @@ import java.util.List;
  * @author admin
  * 
  */
-public class PolylinePersistenceManager {
-	public static void saveToFile(File file, PolylineSettings ps)
+public class WeilPersistenceManager {
+	public static void saveToFile(File file, WeilSettings ps)
 			throws IOException {
 
 		FileWriter fw = new FileWriter(file);
@@ -34,7 +34,7 @@ public class PolylinePersistenceManager {
 
 	}
 
-	public static void loadFromFile(File file, PolylineSettings ps)
+	public static void loadFromFile(File file, WeilSettings ps)
 			throws IOException {
 		FileInputStream fstream = new FileInputStream(file);
 		DataInputStream in = new DataInputStream(fstream);
@@ -55,9 +55,9 @@ public class PolylinePersistenceManager {
 
 			int type = Integer.parseInt(LineParseUtils.nextNormalizedLine(br));
 
-			if (type != PolylineSettings.CONTINIOUS
-					&& type != PolylineSettings.DASHED
-					&& type != PolylineSettings.DOTTED_DASHED)
+			if (type != WeilSettings.CONTINIOUS
+					&& type != WeilSettings.DASHED
+					&& type != WeilSettings.DOTTED_DASHED)
 				throw new IllegalArgumentException();
 
 			int thickness = Integer.parseInt(LineParseUtils
@@ -73,7 +73,7 @@ public class PolylinePersistenceManager {
 					Integer.parseInt(rgb[1]), Integer.parseInt(rgb[2]));
 
 			Polyline polyline = new Polyline(type, thickness,
-					PolylineSettings.DEFAULT_CIRCLE_RADIUS, color);
+					WeilSettings.DEFAULT_CIRCLE_RADIUS, color);
 
 			for (int j = 0; j < points_count; ++j) {
 				str = LineParseUtils.nextNormalizedLine(br);

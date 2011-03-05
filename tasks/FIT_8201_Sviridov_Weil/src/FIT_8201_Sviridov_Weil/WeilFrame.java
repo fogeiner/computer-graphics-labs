@@ -1,4 +1,4 @@
-package FIT_8201_Sviridov_Lines;
+package FIT_8201_Sviridov_Weil;
 
 import java.awt.EventQueue;
 import java.awt.event.KeyEvent;
@@ -19,11 +19,11 @@ import ru.nsu.cg.MainFrame;
  * 
  * @author alstein
  */
-public class LinesFrame extends MainFrame implements FrameService {
+public class WeilFrame extends MainFrame implements FrameService {
 
 	private static final long serialVersionUID = 5852264472785688626L;
 	public boolean _is_modified = false;
-	private LinesView _lines_view;
+	private WeilView _weil_view;
 	private PreferencesDialog _preferences_dialog = null;
 
 	/**
@@ -34,7 +34,7 @@ public class LinesFrame extends MainFrame implements FrameService {
 	 */
 
 	private void setDocumentName(String name) {
-		setTitle(name + " - " + PolylineSettings.LINES_NAME);
+		setTitle(name + " - " + WeilSettings.LINES_NAME);
 	}
 
 	/**
@@ -45,7 +45,7 @@ public class LinesFrame extends MainFrame implements FrameService {
 	 * @param height
 	 *            height of frame
 	 */
-	public LinesFrame(int width, int height) {
+	public WeilFrame(int width, int height) {
 		super(width, height, "");
 		try {
 			// constructing Menu
@@ -85,8 +85,8 @@ public class LinesFrame extends MainFrame implements FrameService {
 
 			toolBar.setFloatable(false);
 
-			_lines_view = new LinesView(this);
-			add(_lines_view);
+			_weil_view = new WeilView(this);
+			add(_weil_view);
 
 			setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
@@ -114,9 +114,9 @@ public class LinesFrame extends MainFrame implements FrameService {
 				}
 			});
 
-			setDocumentName(PolylineSettings.UNTITLED_DOCUMENT);
+			setDocumentName(WeilSettings.UNTITLED_DOCUMENT);
 			setModified(false);
-			_lines_view.reset();
+			_weil_view.reset();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -159,9 +159,9 @@ public class LinesFrame extends MainFrame implements FrameService {
 			}
 		}
 
-		setDocumentName(PolylineSettings.UNTITLED_DOCUMENT);
+		setDocumentName(WeilSettings.UNTITLED_DOCUMENT);
 		setModified(false);
-		_lines_view.reset();
+		_weil_view.reset();
 	}
 
 	/**
@@ -196,8 +196,8 @@ public class LinesFrame extends MainFrame implements FrameService {
 	 */
 	public void onPreferences() {
 		if (_preferences_dialog == null) {
-			_preferences_dialog = new PreferencesDialog(_lines_view, this,
-					"Lines Preferences", true);
+			_preferences_dialog = new PreferencesDialog(_weil_view, this,
+					"Weil Preferences", true);
 		}
 		_preferences_dialog.showDialog();
 	}
@@ -248,20 +248,20 @@ public class LinesFrame extends MainFrame implements FrameService {
 			if (file == null) {
 				return;
 			}
-			_lines_view.reset();
-			PolylinePersistenceManager.loadFromFile(file, _lines_view);
+			_weil_view.reset();
+			WeilPersistenceManager.loadFromFile(file, _weil_view);
 			setDocumentName(file.getName());
 			setModified(false);
 		} catch (IllegalArgumentException ex) {
 			JOptionPane.showMessageDialog(this,
 					"Document is of unknown format", "Loading document",
 					JOptionPane.ERROR_MESSAGE);
-			setDocumentName(PolylineSettings.UNTITLED_DOCUMENT);
+			setDocumentName(WeilSettings.UNTITLED_DOCUMENT);
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(this,
 					"Error loading file: \n" + e.getLocalizedMessage(),
 					"Loading document", JOptionPane.ERROR_MESSAGE);
-			setDocumentName(PolylineSettings.UNTITLED_DOCUMENT);
+			setDocumentName(WeilSettings.UNTITLED_DOCUMENT);
 		}
 	}
 
@@ -289,7 +289,7 @@ public class LinesFrame extends MainFrame implements FrameService {
 					return;
 			}
 
-			PolylinePersistenceManager.saveToFile(file, _lines_view);
+			WeilPersistenceManager.saveToFile(file, _weil_view);
 
 			setModified(false);
 			setDocumentName(file.getName());
@@ -314,9 +314,9 @@ public class LinesFrame extends MainFrame implements FrameService {
 		EventQueue.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				LinesFrame lines_frame = new LinesFrame(
-						PolylineSettings.FRAME_WIDTH,
-						PolylineSettings.FRAME_HEIGHT);
+				WeilFrame lines_frame = new WeilFrame(
+						WeilSettings.FRAME_WIDTH,
+						WeilSettings.FRAME_HEIGHT);
 				lines_frame.setVisible(true);
 			}
 		});

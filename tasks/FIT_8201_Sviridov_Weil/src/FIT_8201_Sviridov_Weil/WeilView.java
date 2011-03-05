@@ -1,4 +1,4 @@
-package FIT_8201_Sviridov_Lines;
+package FIT_8201_Sviridov_Weil;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -23,7 +23,7 @@ import javax.swing.JPanel;
  * @author alstein
  * 
  */
-public class LinesView extends JPanel implements PolylineSettings {
+public class WeilView extends JPanel implements WeilSettings {
 
 	private static final long serialVersionUID = -456307332612783435L;
 	private BufferedImage _offscreen;
@@ -45,10 +45,10 @@ public class LinesView extends JPanel implements PolylineSettings {
 	private List<Polyline> _polylines = new ArrayList<Polyline>();
 	private Polyline _new_polyline = null;
 
-	private Color _polyline_color = PolylineSettings.DEFAULT_POLYLINE_COLOR;
-	private int _polyline_type = PolylineSettings.DEFAULT_POLYLINE_TYPE;
-	private int _polyline_thickness = PolylineSettings.DEFAULT_POLYLINE_THICKNESS;
-	private int _circle_radius = PolylineSettings.DEFAULT_CIRCLE_RADIUS;
+	private Color _polyline_color = WeilSettings.DEFAULT_POLYLINE_COLOR;
+	private int _polyline_type = WeilSettings.DEFAULT_POLYLINE_TYPE;
+	private int _polyline_thickness = WeilSettings.DEFAULT_POLYLINE_THICKNESS;
+	private int _circle_radius = WeilSettings.DEFAULT_CIRCLE_RADIUS;
 
 	private int _refresh_period = 35;
 
@@ -305,9 +305,9 @@ public class LinesView extends JPanel implements PolylineSettings {
 	 * @param lines_frame
 	 *            application main frame
 	 */
-	public LinesView(FrameService lines_frame) {
+	public WeilView(FrameService lines_frame) {
 		_lines_frame = lines_frame;
-		setBackground(PolylineSettings.DEFAULT_BACKGROUND_COLOR);
+		setBackground(WeilSettings.DEFAULT_BACKGROUND_COLOR);
 		resetPreferences();
 
 		this.addComponentListener(new ComponentAdapter() {
@@ -338,14 +338,14 @@ public class LinesView extends JPanel implements PolylineSettings {
 			public void run() {
 				try {
 					while (true) {
-						synchronized (LinesView.this._monitor) {
-							if (LinesView.this._rubber_line == false) {
+						synchronized (WeilView.this._monitor) {
+							if (WeilView.this._rubber_line == false) {
 								_monitor.wait();
 								continue;
 							}
 						}
-						LinesView.this.repaint();
-						Thread.sleep(LinesView.this._refresh_period);
+						WeilView.this.repaint();
+						Thread.sleep(WeilView.this._refresh_period);
 					}
 				} catch (InterruptedException e) {
 					e.printStackTrace();

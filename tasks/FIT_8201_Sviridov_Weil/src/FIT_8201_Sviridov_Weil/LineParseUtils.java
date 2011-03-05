@@ -1,4 +1,4 @@
-package FIT_8201_Sviridov_Lines;
+package FIT_8201_Sviridov_Weil;
 
 import java.io.BufferedReader;
 import java.io.IOException;
