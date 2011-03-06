@@ -318,6 +318,7 @@ public class WeilView extends JPanel implements WeilSettings {
      */
     public void setSubjectPolygonColor(Color color) {
         _subject_polygon.setColor(color);
+        _hole_polygon.setColor(color);
     }
 
     /**
@@ -375,6 +376,7 @@ public class WeilView extends JPanel implements WeilSettings {
      */
     public void setSubjectPolygonThickness(int thickness) {
         _subject_polygon.setThickness(thickness);
+        _hole_polygon.setThickness(thickness);
     }
 
     /**

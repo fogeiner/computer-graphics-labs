@@ -25,6 +25,7 @@ public interface WeilSettings {
      * @return width of the visualization area
      */
     public int getWidth();
+
     /**
      * Returns height of the visualization area
      * @return height of the visualization area
@@ -166,4 +167,9 @@ public interface WeilSettings {
      * Commits changes to become visible after altering model
      */
     public void modelLoaded();
+
+    /**
+     * Methods should be invoked after changes in model settings to make them appear on the screen
+     */
+    public void repaint();
 }
