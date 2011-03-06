@@ -1,7 +1,7 @@
 package FIT_8201_Sviridov_Weil;
 
 import java.awt.Color;
-import java.util.List;
+import java.awt.Dimension;
 
 public interface WeilSettings {
 
@@ -11,9 +11,9 @@ public interface WeilSettings {
     public final static String ABOUT_FILE = "FIT_8201_Sviridov_Weil_About.txt";
     public final static String DATA_DIR = "FIT_8201_Sviridov_Weil_Data";
     public final static String UNTITLED_DOCUMENT = "Untitled";
-    public static final Color DEFAULT_SUBJECT_COLOR = Color.black;
+    public static final Color DEFAULT_SUBJECT_COLOR = Color.red;
     public static final Color DEFAULT_CLIP_COLOR = Color.blue;
-    public static final Color DEFAULT_INTERSECTING_COLOR = Color.red;
+    public static final Color DEFAULT_INTERSECTING_COLOR = Color.green;
     public static final int DEFAULT_THICKNESS = 1;
     public static final int DEFAULT_SUBJECT_THICKNESS = DEFAULT_THICKNESS;
     public static final int DEFAULT_CLIP_THICKNESS = DEFAULT_THICKNESS;
@@ -21,50 +21,138 @@ public interface WeilSettings {
     public static final int MAX_THICKNESS = 101;
 
     /**
-     * Returns list of current (i.e. which are present on screen right away)
-     * polylines
+     * Returns current color of subject polygon
      *
-     * @return Unmodifiable list of current polylines
+     * @return color of subject polygon
      */
-    public List<Polyline> getPolylines();
+    public Color getSubjectPolygonColor();
 
     /**
-     * Adds polyline to list of current polylines
+     * Returns current color of clip polygon
      *
-     * @param polyline
-     *            Polyline to be added to list of current polylines
+     * @return color of clip polygon
      */
-    public void addPolyline(Polyline polyline);
+    public Color getClipPolygonColor();
 
     /**
-     * Clears list of current polylines
+     * Returns current color of intersecting polygon
+     *
+     * @return color of intersecting polygon
      */
-    public void clearPolylines();
+    public Color getIntersectingPolygonColor();
 
     /**
-     * Returns current color of polyline
+     * Sets subject polygon color
      *
-     * @return color of current polyline
+     * @param color
+     *            Color to be set as subject polygon color
      */
-    public Color getPolylineColor();
+    public void setSubjectPolygonColor(Color color);
 
     /**
-     * Sets current polyline color
+     * Sets clip polygon color
      *
-     * @param polyline_color
-     *            Color to be set as current polyline color
+     * @param color
+     *            Color to be set as clip polygon color
      */
-    public void setPolylineColor(Color polyline_color);
-
-    public int getPolylineThickness();
+    public void setClipPolygonColor(Color color);
 
     /**
-     * Sets thickness of current polyline
+     * Sets subject polygon color
      *
-     * @param polyline_thickness
-     *            new thickness of current polyline
+     * @param color
+     *            Color to be set as intersecting polygon color
      */
-    public void setPolylineThickness(int polyline_thickness);
+    public void setIntersectingPolygonColor(Color color);
 
+    /**
+     * Returns current thickness of subject polygon
+     *
+     * @return thickness of subject polygon
+     */
+    public int getSubjectPolygonThickness();
+
+    /**
+     * Returns current thickness of clip polygon
+     *
+     * @return thickness of clip polygon
+     */
+    public int getClipPolygonThickness();
+
+    /**
+     * Returns current thickness of intersecting polygon
+     *
+     * @return thickness of intersecting polygon
+     */
+    public int getIntersectingPolygonThickness();
+
+    /**
+     * Sets subject polygon thickness
+     *
+     * @param thickness
+     *            thickness to be set as subject polygon thickness
+     */
+    public void setSubjectPolygonThickness(int thickness);
+
+    /**
+     * Sets clip polygon thickness
+     *
+     * @param thickness
+     *            thickness to be set as clip polygon thickness
+     */
+    public void setClipPolygonThickness(int thickness);
+
+    /**
+     * Sets subject polygon thickness
+     *
+     * @param thickness
+     *            thickness to be set as intersecting polygon thickness
+     */
+    public void setIntersectingPolygonThickness(int thickness);
+
+    /**
+     * Sets preferred size of the model visualization
+     */
+    public void setPreferredSize(Dimension d);
+
+    /**
+     * Sets <code>p</code> as a subject polygon of the model
+     * @param p polygon to become subject polygon of the model
+     */
+    public void setSubjectPolygon(Polygon p);
+
+    /**
+     * Sets <code>p</code> as a hole polygon of the model
+     * @param p polygon to become hole polygon of the model
+     */
+    public void setHolePolygon(Polygon p);
+
+    /**
+     * Sets <code>p</code> as a clip polygon of the model
+     * @param p polygon to become clip polygon of the model
+     */
+    public void setClipPolygon(Polygon p);
+
+    /**
+     * Returns  a subject polygon of the model
+     * @return subject polygon of the model
+     */
+    public Polygon getSubjectPolygon();
+
+    /**
+     * Returns  a hole polygon of the model
+     * @return hole polygon of the model
+     */
+    public Polygon getHolePolygon();
+
+    /**
+     * Returns  a clip polygon of the model
+     * @return clip polygon of the model
+     */
+    public Polygon getClipPolygon();
+
+    /**
+     * Commits changes to become visible after altering model
+     */
     public void modelLoaded();
 }

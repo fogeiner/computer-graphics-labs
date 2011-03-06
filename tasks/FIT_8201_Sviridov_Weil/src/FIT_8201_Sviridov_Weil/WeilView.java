@@ -2,6 +2,7 @@ package FIT_8201_Sviridov_Weil;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.MouseInfo;
@@ -15,6 +16,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 /**
@@ -26,170 +28,27 @@ import javax.swing.JPanel;
 public class WeilView extends JPanel implements WeilSettings {
 
     private static final long serialVersionUID = -456307332612783435L;
+    // double buffer image
     private BufferedImage _offscreen;
-
     private static int IMAGE_WIDTH = 2000;
     private static int IMAGE_HEIGHT = 1500;
-
     private boolean _full_repaint;
+    // drawing properties
+    private int _refresh_period = 30;
     private FrameService _weil_frame;
-
     private boolean _rubber_line = false;
     private final Object _monitor = new Object();
-
+    // app data
+    private Polygon _subject_polygon = new Polygon(WeilSettings.DEFAULT_SUBJECT_COLOR, WeilSettings.DEFAULT_SUBJECT_THICKNESS);
+    private Polygon _hole_polygon = new Polygon(WeilSettings.DEFAULT_SUBJECT_COLOR, WeilSettings.DEFAULT_SUBJECT_THICKNESS);
+    private Polygon _clip_polygon = new Polygon(WeilSettings.DEFAULT_CLIP_COLOR, WeilSettings.DEFAULT_CLIP_THICKNESS);
+    private Color _intersecting_polygons_color = WeilSettings.DEFAULT_INTERSECTING_COLOR;
+    private int _intersecting_polygons_thickness = WeilSettings.DEFAULT_INTERSECTING_THICKNESS;
+    private List<Polygon> _intersecting_polygons = new ArrayList<Polygon>();
+    // state machine data
     private final static int VIEW_STATE = 0;
     private final static int EDIT_STATE = 1;
     private int _state = VIEW_STATE;
-
-    private List<Polyline> _polylines = new ArrayList<Polyline>();
-    private Polyline _new_polyline = null;
-    
-    
-    private Color _polyline_color;
-    private int _polyline_type;
-    private int _polyline_thickness;
-    private int _circle_radius;
-
-    private int _refresh_period = 30;
-
-    /**
-     * Returns list of current (i.e. which are present on screen right away)
-     * polylines
-     *
-     * @return Unmodifiable list of current polylines
-     */
-    public List<Polyline> getPolylines() {
-        return Collections.unmodifiableList(_polylines);
-    }
-
-    /**
-     * Adds polyline to list of current polylines
-     *
-     * @param polyline
-     *            Polyline to be added to list of current polylines
-     */
-    public void addPolyline(Polyline polyline) {
-        _polylines.add(polyline);
-    }
-
-    /**
-     * Clears list of current polylines
-     */
-    public void clearPolylines() {
-        _polylines.clear();
-    }
-
-    /**
-     * Returns current color of polyline
-     *
-     * @return color of current polyline
-     */
-    public Color getPolylineColor() {
-        return _polyline_color;
-    }
-
-    /**
-     * Sets current polyline color
-     *
-     * @param polyline_color
-     *            Color to be set as current polyline color
-     */
-    public void setPolylineColor(Color polyline_color) {
-        this._polyline_color = polyline_color;
-    }
-
-    /**
-     * Returns current color of canvas
-     *
-     * @return current color of canvas
-     */
-    public Color getBackgroundColor() {
-        return getBackground();
-    }
-
-    /**
-     * Sets current color of canvas
-     *
-     * @param background_color
-     *            Color to be set as color of canvas
-     */
-    public void setBackgroundColor(Color background_color) {
-        setBackground(background_color);
-        repaint();
-    }
-
-    /**
-     * Returns type of current polyline (one of <code>Polyline.CONTINIOUS</code>
-     * , <code>Polyline.DASH_AND_DOT</code>,
-     * <code>Polyline.DOTTED_DASH_AND_DOT</code>).
-     *
-     * @return type of current polyline
-     * @see Polyline
-     */
-    public int getPolylineType() {
-        return _polyline_type;
-    }
-
-    /**
-     * Sets type of current polyline (one of <code>Polyline.CONTINIOUS</code>,
-     * <code>Polyline.DASH_AND_DOT</code>,
-     * <code>Polyline.DOTTED_DASH_AND_DOT</code>).
-     *
-     * @param polyline_type
-     *            new type of current polyline
-     */
-    public void setPolylineType(int polyline_type) {
-        this._polyline_type = polyline_type;
-    }
-
-    /**
-     * Returns thickness of current polyline
-     *
-     * @return thickness of current polyline
-     */
-    public int getPolylineThickness() {
-        return _polyline_thickness;
-    }
-
-    /**
-     * Sets thickness of current polyline
-     *
-     * @param polyline_thickness
-     *            new thickness of current polyline
-     */
-    public void setPolylineThickness(int polyline_thickness) {
-        this._polyline_thickness = polyline_thickness;
-    }
-
-    /**
-     * Returns current circles radius
-     *
-     * @return current circles radius
-     */
-    public int getCircleRadius() {
-        return _circle_radius;
-    }
-
-    /**
-     * Sets current circles radius
-     *
-     * @param circle_radius
-     *            current circles radius
-     */
-    public void setCircleRadius(int circle_radius) {
-        this._circle_radius = circle_radius;
-    }
-
-    /**
-     * Sets polyline color, polyline thickness, polyline type, canvas color and
-     * circle radius to default values
-     */
-    private void resetPreferences() {
-//		_polyline_color = DEFAULT_POLYLINE_COLOR;
-//		_polyline_type = DEFAULT_POLYLINE_TYPE;
-//		_polyline_thickness = DEFAULT_POLYLINE_THICKNESS;
-//		_circle_radius = DEFAULT_CIRCLE_RADIUS;
-    }
 
     /**
      * Paints background, polylines and rubber line
@@ -198,49 +57,20 @@ public class WeilView extends JPanel implements WeilSettings {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        if (_offscreen == null) {
-            return;
-        }
-
-        Graphics2D front = (Graphics2D) g;
-        Graphics2D back = (Graphics2D) _offscreen.createGraphics();
-
+       Graphics2D front = (Graphics2D) g;
+    
         front.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
 
-        if (isFullRepaint()) {
-            back.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR,
-                    0.0f));
-            back.fillRect(0, 0, _offscreen.getWidth(), _offscreen.getHeight());
+        front.translate(0, this.getHeight()-1);
+        front.scale(1, -1);
 
-            back = _offscreen.createGraphics();
+        _subject_polygon.draw(front);
+        _hole_polygon.draw(front);
+        _clip_polygon.draw(front);
 
-            List<Polyline> polylines = getPolylines();
-
-            for (Polyline polyline : polylines) {
-                polyline.drawFull(back);
-            }
-
-            fullRepaint(false);
-        }
-
-        front.drawImage(_offscreen, 0, 0, this);
-
-        if (_rubber_line) {
-            Polyline last_polyline = _new_polyline;
-            front.setStroke(last_polyline.getStroke());
-            front.setColor(last_polyline.getColor());
-
-            List<Point> last_points = last_polyline.getPoints();
-            Point last_point = last_points.get(last_points.size() - 1);
-
-            Point pointer_location = MouseInfo.getPointerInfo().getLocation();
-
-            int x1 = last_point.x, y1 = last_point.y, x2 = pointer_location.x
-                    - this.getLocationOnScreen().x, y2 = pointer_location.y
-                    - this.getLocationOnScreen().y;
-
-            front.drawLine(x1, y1, x2, y2);
+        for(Polygon p: _intersecting_polygons){
+            p.draw(front);
         }
     }
 
@@ -254,19 +84,18 @@ public class WeilView extends JPanel implements WeilSettings {
     }
 
     /**
-     * Sets state to <code>state</code> state (meant to be VIEW and EDIT)
+     * Sets state to <code>state</code> state
      *
-     * @param state
-     *            either VIEW_STATE or EDIT_STATE
+     * @param state new state
      */
     private void setState(int state) {
         _state = state;
     }
 
     /**
-     * Returns state(meant to be VIEW and EDIT)
+     * Returns state
      *
-     * @return either VIEW_STATE or EDIT_STATE
+     * @return current state
      */
     private int getState() {
         return _state;
@@ -306,10 +135,14 @@ public class WeilView extends JPanel implements WeilSettings {
      * @param lines_frame
      *            application main frame
      */
-    public WeilView(FrameService lines_frame) {
-        _weil_frame = lines_frame;
+    public WeilView(FrameService weil_frame) {
+        _weil_frame = weil_frame;
         setBackground(Color.white);
-        resetPreferences();
+
+        _subject_polygon.addPoint(10,110);
+        _subject_polygon.addPoint(10,0);
+        _subject_polygon.addPoint(110,10);
+        _subject_polygon.addPoint(110,110);
 
         this.addComponentListener(new ComponentAdapter() {
 
@@ -363,11 +196,183 @@ public class WeilView extends JPanel implements WeilSettings {
             public void mousePressed(MouseEvent event) {
                 int button = event.getButton();
                 Point point = event.getPoint();
+
+                if (_subject_polygon.isInside(point.x, getHeight() - point.y)) {
+                    System.out.println("in");
+                } else {
+                    System.out.println("out");
+                }
+
                 // left mouse click
                 if (button == MouseEvent.BUTTON1) {
                 } else if (button == MouseEvent.BUTTON3) {
                 }
             }
         });
+    }
+
+    /**
+     * Returns current color of subject polygon
+     *
+     * @return color of subject polygon
+     */
+    public Color getSubjectPolygonColor() {
+        return _subject_polygon.getColor();
+    }
+
+    /**
+     * Returns current color of clip polygon
+     *
+     * @return color of clip polygon
+     */
+    public Color getClipPolygonColor() {
+        return _clip_polygon.getColor();
+    }
+
+    /**
+     * Returns current color of intersecting polygon
+     *
+     * @return color of intersecting polygon
+     */
+    public Color getIntersectingPolygonColor() {
+        return _intersecting_polygons_color;
+    }
+
+    /**
+     * Sets subject polygon color
+     *
+     * @param color
+     *            Color to be set as subject polygon color
+     */
+    public void setSubjectPolygonColor(Color color) {
+        _subject_polygon.setColor(color);
+    }
+
+    /**
+     * Sets clip polygon color
+     *
+     * @param color
+     *            Color to be set as clip polygon color
+     */
+    public void setClipPolygonColor(Color color) {
+        _clip_polygon.setColor(color);
+    }
+
+    /**
+     * Sets subject polygon color
+     *
+     * @param color
+     *            Color to be set as intersecting polygon color
+     */
+    public void setIntersectingPolygonColor(Color color) {
+        _intersecting_polygons_color = color;
+    }
+
+    /**
+     * Returns current thickness of subject polygon
+     *
+     * @return thickness of subject polygon
+     */
+    public int getSubjectPolygonThickness() {
+        return _subject_polygon.getThickness();
+    }
+
+    /**
+     * Returns current thickness of clip polygon
+     *
+     * @return thickness of clip polygon
+     */
+    public int getClipPolygonThickness() {
+        return _clip_polygon.getThickness();
+    }
+
+    /**
+     * Returns current thickness of intersecting polygon
+     *
+     * @return thickness of intersecting polygon
+     */
+    public int getIntersectingPolygonThickness() {
+        return _intersecting_polygons_thickness;
+    }
+
+    /**
+     * Sets subject polygon thickness
+     *
+     * @param thickness
+     *            thickness to be set as subject polygon thickness
+     */
+    public void setSubjectPolygonThickness(int thickness) {
+        _subject_polygon.setThickness(thickness);
+    }
+
+    /**
+     * Sets clip polygon thickness
+     *
+     * @param thickness
+     *            thickness to be set as clip polygon thickness
+     */
+    public void setClipPolygonThickness(int thickness) {
+        _clip_polygon.setThickness(thickness);
+    }
+
+    /**
+     * Sets subject polygon thickness
+     *
+     * @param thickness
+     *            thickness to be set as intersecting polygon thickness
+     */
+    public void setIntersectingPolygonThickness(int thickness) {
+        _intersecting_polygons_thickness = thickness;
+    }
+
+    /**
+     * Sets <code>p</code> as a subject polygon of the model
+     * @param p polygon to become subject polygon of the model
+     */
+    public void setSubjectPolygon(Polygon p) {
+        _subject_polygon.clear();
+        _subject_polygon.setPoints(p);
+    }
+
+    /**
+     * Sets <code>p</code> as a hole polygon of the model
+     * @param p polygon to become hole polygon of the model
+     */
+    public void setHolePolygon(Polygon p) {
+        _hole_polygon.clear();
+        _hole_polygon.setPoints(p);
+    }
+
+    /**
+     * Sets <code>p</code> as a clip polygon of the model
+     * @param p polygon to become clip polygon of the model
+     */
+    public void setClipPolygon(Polygon p) {
+        _clip_polygon.clear();
+        _clip_polygon.setPoints(p);
+    }
+
+    /**
+     * Returns  a subject polygon of the model
+     * @return subject polygon of the model
+     */
+    public Polygon getSubjectPolygon() {
+        return _subject_polygon;
+    }
+
+    /**
+     * Returns  a hole polygon of the model
+     * @return hole polygon of the model
+     */
+    public Polygon getHolePolygon() {
+        return _hole_polygon;
+    }
+
+    /**
+     * Returns  a clip polygon of the model
+     * @return clip polygon of the model
+     */
+    public Polygon getClipPolygon() {
+        return _hole_polygon;
     }
 }

@@ -42,9 +42,6 @@ import javax.swing.border.TitledBorder;
  */
 class PreferencesDialog extends javax.swing.JDialog {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = -3486091859979955990L;
     private JLabel _subject_color_label = new JLabel("Subject polygon color");
     private JLabel _clip_color_label = new JLabel("Clip polygon color");
@@ -57,15 +54,6 @@ class PreferencesDialog extends javax.swing.JDialog {
     private JTextField _intersecting_textfield = new JTextField(5);
     private JButton _ok_button = new JButton("OK");
     private JButton _cancel_button = new JButton("Cancel");
-//	private JLabel _bg_color_label = new JLabel();
-//	private JLabel _polyline_color_label = new JLabel();
-//	private ButtonGroup _polylines_button_group = new ButtonGroup();
-//	private JRadioButton _r1 = new JRadioButton("Solid");
-//	private JRadioButton _r2 = new JRadioButton("Dashed");
-//	private JRadioButton _r3 = new JRadioButton("Dashed-dotted");
-//	private JSlider _radius_slider = new JSlider(1, WeilSettings.MAX_RADIUS);
-//	private JTextField _radius_textfield = new JTextField(5);
-//	private JSpinner _thickness_spinner;
     private WeilSettings _settings_object;
 
     /**
@@ -73,24 +61,13 @@ class PreferencesDialog extends javax.swing.JDialog {
      * and makes dialog visible
      */
     public void showDialog() {
-//		_bg_color_label.setBackground(_settings_object.getBackgroundColor());
-//		_polyline_color_label.setBackground(_settings_object.getPolylineColor());
-//
-//		int polyline_type = _settings_object.getPolylineType();
-//
-//		if (polyline_type == WeilSettings.CONTINIOUS) {
-//			_polylines_button_group.setSelected(_r1.getModel(), true);
-//		} else if (polyline_type == WeilSettings.DASHED) {
-//			_polylines_button_group.setSelected(_r2.getModel(), true);
-//		} else if (polyline_type == WeilSettings.DOTTED_DASHED) {
-//			_polylines_button_group.setSelected(_r3.getModel(), true);
-//		}
-//
-//		_radius_slider.setValue(_settings_object.getCircleRadius());
-//		_thickness_spinner.setValue(_settings_object.getPolylineThickness());
-//
-//		_radius_textfield.setText(Integer.toString(_settings_object
-//				.getCircleRadius()));
+        _subject_color_label.setBackground(_settings_object.getSubjectPolygonColor());
+        _clip_color_label.setBackground(_settings_object.getClipPolygonColor());
+        _intersecting_color_label.setBackground(_settings_object.getIntersectingPolygonColor());
+
+        _subject_slider.setValue(_settings_object.getSubjectPolygonThickness());
+        _clip_slider.setValue(_settings_object.getClipPolygonThickness());
+        _intersecting_slider.setValue(_settings_object.getIntersectingPolygonThickness());
 
         setVisible(true);
     }
@@ -100,20 +77,13 @@ class PreferencesDialog extends javax.swing.JDialog {
      * application and hides dialog
      */
     private void confirm() {
-//		_settings_object.setBackgroundColor(_bg_color_label.getBackground());
-//		_settings_object.setPolylineColor(_polyline_color_label.getBackground());
-//
-//		if (_polylines_button_group.getSelection() == _r1.getModel()) {
-//			_settings_object.setPolylineType(WeilSettings.CONTINIOUS);
-//		} else if (_polylines_button_group.getSelection() == _r2.getModel()) {
-//			_settings_object.setPolylineType(WeilSettings.DASHED);
-//		} else if (_polylines_button_group.getSelection() == _r3.getModel()) {
-//			_settings_object.setPolylineType(WeilSettings.DOTTED_DASHED);
-//		}
-//
-//		_settings_object.setCircleRadius(_radius_slider.getValue());
-//		_settings_object.setPolylineThickness((Integer) _thickness_spinner
-//				.getValue());
+        _settings_object.setSubjectPolygonColor(_subject_color_label.getBackground());
+        _settings_object.setClipPolygonColor(_clip_color_label.getBackground());
+        _settings_object.setIntersectingPolygonColor(_intersecting_color_label.getBackground());
+
+        _settings_object.setSubjectPolygonThickness(_subject_slider.getValue());
+        _settings_object.setClipPolygonThickness(_clip_slider.getValue());
+        _settings_object.setIntersectingPolygonThickness(_intersecting_slider.getValue());
         setVisible(false);
     }
 
@@ -191,6 +161,7 @@ class PreferencesDialog extends javax.swing.JDialog {
         JPanel buttons_panel = new JPanel(new GridLayout(1, 0, 5, 0));
 
         _ok_button.addActionListener(new ActionListener() {
+
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 confirm();
@@ -198,6 +169,7 @@ class PreferencesDialog extends javax.swing.JDialog {
         });
 
         _cancel_button.addActionListener(new ActionListener() {
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 setVisible(false);
@@ -212,7 +184,7 @@ class PreferencesDialog extends javax.swing.JDialog {
     }
 
     /**
-     * Constructor with given LinesFrame title, modality value
+     * Constructor with given title, modality value
      *
      * @param owner
      *            Frame from which the dialog is displayed
@@ -221,8 +193,8 @@ class PreferencesDialog extends javax.swing.JDialog {
      * @param modal
      *            specifies whether dialog blocks user input to other top-level
      *            windows when shown
-     * @param linesFrame
-     *            reference to LinesFrame
+     * @param settings_object
+     *            reference to settings object
      */
     public PreferencesDialog(WeilSettings settings_object, Frame owner, String title,
             boolean modal) {
@@ -230,7 +202,6 @@ class PreferencesDialog extends javax.swing.JDialog {
         setLocationRelativeTo(owner);
         _settings_object = settings_object;
         setResizable(false);
-
 
         setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 

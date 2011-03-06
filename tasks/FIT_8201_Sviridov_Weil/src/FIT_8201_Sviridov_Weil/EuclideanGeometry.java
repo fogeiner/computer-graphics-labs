@@ -11,6 +11,7 @@ public class EuclideanGeometry {
 
     public static final double EPS = 10E-7;
 
+
     public static boolean areSegmentsParallel(Point2D p1, Point2D p2,
             Point2D q1, Point2D q2) {
         double x1 = p1.getX(),
@@ -22,10 +23,9 @@ public class EuclideanGeometry {
                 y3 = q1.getY(),
                 y4 = q2.getY();
 
-        double k1 = (x2 - x1) / (y2 - y1);
-        double k2 = (x4 - x3) / (y4 - y3);
+        double d = (x1 - x2) * (y4 - y3) - (y1 - y2) * (x4 - x3);
 
-        if (Math.abs(k1 - k2) < EPS) {
+        if (Math.abs(d) < EPS) {
             return true;
         }
 
@@ -67,10 +67,10 @@ public class EuclideanGeometry {
     }
 
     public static void main(String[] args) {
-        Point2D p1 = new Point2D.Double(0, 2);
-        Point2D p2 = new Point2D.Double(1, 2);
-        Point2D p3 = new Point2D.Double(0, 0);
-        Point2D p4 = new Point2D.Double(1, 1);
+        Point2D p1 = new Point2D.Double(0, 0);
+        Point2D p2 = new Point2D.Double(1, 0);
+        Point2D p3 = new Point2D.Double(0, 1);
+        Point2D p4 = new Point2D.Double(2, 1);
 
         System.out.println(areSegmentsParallel(p1, p2, p3, p4));
 

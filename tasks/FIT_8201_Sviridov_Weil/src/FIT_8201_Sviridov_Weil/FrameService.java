@@ -21,4 +21,9 @@ public interface FrameService {
 	 * Returns true if file needs saving after being modified, false otherwise
 	 */
 	public boolean isModified();
+
+        /**
+         * Resizes components to their <code>PreferredSize</code>
+         */
+        public void pack();
 }
