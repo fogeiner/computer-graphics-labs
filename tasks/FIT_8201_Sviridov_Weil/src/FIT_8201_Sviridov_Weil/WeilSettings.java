@@ -21,6 +21,17 @@ public interface WeilSettings {
     public static final int MAX_THICKNESS = 101;
 
     /**
+     * Returns width of the visualization area
+     * @return width of the visualization area
+     */
+    public int getWidth();
+    /**
+     * Returns height of the visualization area
+     * @return height of the visualization area
+     */
+    public int getHeight();
+
+    /**
      * Returns current color of subject polygon
      *
      * @return color of subject polygon

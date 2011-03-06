@@ -99,6 +99,7 @@ public class WeilView extends JPanel implements WeilSettings {
      */
     @Override
     public void modelLoaded() {
+        _weil_frame.pack();
         fullRepaint(true);
         repaint();
     }

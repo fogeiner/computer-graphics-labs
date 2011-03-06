@@ -1,8 +1,6 @@
 package FIT_8201_Sviridov_Weil;
 
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -11,7 +9,6 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.List;
 
 /**
  * Class for loading polylines from file/saving them to file
@@ -29,7 +26,7 @@ import java.util.List;
  * x_i y_i // in cartesian coordinates
  * }
 
- * @author admin
+ * @author alstein
  * 
  */
 public class WeilPersistenceManager {
@@ -45,8 +42,31 @@ public class WeilPersistenceManager {
 
         FileWriter fw = new FileWriter(file);
 
-        fw.close();
+        fw.append(Integer.toString(ps.getWidth()));
+        fw.append(" ");
+        fw.append(Integer.toString(ps.getHeight()));
+        fw.append("\r\n");
 
+        if (ps.getHolePolygon() != null) {
+            fw.append(Integer.toString(2));
+        } else {
+            fw.append(Integer.toString(1));
+        }
+
+        fw.append("\r\n");
+
+        fw.append(ps.getSubjectPolygon().toString());
+
+        if (ps.getHolePolygon() != null) {
+            fw.append(ps.getHolePolygon().toString());
+        }
+
+        fw.append(Integer.toString(1));
+
+        fw.append("\r\n");
+
+        fw.append(ps.getClipPolygon().toString());
+        fw.close();
     }
 
     /**
@@ -65,8 +85,6 @@ public class WeilPersistenceManager {
 
         int width;
         int height;
-        int points_count;
-        int x, y;
         int subject_contours_count;
         int clip_contours_count;
 
@@ -107,7 +125,7 @@ public class WeilPersistenceManager {
         loadPoints(clip, br);
 
         ps.setPreferredSize(new Dimension(width, height));
-        
+
         ps.setSubjectPolygon(subject);
         ps.setHolePolygon(hole);
         ps.setClipPolygon(clip);
@@ -115,6 +133,12 @@ public class WeilPersistenceManager {
         ps.modelLoaded();
     }
 
+    /**
+     * Loads Polygon model from file
+     * @param p polygon to save points to
+     * @param br file source
+     * @throws IOException in case if IO failure
+     */
     private static void loadPoints(Polygon p, BufferedReader br) throws IOException {
         String strs[];
         int points_count;
