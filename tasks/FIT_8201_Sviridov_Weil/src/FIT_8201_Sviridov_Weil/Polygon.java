@@ -3,6 +3,7 @@ package FIT_8201_Sviridov_Weil;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Stroke;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -20,6 +21,101 @@ public class Polygon {
     Stroke _stroke = null;
     private Color _color;
     private int _thickness;
+
+    /**
+     * Returns last point of the <code>Polygon</code>
+     * @return last point of the <code>Polygon</code>
+     */
+    public Point lastPoint() {
+        int size = _points.size();
+        if (size < 1) {
+            return null;
+        }
+
+        Point2D p2d = _points.get(size - 1);
+        return new Point((int) (p2d.getX() + 0.5), (int) (p2d.getY() + 0.5));
+    }
+
+    /**
+     * Returns first point of the <code>Polygon</code>
+     * @return first point of the <code>Polygon</code>
+     */
+    public Point firstPoint() {
+        int size = _points.size();
+        if (size < 1) {
+            return null;
+        }
+
+        Point2D p2d = _points.get(0);
+
+        return new Point((int) (p2d.getX() + 0.5), (int) (p2d.getY() + 0.5));
+    }
+
+    /**
+     * Draws line from first and last points to given point <code>p</code> (intended to be used for rubber line)
+     * @param g2
+     * @param p point of rubber line ending
+     */
+    public void drawLine(Graphics2D g2, Point p) {
+        int size = _points.size();
+        if (size == 0) {
+            return;
+        }
+
+        if (_stroke == null) {
+            _stroke = new BasicStroke(_thickness, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+        }
+
+        g2.setColor(_color);
+        g2.setStroke(_stroke);
+
+
+        if (size == 1) {
+            Point fp = firstPoint();
+            g2.drawLine(fp.x, fp.y, p.x, p.y);
+            return;
+        }
+
+        Point fp = firstPoint();
+        Point lp = lastPoint();
+
+        g2.drawLine(fp.x, fp.y, p.x, p.y);
+        g2.drawLine(p.x, p.y, lp.x, lp.y);
+    }
+
+    /**
+     * Draws all segments but the ones to be drawn with rubber line
+     * @param g2
+     */
+    public void drawPartial(Graphics2D g2) {
+        int size = _points.size();
+        if (size < 2) {
+            return;
+        }
+
+        if (_stroke == null) {
+            _stroke = new BasicStroke(_thickness, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+        }
+
+        g2.setColor(_color);
+        g2.setStroke(_stroke);
+
+        for (int i = 1; i < size; ++i) {
+            int x1, x2, y1, y2;
+
+            Point2D p1 = _points.get(i - 1);
+            Point2D p2 = _points.get(i);
+
+            x1 = (int) (p1.getX() + 0.5);
+            y1 = (int) (p1.getY() + 0.5);
+            x2 = (int) (p2.getX() + 0.5);
+            y2 = (int) (p2.getY() + 0.5);
+
+            g2.drawLine(x1, y1, x2, y2);
+        }
+
+
+    }
 
     /**
      * Determines if the given point (x,y) lies inside of the Polygon
@@ -163,8 +259,6 @@ public class Polygon {
      */
     public int getThickness() {
         return _thickness;
-
-
     }
 
     /**
@@ -172,9 +266,10 @@ public class Polygon {
      * @param thickness new thickness of Polygon
      */
     public void setThickness(int thickness) {
+        if (thickness != _thickness) {
+            _stroke = new BasicStroke(thickness, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+        }
         _thickness = thickness;
-
-
     }
 
     /**
@@ -183,8 +278,6 @@ public class Polygon {
      */
     public Color getColor() {
         return _color;
-
-
     }
 
     /**
@@ -193,8 +286,6 @@ public class Polygon {
      */
     public void setColor(Color color) {
         _color = new Color(color.getRGB());
-
-
     }
 
     /**

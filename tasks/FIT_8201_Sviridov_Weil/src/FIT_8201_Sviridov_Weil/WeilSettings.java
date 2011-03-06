@@ -7,7 +7,7 @@ public interface WeilSettings {
 
     public final static int FRAME_WIDTH = 800;
     public final static int FRAME_HEIGHT = 600;
-    public final static String LINES_NAME = "FIT_8201_Sviridov_Weil_1";
+    public final static String WEIL_NAME = "FIT_8201_Sviridov_Weil_1";
     public final static String ABOUT_FILE = "FIT_8201_Sviridov_Weil_About.txt";
     public final static String DATA_DIR = "FIT_8201_Sviridov_Weil_Data";
     public final static String UNTITLED_DOCUMENT = "Untitled";

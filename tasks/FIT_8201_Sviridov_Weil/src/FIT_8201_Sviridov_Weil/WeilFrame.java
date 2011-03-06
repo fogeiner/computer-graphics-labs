@@ -33,7 +33,7 @@ public class WeilFrame extends MainFrame implements FrameService {
      *            first part of application title
      */
     private void setDocumentName(String name) {
-        setTitle(name + " - " + WeilSettings.LINES_NAME);
+        setTitle(name + " - " + WeilSettings.WEIL_NAME);
     }
 
     /**
@@ -61,8 +61,20 @@ public class WeilFrame extends MainFrame implements FrameService {
 
             addSubMenu("Edit", KeyEvent.VK_E);
 
-            addMenuItem("Edit/Preferences", "Change preferences",
-                    KeyEvent.VK_P, "preferences.gif", "onPreferences");
+            addMenuItem("Edit/Subject polygon", "Draw subject polygon",
+                    KeyEvent.VK_P, "subject.gif", "onSubject");
+
+            addMenuItem("Edit/Hole polygon", "Draw hole polygon",
+                    KeyEvent.VK_H, "hole.gif", "onHole");
+
+            addMenuItem("Edit/Clip polygon", "Draw clip polygon",
+                    KeyEvent.VK_C, "clip.gif", "onClip");
+
+            addMenuItem("Edit/Intersect", "Get intersection",
+                    KeyEvent.VK_I, "intersect.gif", "onIntersect");
+
+            addMenuItem("Edit/Settings", "Change settings",
+                    KeyEvent.VK_S, "preferences.gif", "onPreferences");
 
             addSubMenu("Help", KeyEvent.VK_H);
 
@@ -74,9 +86,13 @@ public class WeilFrame extends MainFrame implements FrameService {
             addToolBarButton("File/New");
             addToolBarButton("File/Load");
             addToolBarButton("File/Save as...");
-
             addToolBarSeparator();
-            addToolBarButton("Edit/Preferences");
+            addToolBarButton("Edit/Settings");
+            addToolBarSeparator();
+            addToolBarButton("Edit/Subject polygon");
+            addToolBarButton("Edit/Hole polygon");
+            addToolBarButton("Edit/Clip polygon");
+            addToolBarButton("Edit/Intersect");
             addToolBarSeparator();
             addToolBarButton("Help/About");
             addToolBarSeparator();
@@ -131,6 +147,34 @@ public class WeilFrame extends MainFrame implements FrameService {
         int answer = JOptionPane.showConfirmDialog(this,
                 "The document was modified. Save?");
         return answer;
+    }
+
+    /**
+     * Method called when user chooses "Draw subject polygon" in menu or on toolbar.
+     */
+    public void onSubject() {
+        _weil_view.onSubject();
+    }
+
+    /**
+     * Method called when user chooses "Draw hole polygon" in menu or on toolbar.
+     */
+    public void onHole() {
+        _weil_view.onHole();
+    }
+
+    /**
+     * Method called when user chooses "Draw clip polygon" in menu or on toolbar.
+     */
+    public void onClip() {
+        _weil_view.onClip();
+    }
+
+    /**
+     * Method called when user chooses "Intersect" in menu or on toolbar.
+     */
+    public void onIntersect() {
+        _weil_view.onIntersect();
     }
 
     /**
@@ -205,7 +249,7 @@ public class WeilFrame extends MainFrame implements FrameService {
      */
     public void onAbout() {
         try {
-            
+
             if (System.getProperty("os.name").startsWith("Windows")) {
                 Runtime.getRuntime().exec(
                         "notepad.exe " + WeilSettings.ABOUT_FILE);
@@ -344,7 +388,7 @@ public class WeilFrame extends MainFrame implements FrameService {
         }
 
         for (int i = 0; i < toolBar.getComponentCount(); ++i) {
-            if (i != 6 && i != 8) {
+            if (i != 11 && i != 13) {
                 toolBar.getComponent(i).setEnabled(!value);
             }
         }

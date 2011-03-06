@@ -34,11 +34,12 @@ public class WeilView extends JPanel implements WeilSettings {
     private static int IMAGE_HEIGHT = 1500;
     private boolean _full_repaint;
     // drawing properties
-    private int _refresh_period = 30;
+    private int _refresh_period = 50;
     private FrameService _weil_frame;
     private boolean _rubber_line = false;
     private final Object _monitor = new Object();
     // app data
+    private Polygon _current_polygon;
     private Polygon _subject_polygon = new Polygon(WeilSettings.DEFAULT_SUBJECT_COLOR, WeilSettings.DEFAULT_SUBJECT_THICKNESS);
     private Polygon _hole_polygon = new Polygon(WeilSettings.DEFAULT_SUBJECT_COLOR, WeilSettings.DEFAULT_SUBJECT_THICKNESS);
     private Polygon _clip_polygon = new Polygon(WeilSettings.DEFAULT_CLIP_COLOR, WeilSettings.DEFAULT_CLIP_THICKNESS);
@@ -57,21 +58,40 @@ public class WeilView extends JPanel implements WeilSettings {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-       Graphics2D front = (Graphics2D) g;
-    
+        Graphics2D front = (Graphics2D) g;
+
         front.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
 
-        front.translate(0, this.getHeight()-1);
+        front.translate(0, this.getHeight() - 1);
         front.scale(1, -1);
 
-        _subject_polygon.draw(front);
-        _hole_polygon.draw(front);
-        _clip_polygon.draw(front);
+        if (_current_polygon != _subject_polygon) {
+            _subject_polygon.draw(front);
+        }
+        if (_current_polygon != _hole_polygon) {
+            _hole_polygon.draw(front);
+        }
+        if (_current_polygon != _clip_polygon) {
+            _clip_polygon.draw(front);
+        }
 
-        for(Polygon p: _intersecting_polygons){
+        if (_current_polygon != null) {
+            _current_polygon.drawPartial(front);
+            if (_rubber_line) {
+                Point pointer_location = MouseInfo.getPointerInfo().getLocation();
+                pointer_location.x = pointer_location.x - this.getLocationOnScreen().x;
+                pointer_location.y = pointer_location.y - this.getLocationOnScreen().y;
+                pointer_location.y = getHeight() - pointer_location.y;
+                _current_polygon.drawLine(front, pointer_location);
+            }
+        }
+        
+        for (Polygon p : _intersecting_polygons) {
             p.draw(front);
         }
+
+
     }
 
     /**
@@ -125,8 +145,55 @@ public class WeilView extends JPanel implements WeilSettings {
      * Resets canvas
      */
     public void reset() {
+        _subject_polygon.clear();
+        _clip_polygon.clear();
+        _hole_polygon.clear();
+        _intersecting_polygons.clear();
         fullRepaint(true);
         repaint();
+    }
+
+    /**
+     * Method called when user chooses "Draw subject polygon" in menu or on toolbar.
+     */
+    public void onSubject() {
+        switchToPolygon(_subject_polygon);
+    }
+
+    /**
+     * Method called when user chooses "Draw hole polygon" in menu or on toolbar.
+     */
+    public void onHole() {
+        switchToPolygon(_hole_polygon);
+    }
+
+    /**
+     * Method called when user chooses "Draw clip polygon" in menu or on toolbar.
+     */
+    public void onClip() {
+        switchToPolygon(_clip_polygon);
+    }
+
+    /**
+     * Sets <code>p</code> Polygon as current polygon for modification
+     * and blocks frame buttons
+     * @param p
+     */
+    private void switchToPolygon(Polygon p) {
+        _current_polygon = p;
+        _current_polygon.clear();
+        _weil_frame.setBlocked(true);
+        synchronized (_monitor) {
+            _rubber_line = true;
+            _monitor.notifyAll();
+        }
+        setState(EDIT_STATE);
+    }
+
+    /**
+     * Method called when user chooses "Intersect" in menu or on toolbar.
+     */
+    public void onIntersect() {
     }
 
     /**
@@ -138,11 +205,6 @@ public class WeilView extends JPanel implements WeilSettings {
     public WeilView(FrameService weil_frame) {
         _weil_frame = weil_frame;
         setBackground(Color.white);
-
-        _subject_polygon.addPoint(10,110);
-        _subject_polygon.addPoint(10,0);
-        _subject_polygon.addPoint(110,10);
-        _subject_polygon.addPoint(110,110);
 
         this.addComponentListener(new ComponentAdapter() {
 
@@ -194,19 +256,28 @@ public class WeilView extends JPanel implements WeilSettings {
 
             @Override
             public void mousePressed(MouseEvent event) {
+                if (getState() != EDIT_STATE) {
+                    return;
+                }
+
                 int button = event.getButton();
                 Point point = event.getPoint();
 
-                if (_subject_polygon.isInside(point.x, getHeight() - point.y)) {
-                    System.out.println("in");
-                } else {
-                    System.out.println("out");
-                }
-
                 // left mouse click
                 if (button == MouseEvent.BUTTON1) {
+                    _current_polygon.addPoint(point.x, getHeight() - point.y);
                 } else if (button == MouseEvent.BUTTON3) {
+                    synchronized (_monitor) {
+                        _rubber_line = false;
+                        _monitor.notifyAll();
+                    }
+                    _current_polygon = null;
+                    setState(VIEW_STATE);
+                    _weil_frame.setModified(true);
+                    _weil_frame.setBlocked(false);
                 }
+
+                repaint();
             }
         });
     }
