@@ -26,4 +26,10 @@ public interface FrameService {
          * Resizes components to their <code>PreferredSize</code>
          */
         public void pack();
+
+        /**
+         * Method sets the block state of the intersect button
+         * @param value
+         */
+        public void setIntersectBlocked(boolean value);
 }

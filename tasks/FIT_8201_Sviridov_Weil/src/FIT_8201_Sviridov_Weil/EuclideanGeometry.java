@@ -5,11 +5,12 @@ import java.awt.geom.Point2D;
 
 /**
  * Utility class primary geometry functions implementations
- * @author admin
+ * Based on <link>http://delphid.dax.ru/www/exampl34.htm</link>
+ * @author alstein
  */
 public class EuclideanGeometry {
 
-    public static final double EPS = 10E-7;
+    public static final double EPS = 10E-12;
 
 
     public static boolean areSegmentsParallel(Point2D p1, Point2D p2,
@@ -43,7 +44,7 @@ public class EuclideanGeometry {
                 y3 = q1.getY(),
                 y4 = q2.getY();
 
-        double x, y, t, ta, tb, d, da, db;
+        double ta, tb, d, da, db;
 
 
         d = (x1 - x2) * (y4 - y3) - (y1 - y2) * (x4 - x3);
@@ -64,21 +65,5 @@ public class EuclideanGeometry {
             return null;
         }
 
-    }
-
-    public static void main(String[] args) {
-        Point2D p1 = new Point2D.Double(0, 0);
-        Point2D p2 = new Point2D.Double(1, 0);
-        Point2D p3 = new Point2D.Double(0, 1);
-        Point2D p4 = new Point2D.Double(2, 1);
-
-        System.out.println(areSegmentsParallel(p1, p2, p3, p4));
-
-        Point2D p5 = new Point2D.Double(0, 1);
-        Point2D p6 = new Point2D.Double(0, 0);
-        Point2D p7 = new Point2D.Double(1, 0);
-        Point2D p8 = new Point2D.Double(1, 2);
-
-        System.out.println(getIntersection(p5, p6, p7, p8));
     }
 }

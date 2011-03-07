@@ -104,6 +104,7 @@ public class WeilView extends JPanel implements WeilSettings {
     @Override
     public void modelLoaded() {
         _weil_frame.pack();
+        checkIntersectAbility();
         fullRepaint(true);
         repaint();
     }
@@ -185,6 +186,7 @@ public class WeilView extends JPanel implements WeilSettings {
      * @param p
      */
     private void switchToPolygon(Polygon p) {
+        _weil_frame.setIntersectBlocked(true);
         _current_polygon = p;
         _current_polygon.clear();
         _weil_frame.setBlocked(true);
@@ -196,9 +198,26 @@ public class WeilView extends JPanel implements WeilSettings {
     }
 
     /**
+     * Checks if intersect operation is possible
+     * and make call to block/unblock intersect button
+     */
+    private void checkIntersectAbility() {
+        if (!_subject_polygon.isEmpty() && !_clip_polygon.isEmpty()) {
+            _weil_frame.setIntersectBlocked(false);
+        } else {
+            _weil_frame.setIntersectBlocked(true);
+        }
+    }
+
+    /**
      * Method called when user chooses "Intersect" in menu or on toolbar.
      */
     public void onIntersect() {
+        if (!_hole_polygon.isEmpty() && !_subject_polygon.isInside(_hole_polygon)) {
+            JOptionPane.showMessageDialog(WeilView.this, "Hole polygon must be inside subject polygon");
+            return;
+        }
+
         for (Polygon p : _intersecting_polygons) {
             p.clear();
         }
@@ -211,10 +230,10 @@ public class WeilView extends JPanel implements WeilSettings {
         OrientedVertex h = _hole_polygon.getFirstOrientedVertex();
 
         if (!_hole_polygon.isEmpty()) {
-            OrientedVertex.intersect(h, c);
+            OrientedVertex.intersect(h, c, null);
         }
 
-        OrientedVertex.intersect(s, c);
+        OrientedVertex.intersect(s, c, null);
 
         if (!_hole_polygon.isEmpty()) {
             h.printPath();
@@ -222,8 +241,8 @@ public class WeilView extends JPanel implements WeilSettings {
         c.printPath();
 
         drawPoints(c);
-    //    drawPoints(s);
-     //   drawPoints(h);
+        //    drawPoints(s);
+        //   drawPoints(h);
 
     }
 
@@ -233,7 +252,7 @@ public class WeilView extends JPanel implements WeilSettings {
         g.setColor(Color.blue);
         do {
             g.fillOval((int) (v.getPoint().getX() + 0.5) - 2, getHeight() - (int) (v.getPoint().getY() + 0.5) - 2, 5, 5);
-            g.drawString(Integer.toString(i++),(int) (v.getPoint().getX() + 0.5), getHeight() - (int) (v.getPoint().getY() + 0.5));
+            g.drawString(Integer.toString(i++), (int) (v.getPoint().getX() + 0.5), getHeight() - (int) (v.getPoint().getY() + 0.5));
             v = v.getNext();
 
         } while (!v.isFirst());
@@ -305,14 +324,20 @@ public class WeilView extends JPanel implements WeilSettings {
 
                 int button = event.getButton();
                 Point point = event.getPoint();
+                point = new Point(point.x, getHeight() - point.y);
 
                 // left mouse click
                 if (button == MouseEvent.BUTTON1) {
-                    _current_polygon.addPoint(point.x, getHeight() - point.y);
+                    if (_current_polygon.isPointValid(point)) {
+                        _current_polygon.addPoint(point);
+                    } else {
+                        JOptionPane.showMessageDialog(WeilView.this, "Invalid point: check self-intersections and orientation");
+                        return;
+                    }
+
                 } else if (button == MouseEvent.BUTTON3) {
                     if (_current_polygon.verticesCount() < 3) {
-                        JOptionPane.showMessageDialog(WeilView.this, "Polygon has at least 3 vertices");
-                        return;
+                        _current_polygon.clear();
                     }
 
                     synchronized (_monitor) {
@@ -323,6 +348,7 @@ public class WeilView extends JPanel implements WeilSettings {
                     setState(VIEW_STATE);
                     _weil_frame.setModified(true);
                     _weil_frame.setBlocked(false);
+                    checkIntersectAbility();
                 }
 
                 repaint();
@@ -335,6 +361,7 @@ public class WeilView extends JPanel implements WeilSettings {
      *
      * @return color of subject polygon
      */
+    @Override
     public Color getSubjectPolygonColor() {
         return _subject_polygon.getColor();
     }
@@ -344,6 +371,7 @@ public class WeilView extends JPanel implements WeilSettings {
      *
      * @return color of clip polygon
      */
+    @Override
     public Color getClipPolygonColor() {
         return _clip_polygon.getColor();
     }
@@ -353,6 +381,7 @@ public class WeilView extends JPanel implements WeilSettings {
      *
      * @return color of intersecting polygon
      */
+    @Override
     public Color getIntersectingPolygonColor() {
         return _intersecting_polygons_color;
     }
@@ -363,6 +392,7 @@ public class WeilView extends JPanel implements WeilSettings {
      * @param color
      *            Color to be set as subject polygon color
      */
+    @Override
     public void setSubjectPolygonColor(Color color) {
         _subject_polygon.setColor(color);
         _hole_polygon.setColor(color);
@@ -374,6 +404,7 @@ public class WeilView extends JPanel implements WeilSettings {
      * @param color
      *            Color to be set as clip polygon color
      */
+    @Override
     public void setClipPolygonColor(Color color) {
         _clip_polygon.setColor(color);
     }
@@ -384,6 +415,7 @@ public class WeilView extends JPanel implements WeilSettings {
      * @param color
      *            Color to be set as intersecting polygon color
      */
+    @Override
     public void setIntersectingPolygonColor(Color color) {
         _intersecting_polygons_color = color;
     }
@@ -393,6 +425,7 @@ public class WeilView extends JPanel implements WeilSettings {
      *
      * @return thickness of subject polygon
      */
+    @Override
     public int getSubjectPolygonThickness() {
         return _subject_polygon.getThickness();
     }
@@ -402,6 +435,7 @@ public class WeilView extends JPanel implements WeilSettings {
      *
      * @return thickness of clip polygon
      */
+    @Override
     public int getClipPolygonThickness() {
         return _clip_polygon.getThickness();
     }
@@ -411,6 +445,7 @@ public class WeilView extends JPanel implements WeilSettings {
      *
      * @return thickness of intersecting polygon
      */
+    @Override
     public int getIntersectingPolygonThickness() {
         return _intersecting_polygons_thickness;
     }
@@ -421,6 +456,7 @@ public class WeilView extends JPanel implements WeilSettings {
      * @param thickness
      *            thickness to be set as subject polygon thickness
      */
+    @Override
     public void setSubjectPolygonThickness(int thickness) {
         _subject_polygon.setThickness(thickness);
         _hole_polygon.setThickness(thickness);
@@ -432,6 +468,7 @@ public class WeilView extends JPanel implements WeilSettings {
      * @param thickness
      *            thickness to be set as clip polygon thickness
      */
+    @Override
     public void setClipPolygonThickness(int thickness) {
         _clip_polygon.setThickness(thickness);
     }

@@ -132,6 +132,7 @@ public class WeilFrame extends MainFrame implements FrameService {
 
             setDocumentName(WeilSettings.UNTITLED_DOCUMENT);
             setModified(false);
+            setIntersectBlocked(true);
             _weil_view.reset();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -392,6 +393,14 @@ public class WeilFrame extends MainFrame implements FrameService {
                 toolBar.getComponent(i).setEnabled(!value);
             }
         }
+    }
+
+    @Override
+    public void setIntersectBlocked(boolean value) {
+        JMenuBar menu_bar = getJMenuBar();
+        JMenu edit = (JMenu) menu_bar.getComponent(1);
+        edit.getMenuComponent(3).setEnabled(!value);
+        toolBar.getComponent(9).setEnabled(!value);
     }
 
     @Override

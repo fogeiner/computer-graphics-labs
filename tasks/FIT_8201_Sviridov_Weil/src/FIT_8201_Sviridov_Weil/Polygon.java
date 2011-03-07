@@ -12,11 +12,12 @@ import java.util.List;
 /**
  * Class incapsulating polygon with such properties as: color, thickness and points
  * Based on <code>Point2D.Double</code>
+ * Orientation test is based on <link>http://en.wikipedia.org/wiki/Curve_orientation</link>
  * @author alstein
  */
 public class Polygon {
 
-    public static final int CLOCKWISE_ORIENTATION = 0;
+    public static final int CLOCKWISE_ORIENTATION = -1;
     public static final int COUNTERCLOCKWISE_ORIENTATION = 1;
     public static final double INF_POINT_COORD = 10E6;
     private int _orientation;
@@ -168,6 +169,55 @@ public class Polygon {
         } else {
             return true;
         }
+    }
+
+    /**
+     * Checks if given Polygon lies within another:
+     * at first all points of the given polygon are checked to be inside
+     * and if true intersections are checked with odd-even
+     * method
+     * @param another Polygon to test
+     * @return true if
+     */
+    public boolean isInside(Polygon another) {
+        if (this.isEmpty() || another.isEmpty()) {
+            return false;
+        }
+
+        for (Point2D p : another._points) {
+            if (!this.isInside(p)) {
+                return false;
+            }
+        }
+
+        int another_size = another._points.size();
+        int this_size = _points.size();
+
+        for (int i = 1; i < another_size + 1; ++i) {
+            Point2D a1 = another._points.get(i - 1);
+            Point2D a2 = null;
+            if (i == another_size) {
+                a2 = another._points.get(0);
+            } else {
+                a2 = another._points.get(i);
+            }
+
+            for (int j = 1; j < this_size + 1; ++j) {
+                Point2D t1 = _points.get(j - 1);
+                Point2D t2 = null;
+                if (j == this_size) {
+                    t2 = _points.get(0);
+                } else {
+                    t2 = _points.get(j);
+                }
+
+                if (EuclideanGeometry.getIntersection(a1, a2, t1, t2) != null) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -367,5 +417,70 @@ public class Polygon {
      */
     public boolean isEmpty() {
         return _points.isEmpty();
+    }
+
+    /**
+     * Computes the sign of 'cross product' used to
+     * determine orientation
+     * @param p1 first point
+     * @param p2 second point
+     * @param p3 third point
+     * @return -1 if 'cross product' is negative, +1 otherwise
+     */
+    private int crossProductSign(Point2D p1, Point2D p2, Point2D p3) {
+        // (x_b - x_a)(y_c-y_a) - (x_c-x_a)(y_b-y_a) > 0 => COUNTERCLOCKWISE
+        // -//- < 0 => CLOCKWISE
+        // = 0 => on one line
+
+        double xa = p1.getX(), ya = p1.getY(),
+                xb = p2.getX(), yb = p2.getY(),
+                xc = p3.getX(), yc = p3.getY();
+
+        double product = (xb - xa) * (yc - ya) - (xc - xa) * (yb - ya);
+
+        return (int) product;
+    }
+
+    /**
+     * Tests if given point doesn't contradict to polygon orientation (considering last and first points ONLY)
+     * In this implementation points lying on one line are forbidden
+     * Also self-enterying leads to false
+     * @return true is point is valid to be next point, false otherwise
+     */
+    public boolean isPointValid(Point2D p) {
+        int size = _points.size();
+
+        if (size <= 1) {
+            return true;
+        }
+
+        Point2D first = _points.get(0);
+        Point2D second = _points.get(1);
+        Point2D last = _points.get(size - 1);
+        Point2D prelast = _points.get(size - 2);
+
+
+        if (crossProductSign(p, first, second) * _orientation <= 0
+                && crossProductSign(prelast, last, p) * _orientation <= 0) {
+            return false;
+        }
+
+        // self-entering checking
+        for (int i = 1; i < size - 2; ++i) {
+            Point2D p3 = _points.get(i);
+            Point2D p4 = _points.get(i + 1);
+
+            if (EuclideanGeometry.getIntersection(first, p, p3, p4) != null
+                    || EuclideanGeometry.getIntersection(last, p, p3, p4) != null) {
+                return false;
+            }
+        }
+
+        if (size > 3 && (EuclideanGeometry.getIntersection(first, p, last, prelast) != null
+                || EuclideanGeometry.getIntersection(last, p, first, second) != null)) {
+            return false;
+        }
+
+        return true;
     }
 }

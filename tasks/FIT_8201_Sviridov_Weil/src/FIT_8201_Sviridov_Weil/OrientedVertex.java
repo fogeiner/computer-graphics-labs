@@ -1,6 +1,7 @@
 package FIT_8201_Sviridov_Weil;
 
 import java.awt.geom.Point2D;
+import java.util.List;
 
 /**
  * Class incapsulating vertex of the oriented Polygon.
@@ -13,6 +14,7 @@ public class OrientedVertex {
     // this would break reference equality
     private Point2D _point = null;
     private OrientedVertex _next = null;
+    private OrientedVertex _next_alt = null;
     private boolean _first = false;
 
     /**
@@ -31,6 +33,18 @@ public class OrientedVertex {
      */
     public OrientedVertex(Point2D point) {
         _point = point;
+    }
+
+    /**
+     * Constructor with given point, usual next and alternative next
+     * @param point
+     * @param next
+     * @param next_alt
+     */
+    public OrientedVertex(Point2D point, OrientedVertex next, OrientedVertex next_alt) {
+        _point = point;
+        _next = next;
+        _next_alt = next_alt;
     }
 
     /**
@@ -72,6 +86,22 @@ public class OrientedVertex {
      */
     public void setNext(OrientedVertex vertex) {
         _next = vertex;
+    }
+
+    /**
+     * Returns alternative  next OrientedVertex
+     * @return alternative next OrientedVertex
+     */
+    public OrientedVertex getNextAlt() {
+        return _next_alt;
+    }
+
+    /**
+     * Sets alternative  next OrientedVertex
+     * @param vertex OrientedVertex to be alternative next
+     */
+    public void setNextAlt(OrientedVertex vertex) {
+        _next_alt = vertex;
     }
 
     @Override
@@ -119,25 +149,15 @@ public class OrientedVertex {
     }
 
     /**
-     * Adds new point after given saving links
-     * Was: -> A -> B -> ... ; adding N will lead to
-     * Now: -> A -> N -> B -> ...
-     */
-    public void split(Point2D point) {
-        OrientedVertex old_next = getNext();
-        OrientedVertex new_point = new OrientedVertex(point);
-        new_point.setNext(old_next);
-        setNext(new_point);
-    }
-
-    /**
      * Finds points of intersection and adds them to
      * both v and c. v and c are meant to be first OrientedVertices
-     * If that is not hold, IllegalArgumentException is throws
+     * If that is not hold, IllegalArgumentException is thrown.
+     * All vetrices where v enters c are stored in List l (it's cleared beforehand)
      * @param v first OrientedVertex
      * @param c first OrientedVertex
+     * @param l list with entering vertices
      */
-    public static void intersect(OrientedVertex v, OrientedVertex c) {
+    public static void intersect(OrientedVertex v, OrientedVertex c, List l) {
 
         if ((v == c) || (!v.isFirst()) || (!c.isFirst())) {
             throw new IllegalArgumentException();
@@ -161,10 +181,13 @@ public class OrientedVertex {
                 }
 
                 if (intersection != null) {
-                    s1.split(intersection);
+                    OrientedVertex v1 = new OrientedVertex(intersection, s2, c2),
+                            v2 = new OrientedVertex(intersection, c2, s2);
+
+                    s1.setNext(v1);
                     s2 = s1.getNext();
 
-                    c1.split(intersection);
+                    c1.setNext(v2);
                     c2 = c1.getNext();
                 } else {
                     c1 = c2;
