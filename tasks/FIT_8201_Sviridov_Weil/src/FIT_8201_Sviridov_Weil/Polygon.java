@@ -470,14 +470,12 @@ public class Polygon {
             Point2D p3 = _points.get(i);
             Point2D p4 = _points.get(i + 1);
 
-            if (/*EuclideanGeometry.getIntersection(first, p, p3, p4) != null
-                    ||*/EuclideanGeometry.getIntersection(last, p, p3, p4) != null) {
+            if (EuclideanGeometry.getIntersection(last, p, p3, p4) != null) {
                 return false;
             }
         }
 
-        if (size > 2 && (/*EuclideanGeometry.getIntersection(first, p, last, prelast) != null
-                || */EuclideanGeometry.getIntersection(last, p, first, second) != null)) {
+        if (size > 2 && (EuclideanGeometry.getIntersection(last, p, first, second) != null)) {
             return false;
         }
 
@@ -515,7 +513,6 @@ public class Polygon {
                 || EuclideanGeometry.getIntersection(last, first, prelast, preprelast) != null) {
             return false;
         }
-
 
         return true;
     }

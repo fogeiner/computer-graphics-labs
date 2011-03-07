@@ -214,7 +214,8 @@ public class WeilView extends JPanel implements WeilSettings {
      */
     public void onIntersect() {
         if (!_hole_polygon.isEmpty() && !_subject_polygon.isInside(_hole_polygon)) {
-            JOptionPane.showMessageDialog(WeilView.this, "Hole polygon must be inside subject polygon");
+            JOptionPane.showMessageDialog(WeilView.this, "Hole polygon must be inside subject polygon", "Error", JOptionPane.ERROR_MESSAGE);
+
             return;
         }
 
@@ -331,7 +332,7 @@ public class WeilView extends JPanel implements WeilSettings {
                     if (_current_polygon.isPointValid(point)) {
                         _current_polygon.addPoint(point);
                     } else {
-                        JOptionPane.showMessageDialog(WeilView.this, "Invalid point: check self-intersections and orientation");
+                        JOptionPane.showMessageDialog(WeilView.this, "Invalid point: check self-intersections and orientation", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
@@ -341,7 +342,7 @@ public class WeilView extends JPanel implements WeilSettings {
                     }
 
                     if (!_current_polygon.isFinished()) {
-                        JOptionPane.showMessageDialog(WeilView.this, "Invalid point: check self-intersections");
+                        JOptionPane.showMessageDialog(WeilView.this, "Invalid point: check self-intersections", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
