@@ -16,7 +16,10 @@ import java.util.List;
  */
 public class Polygon {
 
-    public static double INF_POINT_COORD = 10E6;
+    public static final int CLOCKWISE_ORIENTATION = 0;
+    public static final int COUNTERCLOCKWISE_ORIENTATION = 1;
+    public static final double INF_POINT_COORD = 10E6;
+    private int _orientation;
     private List<Point2D> _points = new ArrayList<Point2D>();
     Stroke _stroke = null;
     private Color _color;
@@ -170,18 +173,22 @@ public class Polygon {
     /**
      * Constructor with out parameters
      * color and thickness field are set to default values black and 1
+     * @param orientation orientation of Polygon (CLOCLWISE and COUNTERCLOCKWISE)
      */
-    public Polygon() {
+    public Polygon(int orientation) {
+        _orientation = orientation;
         _color = Color.black;
         _thickness = 1;
     }
 
     /**
      * Constructor with given color and thickness
+     * @param orientation orientation of Polygon (CLOCLWISE and COUNTERCLOCKWISE)
      * @param color inital color
      * @param thickness initial thickness
      */
-    public Polygon(Color color, int thickness) {
+    public Polygon(int orientation, Color color, int thickness) {
+        _orientation = orientation;
         _color = new Color(color.getRGB());
         _thickness = thickness;
     }
@@ -311,5 +318,54 @@ public class Polygon {
         }
 
         return sb.toString();
+    }
+
+    /**
+     * Transforms Polygon to OrientedVertex structure
+     * @return if Polygon is not empty returns OrientedVertex structure, null otherwise
+     */
+    public OrientedVertex getFirstOrientedVertex() {
+
+        if (_points.isEmpty()) {
+            return null;
+        }
+
+        OrientedVertex first = null;
+        OrientedVertex v = null;
+        int size = _points.size();
+
+        for (int i = 0; i < size + 1; ++i) {
+            if (i == 0) {
+                first = new OrientedVertex(_points.get(0), true);
+                v = first;
+            }
+
+            if (i > 0 && i < size) {
+                v.setNext(new OrientedVertex(_points.get(i)));
+                v = v.getNext();
+            }
+
+            if (i == size) {
+                v.setNext(first);
+            }
+        }
+
+        return first;
+    }
+
+    /**
+     * Returns number of points in Polygon
+     * @return number of points in Polygon
+     */
+    public int verticesCount() {
+        return _points.size();
+    }
+
+    /**
+     * Returns true if there are no vertices in Polygon, false otherwise
+     * @return true if there are no vertices in Polygon, false otherwise
+     */
+    public boolean isEmpty() {
+        return _points.isEmpty();
     }
 }

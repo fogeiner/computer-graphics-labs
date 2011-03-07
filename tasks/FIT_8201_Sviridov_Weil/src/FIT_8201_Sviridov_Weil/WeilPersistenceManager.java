@@ -103,17 +103,17 @@ public class WeilPersistenceManager {
         }
 
         subject_contours_count = Integer.parseInt(LineParseUtils.nextNormalizedLine(br));
-        if (subject_contours_count != 1 || subject_contours_count != 2) {
+        if (subject_contours_count != 1 && subject_contours_count != 2) {
             throw new IllegalArgumentException();
         }
 
-        subject = new Polygon(WeilSettings.DEFAULT_SUBJECT_COLOR, WeilSettings.DEFAULT_SUBJECT_THICKNESS);
+        subject = new Polygon(Polygon.COUNTERCLOCKWISE_ORIENTATION, WeilSettings.DEFAULT_SUBJECT_COLOR, WeilSettings.DEFAULT_SUBJECT_THICKNESS);
         // subject -- always
         loadPoints(subject, br);
 
         // hole -- if needed
         if (subject_contours_count == 2) {
-            hole = new Polygon(WeilSettings.DEFAULT_SUBJECT_COLOR, WeilSettings.DEFAULT_SUBJECT_THICKNESS);
+            hole = new Polygon(Polygon.CLOCKWISE_ORIENTATION, WeilSettings.DEFAULT_SUBJECT_COLOR, WeilSettings.DEFAULT_SUBJECT_THICKNESS);
             loadPoints(hole, br);
         }
 
@@ -121,11 +121,10 @@ public class WeilPersistenceManager {
         if (clip_contours_count != 1) {
             throw new IllegalArgumentException();
         }
-        clip = new Polygon(WeilSettings.DEFAULT_CLIP_COLOR, WeilSettings.DEFAULT_CLIP_THICKNESS);
+        clip = new Polygon(Polygon.COUNTERCLOCKWISE_ORIENTATION, WeilSettings.DEFAULT_CLIP_COLOR, WeilSettings.DEFAULT_CLIP_THICKNESS);
         loadPoints(clip, br);
 
         ps.setPreferredSize(new Dimension(width, height));
-
         ps.setSubjectPolygon(subject);
         ps.setHolePolygon(hole);
         ps.setClipPolygon(clip);

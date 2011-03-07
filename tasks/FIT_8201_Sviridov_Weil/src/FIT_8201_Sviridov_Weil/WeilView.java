@@ -12,11 +12,15 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 /**
@@ -40,9 +44,9 @@ public class WeilView extends JPanel implements WeilSettings {
     private final Object _monitor = new Object();
     // app data
     private Polygon _current_polygon;
-    private Polygon _subject_polygon = new Polygon(WeilSettings.DEFAULT_SUBJECT_COLOR, WeilSettings.DEFAULT_SUBJECT_THICKNESS);
-    private Polygon _hole_polygon = new Polygon(WeilSettings.DEFAULT_SUBJECT_COLOR, WeilSettings.DEFAULT_SUBJECT_THICKNESS);
-    private Polygon _clip_polygon = new Polygon(WeilSettings.DEFAULT_CLIP_COLOR, WeilSettings.DEFAULT_CLIP_THICKNESS);
+    private Polygon _subject_polygon = new Polygon(Polygon.COUNTERCLOCKWISE_ORIENTATION, WeilSettings.DEFAULT_SUBJECT_COLOR, WeilSettings.DEFAULT_SUBJECT_THICKNESS);
+    private Polygon _hole_polygon = new Polygon(Polygon.CLOCKWISE_ORIENTATION, WeilSettings.DEFAULT_SUBJECT_COLOR, WeilSettings.DEFAULT_SUBJECT_THICKNESS);
+    private Polygon _clip_polygon = new Polygon(Polygon.COUNTERCLOCKWISE_ORIENTATION, WeilSettings.DEFAULT_CLIP_COLOR, WeilSettings.DEFAULT_CLIP_THICKNESS);
     private Color _intersecting_polygons_color = WeilSettings.DEFAULT_INTERSECTING_COLOR;
     private int _intersecting_polygons_thickness = WeilSettings.DEFAULT_INTERSECTING_THICKNESS;
     private List<Polygon> _intersecting_polygons = new ArrayList<Polygon>();
@@ -86,7 +90,7 @@ public class WeilView extends JPanel implements WeilSettings {
                 _current_polygon.drawLine(front, pointer_location);
             }
         }
-        
+
         for (Polygon p : _intersecting_polygons) {
             p.draw(front);
         }
@@ -195,6 +199,44 @@ public class WeilView extends JPanel implements WeilSettings {
      * Method called when user chooses "Intersect" in menu or on toolbar.
      */
     public void onIntersect() {
+        for (Polygon p : _intersecting_polygons) {
+            p.clear();
+        }
+
+        List<OrientedVertex> in_vertices = new ArrayList<OrientedVertex>();
+
+        // transform polygons to OrientedVertex structure
+        OrientedVertex s = _subject_polygon.getFirstOrientedVertex();
+        OrientedVertex c = _clip_polygon.getFirstOrientedVertex();
+        OrientedVertex h = _hole_polygon.getFirstOrientedVertex();
+
+        if (!_hole_polygon.isEmpty()) {
+            OrientedVertex.intersect(h, c);
+        }
+
+        OrientedVertex.intersect(s, c);
+
+        if (!_hole_polygon.isEmpty()) {
+            h.printPath();
+        }
+        c.printPath();
+
+        drawPoints(c);
+    //    drawPoints(s);
+     //   drawPoints(h);
+
+    }
+
+    private void drawPoints(OrientedVertex v) {
+        Graphics g = (Graphics2D) getGraphics();
+        int i = 0;
+        g.setColor(Color.blue);
+        do {
+            g.fillOval((int) (v.getPoint().getX() + 0.5) - 2, getHeight() - (int) (v.getPoint().getY() + 0.5) - 2, 5, 5);
+            g.drawString(Integer.toString(i++),(int) (v.getPoint().getX() + 0.5), getHeight() - (int) (v.getPoint().getY() + 0.5));
+            v = v.getNext();
+
+        } while (!v.isFirst());
     }
 
     /**
@@ -268,6 +310,11 @@ public class WeilView extends JPanel implements WeilSettings {
                 if (button == MouseEvent.BUTTON1) {
                     _current_polygon.addPoint(point.x, getHeight() - point.y);
                 } else if (button == MouseEvent.BUTTON3) {
+                    if (_current_polygon.verticesCount() < 3) {
+                        JOptionPane.showMessageDialog(WeilView.this, "Polygon has at least 3 vertices");
+                        return;
+                    }
+
                     synchronized (_monitor) {
                         _rubber_line = false;
                         _monitor.notifyAll();
@@ -447,6 +494,6 @@ public class WeilView extends JPanel implements WeilSettings {
      * @return clip polygon of the model
      */
     public Polygon getClipPolygon() {
-        return _hole_polygon;
+        return _clip_polygon;
     }
 }
