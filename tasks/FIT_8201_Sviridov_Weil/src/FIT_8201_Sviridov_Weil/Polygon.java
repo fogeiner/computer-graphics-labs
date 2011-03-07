@@ -470,16 +470,52 @@ public class Polygon {
             Point2D p3 = _points.get(i);
             Point2D p4 = _points.get(i + 1);
 
-            if (EuclideanGeometry.getIntersection(first, p, p3, p4) != null
-                    || EuclideanGeometry.getIntersection(last, p, p3, p4) != null) {
+            if (/*EuclideanGeometry.getIntersection(first, p, p3, p4) != null
+                    ||*/EuclideanGeometry.getIntersection(last, p, p3, p4) != null) {
                 return false;
             }
         }
 
-        if (size > 3 && (EuclideanGeometry.getIntersection(first, p, last, prelast) != null
-                || EuclideanGeometry.getIntersection(last, p, first, second) != null)) {
+        if (size > 2 && (/*EuclideanGeometry.getIntersection(first, p, last, prelast) != null
+                || */EuclideanGeometry.getIntersection(last, p, first, second) != null)) {
             return false;
         }
+
+        return true;
+    }
+
+    /**
+     * Test if polygon has no self intersections and if so returns true, false otherwise
+     * @return true if polygon is OK, false otherwise
+     */
+    public boolean isFinished() {
+        int size = _points.size();
+
+        if (size == 3) {
+            return true;
+        }
+
+        Point2D first = _points.get(0);
+        Point2D second = _points.get(1);
+        Point2D last = _points.get(size - 1);
+        Point2D prelast = _points.get(size - 2);
+        Point2D preprelast = _points.get(size - 3);
+        // self-entering checking
+        for (int i = 1; i < size - 3; ++i) {
+            Point2D p3 = _points.get(i);
+            Point2D p4 = _points.get(i + 1);
+
+            if (EuclideanGeometry.getIntersection(first, last, p3, p4) != null
+                    || EuclideanGeometry.getIntersection(last, prelast, p3, p4) != null) {
+                return false;
+            }
+        }
+
+        if (EuclideanGeometry.getIntersection(first, second, last, prelast) != null
+                || EuclideanGeometry.getIntersection(last, first, prelast, preprelast) != null) {
+            return false;
+        }
+
 
         return true;
     }

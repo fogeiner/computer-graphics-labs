@@ -340,6 +340,11 @@ public class WeilView extends JPanel implements WeilSettings {
                         _current_polygon.clear();
                     }
 
+                    if (!_current_polygon.isFinished()) {
+                        JOptionPane.showMessageDialog(WeilView.this, "Invalid point: check self-intersections");
+                        return;
+                    }
+
                     synchronized (_monitor) {
                         _rubber_line = false;
                         _monitor.notifyAll();
