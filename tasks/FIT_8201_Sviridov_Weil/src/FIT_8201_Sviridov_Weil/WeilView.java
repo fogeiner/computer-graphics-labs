@@ -283,7 +283,7 @@ public class WeilView extends JPanel implements WeilSettings {
         OrientedVertex s = _subject_polygon.getFirstOrientedVertex();
         OrientedVertex c = _clip_polygon.getFirstOrientedVertex();
         OrientedVertex h = _hole_polygon.getFirstOrientedVertex();
-        
+
         if (!_hole_polygon.isEmpty()) {
             OrientedVertex.intersect(h, c, in_vertices);
         }
@@ -295,7 +295,7 @@ public class WeilView extends JPanel implements WeilSettings {
         // drawPoints(c);
         //drawPoints(s);
         //   drawPoints(h);
-        drawPoints(in_vertices);
+        //drawPoints(in_vertices);
     }
 
     private void drawPoints(List<OrientedVertex> in_vertices) {
