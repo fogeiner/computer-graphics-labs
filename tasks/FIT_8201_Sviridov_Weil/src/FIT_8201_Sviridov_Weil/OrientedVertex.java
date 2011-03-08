@@ -184,6 +184,11 @@ public class OrientedVertex {
                     OrientedVertex v1 = new OrientedVertex(intersection, s2, c2),
                             v2 = new OrientedVertex(intersection, c2, s2);
 
+
+                    if (doEnter(s1, s2, c1, c2)) {
+                        l.add(v1);
+                    }
+
                     s1.setNext(v1);
                     s2 = s1.getNext();
 
@@ -202,5 +207,50 @@ public class OrientedVertex {
             s1 = s2;
             s2 = s1.getNext();
         } while (!s1.isFirst());
+    }
+
+    /**
+     * Checks if vector (c2 - c1) enters (s2 - s1) and end is on the 'right'
+     * @param s1
+     * @param s2
+     * @param c1
+     * @param c2
+     * @return true if the end on the right, false otherwise
+     */
+    private static boolean doEnter(OrientedVertex s1, OrientedVertex s2, OrientedVertex c1, OrientedVertex c2) {
+
+        Point2D sv = new Point2D.Double();
+        Point2D cv = new Point2D.Double();
+
+        // take vector s
+        // take vector c
+        // rotate c: (x,y) -> (-y,x)
+        // dot mult s x c >= 0 -> win
+        // else -> fail
+
+        double s1x = s1.getPoint().getX(),
+                s1y = s1.getPoint().getY(),
+                c1x = c1.getPoint().getX(),
+                c1y = c1.getPoint().getY();
+
+
+
+        double s2x = s2.getPoint().getX(),
+                s2y = s2.getPoint().getY(),
+                c2x = c2.getPoint().getX(),
+                c2y = c2.getPoint().getY();
+
+        double dot;
+
+        sv.setLocation(s2x - s1x, s2y - s1y);
+        cv.setLocation(c2x - c1x, c2y - c1y);
+        cv.setLocation(-cv.getY(), cv.getX());
+        dot = sv.getX() * cv.getX() + sv.getY() * cv.getY();
+
+
+        if (dot >= 0) {
+            return true;
+        }
+        return false;
     }
 }

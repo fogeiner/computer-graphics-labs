@@ -53,7 +53,7 @@ public class WeilView extends JPanel implements WeilSettings {
     private int _state = VIEW_STATE;
 
     /**
-     * Paints background, polylines and rubber line
+     * Paints background, polygons and rubber line
      */
     @Override
     protected void paintComponent(Graphics g) {
@@ -61,7 +61,7 @@ public class WeilView extends JPanel implements WeilSettings {
         Graphics2D front = (Graphics2D) g;
         front.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
-        front.translate(0, this.getHeight() - 1);
+        front.translate(0, this.getHeight());
         front.scale(1, -1);
         if (_current_polygon != _subject_polygon) {
             _subject_polygon.draw(front);
@@ -283,17 +283,29 @@ public class WeilView extends JPanel implements WeilSettings {
         OrientedVertex s = _subject_polygon.getFirstOrientedVertex();
         OrientedVertex c = _clip_polygon.getFirstOrientedVertex();
         OrientedVertex h = _hole_polygon.getFirstOrientedVertex();
+        
         if (!_hole_polygon.isEmpty()) {
-            OrientedVertex.intersect(h, c, null);
+            OrientedVertex.intersect(h, c, in_vertices);
         }
-        OrientedVertex.intersect(s, c, null);
+        OrientedVertex.intersect(s, c, in_vertices);
         if (!_hole_polygon.isEmpty()) {
             h.printPath();
         }
         // c.printPath();
-        //drawPoints(c);
-        //    drawPoints(s);
+        // drawPoints(c);
+        //drawPoints(s);
         //   drawPoints(h);
+        drawPoints(in_vertices);
+    }
+
+    private void drawPoints(List<OrientedVertex> in_vertices) {
+        Graphics g = (Graphics2D) getGraphics();
+        int i = 0;
+        g.setColor(Color.blue);
+        for (OrientedVertex v : in_vertices) {
+            g.fillOval((int) (v.getPoint().getX() + 0.5) - 2, getHeight() - (int) (v.getPoint().getY() + 0.5) - 2, 5, 5);
+            g.drawString(Integer.toString(i++), (int) (v.getPoint().getX() + 0.5), getHeight() - (int) (v.getPoint().getY() + 0.5));
+        }
     }
 
     private void drawPoints(OrientedVertex v) {
