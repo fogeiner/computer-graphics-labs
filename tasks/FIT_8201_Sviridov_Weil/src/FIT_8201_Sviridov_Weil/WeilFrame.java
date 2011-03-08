@@ -110,8 +110,6 @@ public class WeilFrame extends MainFrame implements FrameService {
             panel.add(scrollPane, BorderLayout.CENTER);
             
             add(panel);
-            
-            
 
             setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 

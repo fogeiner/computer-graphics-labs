@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.MouseInfo;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -384,7 +385,7 @@ public class WeilView extends JPanel implements WeilSettings {
                     } else if (!_current_polygon.isFinished()) {
                         JOptionPane.showMessageDialog(WeilView.this, "Invalid point: check self-intersections", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
-                    } else if(_current_polygon.testOrientation() == false){
+                    } else if (_current_polygon.testOrientation() == false) {
                         JOptionPane.showMessageDialog(WeilView.this, "Wrong orientation", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
@@ -401,6 +402,52 @@ public class WeilView extends JPanel implements WeilSettings {
                 repaint();
             }
         });
+    }
+
+    /**
+     * Returns max y coordinate among polygons
+     * @return max y coordinate among polygons
+     */
+    @Override
+    public int getMaxY() {
+        int max_y = 0;
+        int y;
+        Rectangle bounds;
+
+        Polygon polygons[] = {_subject_polygon, _clip_polygon, _hole_polygon};
+
+        for (Polygon p : polygons) {
+            bounds = _subject_polygon.getBounds();
+            y = (int) bounds.getY();
+            if (y > max_y) {
+                max_y = y;
+            }
+        }
+
+        return max_y;
+    }
+
+    /**
+     * Returns max x coordinate among polygons
+     * @return max x coordinate among polygons
+     */
+    @Override
+    public int getMaxX() {
+        int max_x = 0;
+        int x;
+        Rectangle bounds;
+
+        Polygon polygons[] = {_subject_polygon, _clip_polygon, _hole_polygon};
+
+        for (Polygon p : polygons) {
+            bounds = _subject_polygon.getBounds();
+            x = (int) bounds.getX();
+            if (x > max_x) {
+                max_x = x;
+            }
+        }
+
+        return max_x;
     }
 
     /**

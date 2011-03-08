@@ -24,13 +24,13 @@ public interface WeilSettings {
      * Returns width of the visualization area
      * @return width of the visualization area
      */
-    public int getWidth();
+    public int getMaxX();
 
     /**
      * Returns height of the visualization area
      * @return height of the visualization area
      */
-    public int getHeight();
+    public int getMaxY();
 
     /**
      * Returns current color of subject polygon

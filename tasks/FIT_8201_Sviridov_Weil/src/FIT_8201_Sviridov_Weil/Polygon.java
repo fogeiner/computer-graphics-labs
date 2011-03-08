@@ -4,6 +4,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.Stroke;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -551,5 +552,26 @@ public class Polygon {
         }
 
         return false;
+    }
+
+    /**
+     * Returns bound for all points to fit
+     * @return
+     */
+    public Rectangle getBounds() {
+        int max_x = 0, max_y = 0;
+        for (Point2D p : _points) {
+            int x = (int) (p.getX() + 0.5);
+            int y = (int) (p.getY() + 0.5);
+
+            if (x > max_x) {
+                max_x = x;
+            }
+            if (y > max_y) {
+                max_y = y;
+            }
+        }
+
+        return new Rectangle(max_x, max_y);
     }
 }

@@ -42,9 +42,9 @@ public class WeilPersistenceManager {
 
         FileWriter fw = new FileWriter(file);
 
-        fw.append(Integer.toString(ps.getWidth()));
+        fw.append(Integer.toString(ps.getMaxX() + 50));
         fw.append(" ");
-        fw.append(Integer.toString(ps.getHeight()));
+        fw.append(Integer.toString(ps.getMaxY() + 50));
         fw.append("\r\n");
 
         if (ps.getHolePolygon() != null) {
