@@ -1,6 +1,5 @@
 package FIT_8201_Sviridov_Weil;
 
-import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -12,14 +11,9 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
@@ -37,6 +31,8 @@ public class WeilView extends JPanel implements WeilSettings {
     private static int IMAGE_WIDTH = 2000;
     private static int IMAGE_HEIGHT = 1500;
     private boolean _full_repaint;
+    // panel properties
+    private Dimension _weil_view_size = new Dimension(600, 400);
     // drawing properties
     private int _refresh_period = 50;
     private FrameService _weil_frame;
@@ -96,9 +92,11 @@ public class WeilView extends JPanel implements WeilSettings {
      */
     @Override
     public void modelLoaded() {
-        _weil_frame.pack();
+
         checkIntersectAbility();
         fullRepaint(true);
+        this.invalidate();
+        revalidate();
         repaint();
     }
 
@@ -144,6 +142,7 @@ public class WeilView extends JPanel implements WeilSettings {
      * Resets canvas
      */
     public void reset() {
+        setPreferredSize(_weil_view_size);
         _subject_polygon.clear();
         _clip_polygon.clear();
         _hole_polygon.clear();
@@ -364,19 +363,19 @@ public class WeilView extends JPanel implements WeilSettings {
         this.addMouseListener(new MouseAdapter() {
 
             @Override
-            public void mousePressed(MouseEvent event) {
+            public void mouseClicked(MouseEvent event) {
                 if (getState() != EDIT_STATE) {
                     return;
                 }
                 int button = event.getButton();
                 Point point = event.getPoint();
-                point = new Point(point.x, getHeight() - point.y);
+                point.setLocation(point.x, getHeight() - point.y);
                 // left mouse click
                 if (button == MouseEvent.BUTTON1) {
                     if (_current_polygon.isPointValid(point)) {
                         _current_polygon.addPoint(point);
                     } else {
-                        JOptionPane.showMessageDialog(WeilView.this, "Invalid point: check self-intersections and orientation", "Error", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(WeilView.this, "Invalid point: check self-intersections", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
                 } else if (button == MouseEvent.BUTTON3) {
@@ -384,6 +383,9 @@ public class WeilView extends JPanel implements WeilSettings {
                         _current_polygon.clear();
                     } else if (!_current_polygon.isFinished()) {
                         JOptionPane.showMessageDialog(WeilView.this, "Invalid point: check self-intersections", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    } else if(_current_polygon.testOrientation() == false){
+                        JOptionPane.showMessageDialog(WeilView.this, "Wrong orientation", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
                     synchronized (_monitor) {

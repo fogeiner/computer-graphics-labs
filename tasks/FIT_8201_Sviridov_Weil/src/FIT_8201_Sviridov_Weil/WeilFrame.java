@@ -1,5 +1,7 @@
 package FIT_8201_Sviridov_Weil;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
@@ -11,6 +13,8 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import ru.nsu.cg.MainFrame;
 
@@ -100,8 +104,14 @@ public class WeilFrame extends MainFrame implements FrameService {
 
             toolBar.setFloatable(false);
 
+            JPanel panel = new JPanel(new BorderLayout());
             _weil_view = new WeilView(this);
-            add(_weil_view);
+            JScrollPane scrollPane = new JScrollPane(_weil_view);
+            panel.add(scrollPane, BorderLayout.CENTER);
+            
+            add(panel);
+            
+            
 
             setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 

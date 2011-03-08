@@ -31,7 +31,7 @@ public class Polygon {
      * Returns orientation of Polygon
      * @return orientation of Polygon
      */
-    public int getOrientation(){
+    public int getOrientation() {
         return _orientation;
     }
 
@@ -402,31 +402,55 @@ public class Polygon {
     }
 
     /**
-     * Computes the sign of 'cross product' used to
-     * determine orientation
-     * @param p1 first point
-     * @param p2 second point
-     * @param p3 third point
-     * @return -1 if 'cross product' is negative, +1 otherwise
+     * Tests if polygon has right orientation
+     * @return true if orientation is OK, false otherwise
      */
-    private int crossProductSign(Point2D p1, Point2D p2, Point2D p3) {
-        // (x_b - x_a)(y_c-y_a) - (x_c-x_a)(y_b-y_a) > 0 => COUNTERCLOCKWISE
-        // -//- < 0 => CLOCKWISE
-        // = 0 => on one line
+    public boolean testOrientation() {
+        int size = _points.size();
 
-        double xa = p1.getX(), ya = p1.getY(),
-                xb = p2.getX(), yb = p2.getY(),
-                xc = p3.getX(), yc = p3.getY();
+        if (size < 3) {
+            return false;
+        }
 
-        double product = (xb - xa) * (yc - ya) - (xc - xa) * (yb - ya);
+        double signed_sum = 0.0;
 
-        return (int) product;
+        Point2D p1, p2;
+
+        for (int i = 0; i < size; ++i) {
+            p1 = _points.get(i);
+            if (i != size - 1) {
+                p2 = _points.get(i + 1);
+            } else {
+                p2 = _points.get(0);
+            }
+
+            signed_sum += ((p2.getX() - p1.getX()) * (p2.getY() + p1.getY())) / 2;
+        }
+
+        // signed sum > 0 --> clockwise
+        // < 0 --> counterclockwise
+
+        if (_orientation == COUNTERCLOCKWISE_ORIENTATION) {
+            if (signed_sum < 0) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        if (_orientation == CLOCKWISE_ORIENTATION) {
+            if (signed_sum > 0) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        return false;
     }
 
     /**
-     * Tests if given point doesn't contradict to polygon orientation (considering last and first points ONLY)
-     * In this implementation points lying on one line are forbidden
-     * Also self-enterying leads to false
+     * Tests if polygon has self-entering
      * @return true is point is valid to be next point, false otherwise
      */
     public boolean isPointValid(Point2D p) {
@@ -439,13 +463,6 @@ public class Polygon {
         Point2D first = _points.get(0);
         Point2D second = _points.get(1);
         Point2D last = _points.get(size - 1);
-        Point2D prelast = _points.get(size - 2);
-
-
-        if (crossProductSign(p, first, second) * _orientation <= 0
-                && crossProductSign(prelast, last, p) * _orientation <= 0) {
-            return false;
-        }
 
         // self-entering checking
         for (int i = 1; i < size - 2; ++i) {
