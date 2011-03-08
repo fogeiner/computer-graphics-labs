@@ -7,6 +7,7 @@ import java.awt.Point;
 import java.awt.Stroke;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -25,6 +26,14 @@ public class Polygon {
     Stroke _stroke = null;
     private Color _color;
     private int _thickness;
+
+    /**
+     * Returns orientation of Polygon
+     * @return orientation of Polygon
+     */
+    public int getOrientation(){
+        return _orientation;
+    }
 
     /**
      * Returns last point of the <code>Polygon</code>
@@ -190,34 +199,7 @@ public class Polygon {
             }
         }
 
-        int another_size = another._points.size();
-        int this_size = _points.size();
-
-        for (int i = 1; i < another_size + 1; ++i) {
-            Point2D a1 = another._points.get(i - 1);
-            Point2D a2 = null;
-            if (i == another_size) {
-                a2 = another._points.get(0);
-            } else {
-                a2 = another._points.get(i);
-            }
-
-            for (int j = 1; j < this_size + 1; ++j) {
-                Point2D t1 = _points.get(j - 1);
-                Point2D t2 = null;
-                if (j == this_size) {
-                    t2 = _points.get(0);
-                } else {
-                    t2 = _points.get(j);
-                }
-
-                if (EuclideanGeometry.getIntersection(a1, a2, t1, t2) != null) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
+        return !hasIntersection(another);
     }
 
     /**
@@ -254,7 +236,7 @@ public class Polygon {
      * Replaces points with <code>p</code> Polygon's points
      */
     public void setPoints(Polygon p) {
-        this._points = p._points;
+        _points = p._points;
     }
 
     /**
@@ -515,5 +497,42 @@ public class Polygon {
         }
 
         return true;
+    }
+
+    /**
+     * Tests if this and given polygons have any intersections
+     * @param another Polygon to test if there are any intersections
+     * @return true if they have intersections, false otherwise
+     *
+     */
+    public boolean hasIntersection(Polygon another) {
+        int another_size = another._points.size();
+        int this_size = _points.size();
+
+        for (int i = 1; i < another_size + 1; ++i) {
+            Point2D a1 = another._points.get(i - 1);
+            Point2D a2 = null;
+            if (i == another_size) {
+                a2 = another._points.get(0);
+            } else {
+                a2 = another._points.get(i);
+            }
+
+            for (int j = 1; j < this_size + 1; ++j) {
+                Point2D t1 = _points.get(j - 1);
+                Point2D t2 = null;
+                if (j == this_size) {
+                    t2 = _points.get(0);
+                } else {
+                    t2 = _points.get(j);
+                }
+
+                if (EuclideanGeometry.getIntersection(a1, a2, t1, t2) != null) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

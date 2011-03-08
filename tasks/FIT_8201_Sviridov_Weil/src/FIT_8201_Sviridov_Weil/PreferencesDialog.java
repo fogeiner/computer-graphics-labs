@@ -11,24 +11,16 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.BorderFactory;
+
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JSlider;
-import javax.swing.JSpinner;
 import javax.swing.JTextField;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.text.AbstractDocument;
-import FIT_8201_Sviridov_Weil.TextFieldSliderDocumentFilter;
 import java.awt.Dimension;
-import java.awt.GridBagLayout;
 import javax.swing.Box;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;

@@ -61,15 +61,11 @@ public class WeilView extends JPanel implements WeilSettings {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-
         Graphics2D front = (Graphics2D) g;
-
         front.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
-
         front.translate(0, this.getHeight() - 1);
         front.scale(1, -1);
-
         if (_current_polygon != _subject_polygon) {
             _subject_polygon.draw(front);
         }
@@ -79,7 +75,6 @@ public class WeilView extends JPanel implements WeilSettings {
         if (_current_polygon != _clip_polygon) {
             _clip_polygon.draw(front);
         }
-
         if (_current_polygon != null) {
             _current_polygon.drawPartial(front);
             if (_rubber_line) {
@@ -90,12 +85,10 @@ public class WeilView extends JPanel implements WeilSettings {
                 _current_polygon.drawLine(front, pointer_location);
             }
         }
-
         for (Polygon p : _intersecting_polygons) {
+            System.out.println("10");
             p.draw(front);
         }
-
-
     }
 
     /**
@@ -189,6 +182,7 @@ public class WeilView extends JPanel implements WeilSettings {
         _weil_frame.setIntersectBlocked(true);
         _current_polygon = p;
         _current_polygon.clear();
+        _intersecting_polygons.clear();
         _weil_frame.setBlocked(true);
         synchronized (_monitor) {
             _rubber_line = true;
@@ -210,41 +204,96 @@ public class WeilView extends JPanel implements WeilSettings {
     }
 
     /**
+     * Adds intersection polygon using all points of another
+     * @param p Polygon to be used as source
+     */
+    private void addIntersectingPolygon(Polygon polygon) {
+        Polygon p = new Polygon(polygon.getOrientation(), _intersecting_polygons_color, _intersecting_polygons_thickness);
+        p.setPoints(polygon);
+        _intersecting_polygons.add(p);
+    }
+
+    /**
      * Method called when user chooses "Intersect" in menu or on toolbar.
      */
     public void onIntersect() {
         if (!_hole_polygon.isEmpty() && !_subject_polygon.isInside(_hole_polygon)) {
             JOptionPane.showMessageDialog(WeilView.this, "Hole polygon must be inside subject polygon", "Error", JOptionPane.ERROR_MESSAGE);
-
             return;
         }
 
-        for (Polygon p : _intersecting_polygons) {
-            p.clear();
+        boolean finished = false;
+        _intersecting_polygons.clear();
+
+        System.out.println("1");
+        // clip inside subject
+        if (_subject_polygon.isInside(_clip_polygon)) {
+            System.out.println("2");
+            if (_hole_polygon.isEmpty()) {
+                addIntersectingPolygon(_clip_polygon);
+                finished = true;
+                System.out.println("3");
+            } else if (_clip_polygon.isInside(_hole_polygon)) {
+                addIntersectingPolygon(_clip_polygon);
+                addIntersectingPolygon(_hole_polygon);
+                finished = true;
+                System.out.println("4");
+            } else if (_hole_polygon.isInside(_clip_polygon)) {
+                // clip inside hole -> no result
+                finished = true;
+            } else if (!_clip_polygon.hasIntersection(_hole_polygon)) {
+                addIntersectingPolygon(_clip_polygon);
+                finished = true;
+            }
+        }
+        // subject inside clip
+        if (_clip_polygon.isInside(_subject_polygon)) {
+            System.out.println("5");
+            if (!_hole_polygon.isEmpty()) {
+                addIntersectingPolygon(_subject_polygon);
+                addIntersectingPolygon(_hole_polygon);
+                finished = true;
+
+            } else {
+                addIntersectingPolygon(_subject_polygon);
+                finished = true;
+            }
+        }
+        System.out.println("8");
+
+        if (!_hole_polygon.isEmpty()) {
+            if (!_clip_polygon.hasIntersection(_subject_polygon) && !_clip_polygon.hasIntersection(_hole_polygon)) {
+                System.out.println("9");
+                finished = true;
+            }
+        } else {
+            if (!_clip_polygon.hasIntersection(_subject_polygon)) {
+                System.out.println("11");
+                finished = true;
+            }
+        }
+
+        if (finished) {
+            repaint();
+            return;
         }
 
         List<OrientedVertex> in_vertices = new ArrayList<OrientedVertex>();
-
         // transform polygons to OrientedVertex structure
         OrientedVertex s = _subject_polygon.getFirstOrientedVertex();
         OrientedVertex c = _clip_polygon.getFirstOrientedVertex();
         OrientedVertex h = _hole_polygon.getFirstOrientedVertex();
-
         if (!_hole_polygon.isEmpty()) {
             OrientedVertex.intersect(h, c, null);
         }
-
         OrientedVertex.intersect(s, c, null);
-
         if (!_hole_polygon.isEmpty()) {
             h.printPath();
         }
-        c.printPath();
-
-        drawPoints(c);
+        // c.printPath();
+        //drawPoints(c);
         //    drawPoints(s);
         //   drawPoints(h);
-
     }
 
     private void drawPoints(OrientedVertex v) {
@@ -255,7 +304,6 @@ public class WeilView extends JPanel implements WeilSettings {
             g.fillOval((int) (v.getPoint().getX() + 0.5) - 2, getHeight() - (int) (v.getPoint().getY() + 0.5) - 2, 5, 5);
             g.drawString(Integer.toString(i++), (int) (v.getPoint().getX() + 0.5), getHeight() - (int) (v.getPoint().getY() + 0.5));
             v = v.getNext();
-
         } while (!v.isFirst());
     }
 
@@ -265,33 +313,33 @@ public class WeilView extends JPanel implements WeilSettings {
      * @param lines_frame
      *            application main frame
      */
-    public WeilView(FrameService weil_frame) {
+    public WeilView(
+            FrameService weil_frame) {
         _weil_frame = weil_frame;
-        setBackground(Color.white);
-
+        setBackground(
+                Color.white);
         this.addComponentListener(new ComponentAdapter() {
 
             @Override
             public void componentResized(ComponentEvent e) {
                 super.componentResized(e);
-
                 if (_offscreen == null) {
                     _offscreen = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT,
                             BufferedImage.TYPE_INT_ARGB);
-                    fullRepaint(true);
+                    fullRepaint(
+                            true);
                 } else {
                     if (getWidth() > _offscreen.getWidth(null)
                             || getHeight() > _offscreen.getHeight(null)) {
                         _offscreen = new BufferedImage(getWidth(), getHeight(),
                                 BufferedImage.TYPE_INT_ARGB);
-                        fullRepaint(true);
+                        fullRepaint(
+                                true);
                     }
                 }
-
                 repaint();
             }
         });
-
         Thread thread = new Thread(new Runnable() {
 
             @Override
@@ -312,9 +360,7 @@ public class WeilView extends JPanel implements WeilSettings {
                 }
             }
         });
-
         thread.start();
-
         this.addMouseListener(new MouseAdapter() {
 
             @Override
@@ -322,11 +368,9 @@ public class WeilView extends JPanel implements WeilSettings {
                 if (getState() != EDIT_STATE) {
                     return;
                 }
-
                 int button = event.getButton();
                 Point point = event.getPoint();
                 point = new Point(point.x, getHeight() - point.y);
-
                 // left mouse click
                 if (button == MouseEvent.BUTTON1) {
                     if (_current_polygon.isPointValid(point)) {
@@ -335,17 +379,13 @@ public class WeilView extends JPanel implements WeilSettings {
                         JOptionPane.showMessageDialog(WeilView.this, "Invalid point: check self-intersections and orientation", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
-
                 } else if (button == MouseEvent.BUTTON3) {
                     if (_current_polygon.verticesCount() < 3) {
                         _current_polygon.clear();
-                    }
-
-                    if (!_current_polygon.isFinished()) {
+                    } else if (!_current_polygon.isFinished()) {
                         JOptionPane.showMessageDialog(WeilView.this, "Invalid point: check self-intersections", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
-
                     synchronized (_monitor) {
                         _rubber_line = false;
                         _monitor.notifyAll();
@@ -356,7 +396,6 @@ public class WeilView extends JPanel implements WeilSettings {
                     _weil_frame.setBlocked(false);
                     checkIntersectAbility();
                 }
-
                 repaint();
             }
         });
@@ -424,6 +463,9 @@ public class WeilView extends JPanel implements WeilSettings {
     @Override
     public void setIntersectingPolygonColor(Color color) {
         _intersecting_polygons_color = color;
+        for (Polygon p : _intersecting_polygons) {
+            p.setColor(color);
+        }
     }
 
     /**
@@ -487,6 +529,9 @@ public class WeilView extends JPanel implements WeilSettings {
      */
     public void setIntersectingPolygonThickness(int thickness) {
         _intersecting_polygons_thickness = thickness;
+        for (Polygon p : _intersecting_polygons) {
+            p.setThickness(thickness);
+        }
     }
 
     /**
