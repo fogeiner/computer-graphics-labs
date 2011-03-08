@@ -15,6 +15,8 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
@@ -292,10 +294,54 @@ public class WeilView extends JPanel implements WeilSettings {
             h.printPath();
         }
         // c.printPath();
-        // drawPoints(c);
+         drawPoints(c);
         //drawPoints(s);
         //   drawPoints(h);
-        //drawPoints(in_vertices);
+       // drawPoints(in_vertices);
+         try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(WeilView.class.getName()).log(Level.SEVERE, null, ex);
+                }
+        return;
+Graphics g = getGraphics();
+        while(!in_vertices.isEmpty()){
+            Polygon p = new Polygon(Polygon.COUNTERCLOCKWISE_ORIENTATION, _intersecting_polygons_color, _intersecting_polygons_thickness);
+            OrientedVertex v = in_vertices.get(0);
+
+            in_vertices.remove(v);
+            p.addPoint(v.getPoint());
+g.fillOval((int) (v.getPoint().getX() + 0.5) - 2, getHeight() - (int) (v.getPoint().getY() + 0.5) - 2, 5, 5);
+try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(WeilView.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            OrientedVertex cur_v = v.getNext();
+
+
+            System.out.println(cur_v);
+            do{
+                g.fillOval((int) (cur_v.getPoint().getX() + 0.5) - 2, getHeight() - (int) (cur_v.getPoint().getY() + 0.5) - 2, 5, 5);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(WeilView.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                if(cur_v.getNextAlt() != null){
+                    in_vertices.remove(cur_v);
+                    p.addPoint(cur_v.getPoint());
+                    cur_v = cur_v.getNextAlt();
+                } else {
+                    p.addPoint(cur_v.getPoint());
+                    cur_v = cur_v.getNext();
+                }
+                System.out.println(cur_v);
+            } while(!cur_v.equals(v));
+
+            _intersecting_polygons.add(p);
+        }
+        repaint();
     }
 
     private void drawPoints(List<OrientedVertex> in_vertices) {
