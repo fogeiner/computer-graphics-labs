@@ -294,7 +294,10 @@ public class Polygon {
 	 * Replaces points with <code>p</code> Polygon's points
 	 */
 	public void setPoints(Polygon p) {
-		_points = p._points;
+		if (p == null)
+			_points.clear();
+		else
+			_points = p._points;
 	}
 
 	/**
@@ -501,7 +504,7 @@ public class Polygon {
 		int size = _points.size();
 
 		if (size < 3) {
-			return false;
+			return true;
 		}
 
 		double signed_sum = 0.0;
@@ -541,6 +544,40 @@ public class Polygon {
 		return false;
 	}
 
+	/**
+	 *  Tests if there are no self-enterings
+	 * @return true if there are no self-entering, false otherwise
+	 */
+	public boolean testSelfEntering(){
+		int size = _points.size();
+		if(size < 4){
+			return true;
+		}
+		
+		for(int i = 0; i < size; ++i){
+			Point2D p1, p2;
+			p1 = _points.get(i);
+			if(i == size - 1){
+				p2 = _points.get(0);
+			} else {
+				p2 = _points.get(i+1);
+			}
+			
+			for(int j = i + 2; j < size - 1; ++j){
+				Point2D p3, p4;
+				p3 = _points.get(j);
+				p4 = _points.get(j+1);
+				
+				if(EuclideanGeometry.getIntersection(p1, p2, p3, p4) != null)
+					return false;
+			}
+			
+		}
+		
+		return true;
+	}
+	
+	
 	/**
 	 * Tests if polygon has self-entering
 	 * 

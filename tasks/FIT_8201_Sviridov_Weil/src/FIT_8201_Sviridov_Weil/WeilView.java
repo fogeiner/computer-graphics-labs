@@ -122,10 +122,10 @@ public class WeilView extends JPanel implements WeilSettings {
 		if (_current_polygon != null && _rubber_line) {
 
 			Point pointer_location = MouseInfo.getPointerInfo().getLocation();
-			pointer_location.x = pointer_location.x  
+			pointer_location.x = pointer_location.x
 					- this.getLocationOnScreen().x;
 			pointer_location.y = pointer_location.y
-					- this.getLocationOnScreen().y ;
+					- this.getLocationOnScreen().y;
 			pointer_location.y = getHeight() - pointer_location.y;
 			_current_polygon.drawLine(front, pointer_location);
 		}
@@ -137,10 +137,41 @@ public class WeilView extends JPanel implements WeilSettings {
 	 */
 	@Override
 	public void modelLoaded() {
-
 		checkIntersectAbility();
+		Polygon polygons[] = { _subject_polygon, _hole_polygon, _clip_polygon };
+		for (Polygon p : polygons) {
+			String names[] = { "subject", "hole", "clip" };
+			String name = null;
+			if (p == _subject_polygon)
+				name = names[0];
+			if (p == _hole_polygon)
+				name = names[1];
+			if (p == _clip_polygon)
+				name = names[2];
+
+			if (p.testOrientation() == false) {
+				JOptionPane
+						.showMessageDialog(
+								WeilView.this,
+								"Loaded "
+										+ name
+										+ " polygon has wrong orientation.\nIt's highly recommended to avoid working with this model.",
+								"Error", JOptionPane.ERROR_MESSAGE);
+
+			}
+			if (p.testSelfEntering() == false) {
+				JOptionPane
+						.showMessageDialog(
+								WeilView.this,
+								"Loaded "
+										+ name
+										+ " polygon has self-entering.\nIt's highly recommended to avoid working with this model.",
+								"Error", JOptionPane.ERROR_MESSAGE);
+
+			}
+		}
+
 		fullRepaint(true);
-		this.invalidate();
 		revalidate();
 		repaint();
 	}
