@@ -172,7 +172,8 @@ public class WeilView extends JPanel implements WeilSettings {
 		}
 
 		fullRepaint(true);
-		revalidate();
+		
+		this.revalidate();
 		repaint();
 	}
 
@@ -225,8 +226,7 @@ public class WeilView extends JPanel implements WeilSettings {
 		_hole_polygon.clear();
 		_intersecting_polygons.clear();
 		checkIntersectAbility();
-		fullRepaint(true);
-		repaint();
+		fullRepaint();
 	}
 
 	/**
@@ -589,7 +589,8 @@ public class WeilView extends JPanel implements WeilSettings {
 
 		for (Polygon p : polygons) {
 			bounds = p.getBounds();
-			y = (int) bounds.getY();
+			System.out.println(bounds);
+			y = bounds.height;
 			if (y > max_y) {
 				max_y = y;
 			}
@@ -613,7 +614,8 @@ public class WeilView extends JPanel implements WeilSettings {
 
 		for (Polygon p : polygons) {
 			bounds = p.getBounds();
-			x = (int) bounds.getX();
+			
+			x = bounds.width;
 			if (x > max_x) {
 				max_x = x;
 			}
