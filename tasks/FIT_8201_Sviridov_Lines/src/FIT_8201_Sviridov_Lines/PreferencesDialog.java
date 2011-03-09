@@ -226,7 +226,9 @@ class PreferencesDialog extends javax.swing.JDialog {
 
 		add(upper_panel);
 		add(radius_thickness_panel);
-		add(buttons_panel);
+                add(buttons_panel);
+
+                
 		pack();
 
 		((JSpinner.DefaultEditor) _thickness_spinner.getEditor())

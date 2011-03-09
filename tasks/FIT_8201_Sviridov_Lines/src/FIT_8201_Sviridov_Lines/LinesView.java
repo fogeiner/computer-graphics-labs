@@ -240,6 +240,7 @@ public class LinesView extends JPanel implements PolylineSettings {
      * Makes made model changed visible
      */
     public void modelLoaded() {
+        revalidate();
         fullRepaint(true);
         repaint();
     }

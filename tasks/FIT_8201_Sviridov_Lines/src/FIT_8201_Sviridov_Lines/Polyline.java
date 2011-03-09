@@ -75,7 +75,7 @@ public class Polyline {
 			_stroke = new BasicStroke(_thickness, BasicStroke.CAP_ROUND,
 					BasicStroke.JOIN_ROUND);
 		} else if (_type == PolylineSettings.DASHED) {
-			_stroke = new BasicStroke(_thickness, BasicStroke.CAP_BUTT,
+			_stroke = new BasicStroke(_thickness, BasicStroke.CAP_ROUND,
 					BasicStroke.JOIN_ROUND, 10.0f, new float[] {
 							3 * _thickness, 3 * _thickness }, 0.0f);
 		} else if (_type == PolylineSettings.DOTTED_DASHED) {
