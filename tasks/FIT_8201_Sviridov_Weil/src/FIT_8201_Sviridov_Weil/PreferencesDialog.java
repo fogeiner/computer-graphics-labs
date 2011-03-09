@@ -76,7 +76,8 @@ class PreferencesDialog extends javax.swing.JDialog {
         _settings_object.setSubjectPolygonThickness(_subject_slider.getValue());
         _settings_object.setClipPolygonThickness(_clip_slider.getValue());
         _settings_object.setIntersectingPolygonThickness(_intersecting_slider.getValue());
-        _settings_object.repaint();
+
+        _settings_object.fullRepaint();
         setVisible(false);
     }
 

@@ -104,6 +104,8 @@ class PreferencesDialog extends javax.swing.JDialog {
 		_settings_object.setCircleRadius(_radius_slider.getValue());
 		_settings_object.setPolylineThickness((Integer) _thickness_spinner
 				.getValue());
+
+
 		setVisible(false);
 	}
 

@@ -1,5 +1,6 @@
 package FIT_8201_Sviridov_Weil;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -15,8 +16,6 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
@@ -31,6 +30,7 @@ public class WeilView extends JPanel implements WeilSettings {
     private static final long serialVersionUID = -456307332612783435L;
     // double buffer image
     private BufferedImage _offscreen;
+    private Graphics2D _back;
     private static int IMAGE_WIDTH = 2000;
     private static int IMAGE_HEIGHT = 1500;
     private boolean _full_repaint;
@@ -60,34 +60,62 @@ public class WeilView extends JPanel implements WeilSettings {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+
+        if (_offscreen == null) {
+            return;
+        }
+
         Graphics2D front = (Graphics2D) g;
+        Graphics2D back = _back;
+
+
         front.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
+
         front.translate(0, this.getHeight());
         front.scale(1, -1);
-        if (_current_polygon != _subject_polygon) {
-            _subject_polygon.draw(front);
-        }
-        if (_current_polygon != _hole_polygon) {
-            _hole_polygon.draw(front);
-        }
-        if (_current_polygon != _clip_polygon) {
-            _clip_polygon.draw(front);
-        }
-        if (_current_polygon != null) {
-            _current_polygon.drawPartial(front);
-            if (_rubber_line) {
-                Point pointer_location = MouseInfo.getPointerInfo().getLocation();
-                pointer_location.x = pointer_location.x - this.getLocationOnScreen().x;
-                pointer_location.y = pointer_location.y - this.getLocationOnScreen().y;
-                pointer_location.y = getHeight() - pointer_location.y;
-                _current_polygon.drawLine(front, pointer_location);
+
+        if (isFullRepaint()) {
+            back.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR,
+                    0.0f));
+            back.fillRect(0, 0, _offscreen.getWidth(), _offscreen.getHeight());
+            _back = _offscreen.createGraphics();
+            _back.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON);
+            back = _back;
+
+            if (_current_polygon != _subject_polygon) {
+                _subject_polygon.draw(back);
             }
+            if (_current_polygon != _hole_polygon) {
+                _hole_polygon.draw(back);
+            }
+            if (_current_polygon != _clip_polygon) {
+                _clip_polygon.draw(back);
+            }
+
+            if (_current_polygon != null) {
+                _current_polygon.drawPartial(back);
+            }
+
+            for (Polygon p : _intersecting_polygons) {
+                p.draw(back);
+            }
+
+            fullRepaint(false);
         }
-        for (Polygon p : _intersecting_polygons) {
-            System.out.println("10");
-            p.draw(front);
+
+        front.drawImage(_offscreen, 0, 0, this);
+
+        if (_current_polygon != null && _rubber_line) {
+
+            Point pointer_location = MouseInfo.getPointerInfo().getLocation();
+            pointer_location.x = pointer_location.x - this.getLocationOnScreen().x;
+            pointer_location.y = pointer_location.y - this.getLocationOnScreen().y;
+            pointer_location.y = getHeight() - pointer_location.y;
+            _current_polygon.drawLine(front, pointer_location);
         }
+
     }
 
     /**
@@ -150,6 +178,15 @@ public class WeilView extends JPanel implements WeilSettings {
         _clip_polygon.clear();
         _hole_polygon.clear();
         _intersecting_polygons.clear();
+        checkIntersectAbility();
+        fullRepaint(true);
+        repaint();
+    }
+
+    /**
+     * Sets flag to full repaint and rerenders model
+     */
+    public void fullRepaint() {
         fullRepaint(true);
         repaint();
     }
@@ -186,6 +223,8 @@ public class WeilView extends JPanel implements WeilSettings {
         _current_polygon.clear();
         _intersecting_polygons.clear();
         _weil_frame.setBlocked(true);
+        fullRepaint(true);
+        repaint();
         synchronized (_monitor) {
             _rubber_line = true;
             _monitor.notifyAll();
@@ -226,20 +265,19 @@ public class WeilView extends JPanel implements WeilSettings {
 
         boolean finished = false;
         _intersecting_polygons.clear();
+        fullRepaint(true);
+        repaint();
 
-        System.out.println("1");
         // clip inside subject
         if (_subject_polygon.isInside(_clip_polygon)) {
-            System.out.println("2");
+
             if (_hole_polygon.isEmpty()) {
                 addIntersectingPolygon(_clip_polygon);
                 finished = true;
-                System.out.println("3");
             } else if (_clip_polygon.isInside(_hole_polygon)) {
                 addIntersectingPolygon(_clip_polygon);
                 addIntersectingPolygon(_hole_polygon);
                 finished = true;
-                System.out.println("4");
             } else if (_hole_polygon.isInside(_clip_polygon)) {
                 // clip inside hole -> no result
                 finished = true;
@@ -250,7 +288,6 @@ public class WeilView extends JPanel implements WeilSettings {
         }
         // subject inside clip
         if (_clip_polygon.isInside(_subject_polygon)) {
-            System.out.println("5");
             if (!_hole_polygon.isEmpty()) {
                 addIntersectingPolygon(_subject_polygon);
                 addIntersectingPolygon(_hole_polygon);
@@ -261,21 +298,19 @@ public class WeilView extends JPanel implements WeilSettings {
                 finished = true;
             }
         }
-        System.out.println("8");
 
         if (!_hole_polygon.isEmpty()) {
             if (!_clip_polygon.hasIntersection(_subject_polygon) && !_clip_polygon.hasIntersection(_hole_polygon)) {
-                System.out.println("9");
                 finished = true;
             }
         } else {
             if (!_clip_polygon.hasIntersection(_subject_polygon)) {
-                System.out.println("11");
                 finished = true;
             }
         }
 
         if (finished) {
+            fullRepaint(true);
             repaint();
             return;
         }
@@ -290,45 +325,21 @@ public class WeilView extends JPanel implements WeilSettings {
             OrientedVertex.intersect(h, c, in_vertices);
         }
         OrientedVertex.intersect(s, c, in_vertices);
+
         if (!_hole_polygon.isEmpty()) {
-            h.printPath();
+            OrientedVertex.updateAltPaths(h, c);
         }
-        // c.printPath();
-         drawPoints(c);
-        //drawPoints(s);
-        //   drawPoints(h);
-       // drawPoints(in_vertices);
-         try {
-                    Thread.sleep(3000);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(WeilView.class.getName()).log(Level.SEVERE, null, ex);
-                }
-        return;
-Graphics g = getGraphics();
-        while(!in_vertices.isEmpty()){
+        OrientedVertex.updateAltPaths(s, c);
+
+        Graphics g = getGraphics();
+        while (!in_vertices.isEmpty()) {
             Polygon p = new Polygon(Polygon.COUNTERCLOCKWISE_ORIENTATION, _intersecting_polygons_color, _intersecting_polygons_thickness);
             OrientedVertex v = in_vertices.get(0);
-
             in_vertices.remove(v);
             p.addPoint(v.getPoint());
-g.fillOval((int) (v.getPoint().getX() + 0.5) - 2, getHeight() - (int) (v.getPoint().getY() + 0.5) - 2, 5, 5);
-try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(WeilView.class.getName()).log(Level.SEVERE, null, ex);
-                }
             OrientedVertex cur_v = v.getNext();
-
-
-            System.out.println(cur_v);
-            do{
-                g.fillOval((int) (cur_v.getPoint().getX() + 0.5) - 2, getHeight() - (int) (cur_v.getPoint().getY() + 0.5) - 2, 5, 5);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(WeilView.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                if(cur_v.getNextAlt() != null){
+            do {
+                if (cur_v.getNextAlt() != null) {
                     in_vertices.remove(cur_v);
                     p.addPoint(cur_v.getPoint());
                     cur_v = cur_v.getNextAlt();
@@ -336,30 +347,79 @@ try {
                     p.addPoint(cur_v.getPoint());
                     cur_v = cur_v.getNext();
                 }
-                System.out.println(cur_v);
-            } while(!cur_v.equals(v));
+            } while (!cur_v.equals(v));
 
             _intersecting_polygons.add(p);
         }
+
+
+        if (!_hole_polygon.isEmpty() && _clip_polygon.isInside(_hole_polygon)) {
+            addIntersectingPolygon(_hole_polygon);
+        }
+
+        fullRepaint(true);
         repaint();
     }
 
+    /**
+     * Draws points from the list
+     * @param in_vertices list of OrientedVertices
+     */
     private void drawPoints(List<OrientedVertex> in_vertices) {
         Graphics g = (Graphics2D) getGraphics();
         int i = 0;
         g.setColor(Color.blue);
         for (OrientedVertex v : in_vertices) {
-            g.fillOval((int) (v.getPoint().getX() + 0.5) - 2, getHeight() - (int) (v.getPoint().getY() + 0.5) - 2, 5, 5);
+            if (v.getNextAlt() != null) {
+                g.fillOval((int) (v.getPoint().getX() + 0.5) - 5, getHeight() - (int) (v.getPoint().getY() + 0.5) - 5, 20, 20);
+            } else {
+                g.fillOval((int) (v.getPoint().getX() + 0.5) - 2, getHeight() - (int) (v.getPoint().getY() + 0.5) - 2, 5, 5);
+            }
             g.drawString(Integer.toString(i++), (int) (v.getPoint().getX() + 0.5), getHeight() - (int) (v.getPoint().getY() + 0.5));
         }
     }
 
+    /**
+     * Draws points starting with given OrientedVertex taking alt path
+     * until inital point is met
+     * @param v2 initial vertex
+     */
+    private void drawClosedPointsAlt(OrientedVertex v2) {
+        Graphics g = (Graphics2D) getGraphics();
+        g.setColor(Color.orange);
+        int i = 0;
+        OrientedVertex v = v2;
+        do {
+            if (v.getNextAlt() != null) {
+
+                g.fillOval((int) (v.getPoint().getX() + 0.5) - 2, getHeight() - (int) (v.getPoint().getY() + 0.5) - 2, 5, 5);
+                g.drawString(Integer.toString(i++), (int) (v.getPoint().getX() + 0.5), getHeight() - (int) (v.getPoint().getY() + 0.5));
+
+                v = v.getNextAlt();
+            } else {
+
+                g.fillOval((int) (v.getPoint().getX() + 0.5) - 2, getHeight() - (int) (v.getPoint().getY() + 0.5) - 2, 5, 5);
+                g.drawString(Integer.toString(i++), (int) (v.getPoint().getX() + 0.5), getHeight() - (int) (v.getPoint().getY() + 0.5));
+                v = v.getNext();
+            }
+        } while (v != v2);
+    }
+
+    /**
+     * Draws points starting with given OrientedVertex taking normal path
+     * until first vertex is met
+     * @param v initial vertex
+     */
     private void drawPoints(OrientedVertex v) {
         Graphics g = (Graphics2D) getGraphics();
         int i = 0;
         g.setColor(Color.blue);
         do {
-            g.fillOval((int) (v.getPoint().getX() + 0.5) - 2, getHeight() - (int) (v.getPoint().getY() + 0.5) - 2, 5, 5);
+            if (v.getNextAlt() != null) {
+                g.fillOval((int) (v.getPoint().getX() + 0.5) - 5, getHeight() - (int) (v.getPoint().getY() + 0.5) - 5, 20, 20);
+            } else {
+                g.fillOval((int) (v.getPoint().getX() + 0.5) - 2, getHeight() - (int) (v.getPoint().getY() + 0.5) - 2, 5, 5);
+            }
             g.drawString(Integer.toString(i++), (int) (v.getPoint().getX() + 0.5), getHeight() - (int) (v.getPoint().getY() + 0.5));
             v = v.getNext();
         } while (!v.isFirst());
@@ -384,15 +444,19 @@ try {
                 if (_offscreen == null) {
                     _offscreen = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT,
                             BufferedImage.TYPE_INT_ARGB);
-                    fullRepaint(
-                            true);
+                    _back = _offscreen.createGraphics();
+                    _back.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                            RenderingHints.VALUE_ANTIALIAS_ON);
+                    fullRepaint(true);
                 } else {
                     if (getWidth() > _offscreen.getWidth(null)
                             || getHeight() > _offscreen.getHeight(null)) {
                         _offscreen = new BufferedImage(getWidth(), getHeight(),
                                 BufferedImage.TYPE_INT_ARGB);
-                        fullRepaint(
-                                true);
+                        _back = _offscreen.createGraphics();
+                        _back.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                                RenderingHints.VALUE_ANTIALIAS_ON);
+                        fullRepaint(true);
                     }
                 }
                 repaint();
@@ -433,6 +497,7 @@ try {
                 if (button == MouseEvent.BUTTON1) {
                     if (_current_polygon.isPointValid(point)) {
                         _current_polygon.addPoint(point);
+                        _current_polygon.drawPoint(_back);
                     } else {
                         JOptionPane.showMessageDialog(WeilView.this, "Invalid point: check self-intersections", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
@@ -440,6 +505,7 @@ try {
                 } else if (button == MouseEvent.BUTTON3) {
                     if (_current_polygon.verticesCount() < 3) {
                         _current_polygon.clear();
+                        fullRepaint(true);
                     } else if (!_current_polygon.isFinished()) {
                         JOptionPane.showMessageDialog(WeilView.this, "Invalid point: check self-intersections", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
@@ -447,6 +513,9 @@ try {
                         JOptionPane.showMessageDialog(WeilView.this, "Wrong orientation", "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
+
+                    _current_polygon.drawLastFirst(_back);
+
                     synchronized (_monitor) {
                         _rubber_line = false;
                         _monitor.notifyAll();

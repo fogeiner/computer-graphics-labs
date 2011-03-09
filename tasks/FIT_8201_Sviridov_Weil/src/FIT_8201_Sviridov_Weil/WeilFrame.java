@@ -108,7 +108,7 @@ public class WeilFrame extends MainFrame implements FrameService {
             _weil_view = new WeilView(this);
             JScrollPane scrollPane = new JScrollPane(_weil_view);
             panel.add(scrollPane, BorderLayout.CENTER);
-            
+
             add(panel);
 
             setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -409,6 +409,10 @@ public class WeilFrame extends MainFrame implements FrameService {
         JMenu edit = (JMenu) menu_bar.getComponent(1);
         edit.getMenuComponent(3).setEnabled(!value);
         toolBar.getComponent(9).setEnabled(!value);
+
+        JMenu file = (JMenu) menu_bar.getComponent(0);
+        file.getMenuComponent(2).setEnabled(!value);
+        toolBar.getComponent(2).setEnabled(!value);
     }
 
     @Override

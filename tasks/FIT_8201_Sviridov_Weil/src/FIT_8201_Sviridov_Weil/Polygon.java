@@ -127,7 +127,61 @@ public class Polygon {
 
             g2.drawLine(x1, y1, x2, y2);
         }
+    }
 
+    /**
+     * Draws line between prelast and last points
+     * @param g2
+     */
+    public void drawPoint(Graphics2D g2) {
+        int size = _points.size();
+        if (size < 2) {
+            return;
+        }
+
+        if (_stroke == null) {
+            _stroke = new BasicStroke(_thickness, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+        }
+
+        g2.setColor(_color);
+        g2.setStroke(_stroke);
+
+        Point2D p1 = _points.get(size - 2), p2 = _points.get(size - 1);
+
+        int x1 = (int) (p1.getX() + 0.5);
+        int y1 = (int) (p1.getY() + 0.5);
+        int x2 = (int) (p2.getX() + 0.5);
+        int y2 = (int) (p2.getY() + 0.5);
+
+        g2.drawLine(x1, y1, x2, y2);
+
+    }
+
+        /**
+     * Draws line between last and first points
+     * @param g2
+     */
+    public void drawLastFirst(Graphics2D g2) {
+        int size = _points.size();
+        if (size < 2) {
+            return;
+        }
+
+        if (_stroke == null) {
+            _stroke = new BasicStroke(_thickness, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+        }
+
+        g2.setColor(_color);
+        g2.setStroke(_stroke);
+
+        Point2D p1 = _points.get(size - 1), p2 = _points.get(0);
+
+        int x1 = (int) (p1.getX() + 0.5);
+        int y1 = (int) (p1.getY() + 0.5);
+        int x2 = (int) (p2.getX() + 0.5);
+        int y2 = (int) (p2.getY() + 0.5);
+
+        g2.drawLine(x1, y1, x2, y2);
 
     }
 

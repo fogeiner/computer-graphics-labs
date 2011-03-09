@@ -163,8 +163,6 @@ public class OrientedVertex {
             throw new IllegalArgumentException();
         }
 
-
-
         OrientedVertex s1 = v;
         OrientedVertex s2 = s1.getNext();
 
@@ -210,11 +208,46 @@ public class OrientedVertex {
     }
 
     /**
+     * Update alt paths (some points were not known at the moment
+     * of intersecting points creation)
+     * @param v first vertex of one path
+     * @param c first vertex of another path
+     */
+    public static void updateAltPaths(OrientedVertex v, OrientedVertex c) {
+        OrientedVertex v_cur = v, c_cur = c;
+
+        do {
+            if (v_cur.getNextAlt() == null) {
+                v_cur = v_cur.getNext();
+                continue;
+            }
+
+            do {
+
+                if (c_cur.getNextAlt() == null) {
+                    c_cur = c_cur.getNext();
+                    continue;
+                }
+
+                if (v_cur.equals(c_cur)) {
+                    v_cur.setNextAlt(c_cur.getNext());
+                    c_cur.setNextAlt(v_cur.getNext());
+
+                    v_cur = v_cur.getNext();
+                    c_cur = c;
+                } else {
+                    c_cur = c_cur.getNext();
+                }
+            } while (!c_cur.isFirst());
+        } while (!v_cur.isFirst());
+    }
+
+    /**
      * Checks if vector (c2 - c1) enters (s2 - s1) and end is on the 'right'
-     * @param s1
-     * @param s2
-     * @param c1
-     * @param c2
+     * @param s1 first point x coordinate
+     * @param s2 first point y coordinate
+     * @param c1 second point x coordinate
+     * @param c2 second point y coordinate
      * @return true if the end on the right, false otherwise
      */
     private static boolean doEnter(OrientedVertex s1, OrientedVertex s2, OrientedVertex c1, OrientedVertex c2) {
