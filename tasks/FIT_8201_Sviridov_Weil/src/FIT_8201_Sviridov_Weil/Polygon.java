@@ -85,24 +85,28 @@ public class Polygon {
 
 		if (_line_stroke == null) {
 			_line_stroke = new BasicStroke(_thickness, BasicStroke.CAP_ROUND,
-					BasicStroke.JOIN_ROUND, 10.0f, new float[] {
-							3 * _thickness, 3 * _thickness }, 0.0f);
+					BasicStroke.JOIN_ROUND, 0.0f, new float[] { 3 * _thickness,
+							3 * _thickness }, 0.0f);
 		}
 
 		g2.setColor(_color);
-		g2.setStroke(_line_stroke);
-
-		if (size == 1) {
-			Point fp = firstPoint();
-			g2.drawLine(fp.x, fp.y, p.x, p.y);
-			return;
-		}
 
 		Point fp = firstPoint();
 		Point lp = lastPoint();
 
-		g2.drawLine(fp.x, fp.y, p.x, p.y);
-		g2.drawLine(p.x, p.y, lp.x, lp.y);
+		int fpx = (int) (fp.getX() + 0.5), fpy = (int) (fp.getY() + 0.5), lpx = (int) (lp
+				.getX() + 0.5), lpy = (int) (lp.getY() + 0.5);
+
+		if (size == 1) {
+			g2.setStroke(_stroke);
+			g2.drawLine(fpx, fpy, p.x, p.y);
+			return;
+		}
+
+		g2.setStroke(_line_stroke);
+		g2.drawLine(fpx, fpy, p.x, p.y);
+		g2.setStroke(_stroke);
+		g2.drawLine(p.x, p.y, lpx, lpy);
 	}
 
 	/**

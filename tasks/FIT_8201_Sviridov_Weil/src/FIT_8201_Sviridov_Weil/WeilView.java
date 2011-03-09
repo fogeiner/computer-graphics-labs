@@ -117,7 +117,7 @@ public class WeilView extends JPanel implements WeilSettings {
 			fullRepaint(false);
 		}
 
-		front.drawImage(_offscreen, 0, 0, this);
+		front.drawImage(_offscreen, 0, -1, null);
 
 		if (_current_polygon != null && _rubber_line) {
 
@@ -477,13 +477,8 @@ public class WeilView extends JPanel implements WeilSettings {
 		this.addMouseListener(new MouseAdapter() {
 
 			@Override
-			public void mousePressed(MouseEvent e) {
-				super.mousePressed(e);
+			public void mousePressed(MouseEvent event) {
 				requestFocusInWindow();
-			}
-
-			@Override
-			public void mouseClicked(MouseEvent event) {
 				if (getState() != EDIT_STATE) {
 					return;
 				}

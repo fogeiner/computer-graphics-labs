@@ -116,40 +116,7 @@ public class WeilFrame extends MainFrame implements FrameService {
 
 				@Override
 				public void windowClosing(WindowEvent e) {
-					// dirty hack
-					if (_weil_view.getState() == WeilView.EDIT_STATE) {
-						int answer = JOptionPane
-								.showConfirmDialog(
-										WeilFrame.this,
-										"Document cannot be saved until you finish editing it.\nClose with saving?",
-										"Saving file",
-										JOptionPane.YES_NO_CANCEL_OPTION);
-
-						if (answer != JOptionPane.OK_OPTION) {
-							return;
-						} else {
-							System.exit(0);
-						}
-					}
-
-					if (isModified() == true) {
-						switch (showSaveMessage()) {
-						case JOptionPane.OK_OPTION:
-							onSave();
-
-							// still not saved
-							if (isModified()) {
-								return;
-							}
-							break;
-						case JOptionPane.CLOSED_OPTION:
-						case JOptionPane.CANCEL_OPTION:
-							return;
-						case JOptionPane.NO_OPTION:
-						}
-					}
-
-					System.exit(0);
+					onExit();
 				}
 			});
 
@@ -238,6 +205,20 @@ public class WeilFrame extends MainFrame implements FrameService {
 	 * to save current document (if needed) and terminates application
 	 */
 	public void onExit() {
+		if (_weil_view.getState() == WeilView.EDIT_STATE) {
+			int answer = JOptionPane
+					.showConfirmDialog(
+							WeilFrame.this,
+							"Document cannot be saved until you finish editing it.\nClose with saving?",
+							"Saving file", JOptionPane.YES_NO_CANCEL_OPTION);
+
+			if (answer != JOptionPane.OK_OPTION) {
+				return;
+			} else {
+				System.exit(0);
+			}
+		}
+
 		if (isModified() == true) {
 			switch (showSaveMessage()) {
 			case JOptionPane.OK_OPTION:
@@ -377,8 +358,6 @@ public class WeilFrame extends MainFrame implements FrameService {
 	 *            command line arguments (unused)
 	 */
 	public static void main(String args[]) {
-		System.setProperty("user.dir", System.getProperty("user.dir") + "/"
-				+ WeilSettings.DATA_DIR);
 
 		EventQueue.invokeLater(new Runnable() {
 
