@@ -39,77 +39,6 @@ public class Polygon {
 	}
 
 	/**
-	 * Returns last point of the <code>Polygon</code>
-	 * 
-	 * @return last point of the <code>Polygon</code>
-	 */
-	public Point lastPoint() {
-		int size = _points.size();
-		if (size < 1) {
-			return null;
-		}
-
-		Point2D p2d = _points.get(size - 1);
-		return new Point((int) (p2d.getX() + 0.5), (int) (p2d.getY() + 0.5));
-	}
-
-	/**
-	 * Returns first point of the <code>Polygon</code>
-	 * 
-	 * @return first point of the <code>Polygon</code>
-	 */
-	public Point firstPoint() {
-		int size = _points.size();
-		if (size < 1) {
-			return null;
-		}
-
-		Point2D p2d = _points.get(0);
-
-		return new Point((int) (p2d.getX() + 0.5), (int) (p2d.getY() + 0.5));
-	}
-
-	/**
-	 * Draws line from first and last points to given point <code>p</code>
-	 * (intended to be used for rubber line)
-	 * 
-	 * @param g2
-	 * @param p
-	 *            point of rubber line ending
-	 */
-	public void drawLine(Graphics2D g2, Point p) {
-		int size = _points.size();
-		if (size == 0) {
-			return;
-		}
-
-		if (_line_stroke == null) {
-			_line_stroke = new BasicStroke(_thickness, BasicStroke.CAP_ROUND,
-					BasicStroke.JOIN_ROUND, 0.0f, new float[] { 3 * _thickness,
-							3 * _thickness }, 0.0f);
-		}
-
-		g2.setColor(_color);
-
-		Point fp = firstPoint();
-		Point lp = lastPoint();
-
-		int fpx = (int) (fp.getX() + 0.5), fpy = (int) (fp.getY() + 0.5), lpx = (int) (lp
-				.getX() + 0.5), lpy = (int) (lp.getY() + 0.5);
-
-		if (size == 1) {
-			g2.setStroke(_stroke);
-			g2.drawLine(fpx, fpy, p.x, p.y);
-			return;
-		}
-
-		g2.setStroke(_line_stroke);
-		g2.drawLine(fpx, fpy, p.x, p.y);
-		g2.setStroke(_stroke);
-		g2.drawLine(p.x, p.y, lpx, lpy);
-	}
-
-	/**
 	 * Draws all segments but the ones to be drawn with rubber line
 	 * 
 	 * @param g2
@@ -141,6 +70,49 @@ public class Polygon {
 
 			g2.drawLine(x1, y1, x2, y2);
 		}
+	}
+
+	/**
+	 * Draws line from first and last points to given point <code>p</code>
+	 * (intended to be used for rubber line)
+	 * 
+	 * @param g2
+	 * @param p
+	 *            point of rubber line ending
+	 */
+	public void drawLine(Graphics2D g2, Point p) {
+		int size = _points.size();
+		if (size == 0) {
+			return;
+		}
+		if (_stroke == null) {
+			_stroke = new BasicStroke(_thickness, BasicStroke.CAP_ROUND,
+					BasicStroke.JOIN_ROUND);
+		}
+		if (_line_stroke == null) {
+			_line_stroke = new BasicStroke(_thickness, BasicStroke.CAP_ROUND,
+					BasicStroke.JOIN_ROUND, 0.0f, new float[] { 3 * _thickness,
+							3 * _thickness }, 0.0f);
+		}
+
+		g2.setColor(_color);
+
+		Point2D fp = _points.get(0);
+		Point2D lp = _points.get(size - 1);
+
+		int fpx = (int) (fp.getX() + 0.5), fpy = (int) (fp.getY() + 0.5), lpx = (int) (lp
+				.getX() + 0.5), lpy = (int) (lp.getY() + 0.5);
+
+		if (size == 1) {
+			g2.setStroke(_stroke);
+			g2.drawLine(fpx, fpy, p.x, p.y);
+			return;
+		}
+
+		g2.setStroke(_line_stroke);
+		g2.drawLine(fpx, fpy, p.x, p.y);
+		g2.setStroke(_stroke);
+		g2.drawLine(p.x, p.y, lpx, lpy);
 	}
 
 	/**
@@ -415,6 +387,9 @@ public class Polygon {
 		if (thickness != _thickness) {
 			_stroke = new BasicStroke(thickness, BasicStroke.CAP_ROUND,
 					BasicStroke.JOIN_ROUND);
+			_line_stroke = new BasicStroke(_thickness, BasicStroke.CAP_ROUND,
+					BasicStroke.JOIN_ROUND, 0.0f, new float[] { 3 * _thickness,
+							3 * _thickness }, 0.0f);
 		}
 		_thickness = thickness;
 	}

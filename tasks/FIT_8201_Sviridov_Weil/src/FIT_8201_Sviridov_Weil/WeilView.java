@@ -122,10 +122,10 @@ public class WeilView extends JPanel implements WeilSettings {
 		if (_current_polygon != null && _rubber_line) {
 
 			Point pointer_location = MouseInfo.getPointerInfo().getLocation();
-			pointer_location.x = pointer_location.x
+			pointer_location.x = pointer_location.x  
 					- this.getLocationOnScreen().x;
 			pointer_location.y = pointer_location.y
-					- this.getLocationOnScreen().y;
+					- this.getLocationOnScreen().y ;
 			pointer_location.y = getHeight() - pointer_location.y;
 			_current_polygon.drawLine(front, pointer_location);
 		}
@@ -409,7 +409,7 @@ public class WeilView extends JPanel implements WeilSettings {
 					_back = _offscreen.createGraphics();
 					_back.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 							RenderingHints.VALUE_ANTIALIAS_ON);
-					fullRepaint(true);
+					fullRepaint();
 				} else {
 					if (getWidth() > _offscreen.getWidth(null)
 							|| getHeight() > _offscreen.getHeight(null)) {
@@ -418,10 +418,9 @@ public class WeilView extends JPanel implements WeilSettings {
 						_back = _offscreen.createGraphics();
 						_back.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 								RenderingHints.VALUE_ANTIALIAS_ON);
-						fullRepaint(true);
+						fullRepaint();
 					}
 				}
-				repaint();
 			}
 		});
 		Thread thread = new Thread(new Runnable() {

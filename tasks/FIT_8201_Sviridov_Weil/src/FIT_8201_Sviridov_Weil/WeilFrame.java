@@ -209,14 +209,13 @@ public class WeilFrame extends MainFrame implements FrameService {
 			int answer = JOptionPane
 					.showConfirmDialog(
 							WeilFrame.this,
-							"Document cannot be saved until you finish editing it.\nClose with saving?",
+							"Document cannot be saved until you finish editing it.\nDo you want to continue editing?",
 							"Saving file", JOptionPane.YES_NO_CANCEL_OPTION);
 
-			if (answer != JOptionPane.OK_OPTION) {
-				return;
-			} else {
+			if (answer == JOptionPane.NO_OPTION) {
 				System.exit(0);
 			}
+			return;
 		}
 
 		if (isModified() == true) {
