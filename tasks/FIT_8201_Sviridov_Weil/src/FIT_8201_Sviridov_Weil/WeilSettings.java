@@ -20,7 +20,7 @@ public interface WeilSettings {
     public static final int DEFAULT_THICKNESS = 1;
     public static final int DEFAULT_SUBJECT_THICKNESS = DEFAULT_THICKNESS;
     public static final int DEFAULT_CLIP_THICKNESS = DEFAULT_THICKNESS;
-    public static final int DEFAULT_INTERSECTING_THICKNESS = DEFAULT_THICKNESS * 3;
+    public static final int DEFAULT_INTERSECTING_THICKNESS = DEFAULT_THICKNESS * 2;
     public static final int MAX_THICKNESS = 21;
 
     /**

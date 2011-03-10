@@ -42,7 +42,7 @@ public class WeilView extends JPanel implements WeilSettings {
     // panel properties
     private Dimension _weil_view_size = new Dimension(600, 400);
     // drawing properties
-    private int _refresh_period = 50;
+    private int _refresh_period = 30;
     private FrameService _weil_frame;
     private boolean _rubber_line = false;
     private final Object _monitor = new Object();
