@@ -43,7 +43,7 @@ public class WeilPersistenceManager {
 		fw.append(Integer.toString(ps.getMaxY() + WeilSettings.MODEL_PADDING));
 		fw.append("\r\n");
 
-		if (ps.getHolePolygon() != null) {
+		if (!ps.getHolePolygon().isEmpty()) {
 			fw.append(Integer.toString(2));
 		} else {
 			fw.append(Integer.toString(1));
@@ -53,7 +53,7 @@ public class WeilPersistenceManager {
 
 		fw.append(ps.getSubjectPolygon().toString());
 
-		if (ps.getHolePolygon() != null) {
+		if (!ps.getHolePolygon().isEmpty()) {
 			fw.append(ps.getHolePolygon().toString());
 		}
 
