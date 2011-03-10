@@ -157,8 +157,10 @@ public class WeilView extends JPanel implements WeilSettings {
                         WeilView.this,
                         "Loaded "
                         + name
-                        + " polygon has wrong orientation.\nIt's highly recommended to avoid working with this model.",
+                        + " polygon has wrong orientation.",
                         "Error", JOptionPane.ERROR_MESSAGE);
+
+                reset();
 
             }
             if (p.testSelfEntering() == false) {
@@ -166,8 +168,9 @@ public class WeilView extends JPanel implements WeilSettings {
                         WeilView.this,
                         "Loaded "
                         + name
-                        + " polygon has self-entering.\nIt's highly recommended to avoid working with this model.",
+                        + " polygon has self-entering.\n",
                         "Error", JOptionPane.ERROR_MESSAGE);
+                reset();
 
             }
         }
@@ -234,6 +237,7 @@ public class WeilView extends JPanel implements WeilSettings {
     /**
      * Sets flag to full repaint and rerenders model
      */
+    @Override
     public void fullRepaint() {
         fullRepaint(true);
         repaint();
@@ -429,8 +433,8 @@ public class WeilView extends JPanel implements WeilSettings {
      */
     public WeilView(FrameService weil_frame) {
         _weil_frame = weil_frame;
-        setBackground(Color.white);
         setFocusable(true);
+        setBackground(WeilSettings.DEFAULT_BACKGROUND_COLOR);
         this.addComponentListener(new ComponentAdapter() {
 
             @Override
@@ -587,7 +591,6 @@ public class WeilView extends JPanel implements WeilSettings {
 
         for (Polygon p : polygons) {
             bounds = p.getBounds();
-            System.out.println(bounds);
             y = bounds.height;
             if (y > max_y) {
                 max_y = y;

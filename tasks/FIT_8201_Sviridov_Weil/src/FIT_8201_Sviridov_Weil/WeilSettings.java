@@ -9,13 +9,14 @@ public interface WeilSettings {
     public final static int FRAME_WIDTH = 800;
     public final static int FRAME_HEIGHT = 600;
     public final static int MODEL_PADDING = 50;
-    public final static String WEIL_NAME = "FIT_8201_Sviridov_Weil_1";
+    public final static String WEIL_NAME = "FIT_8201_Sviridov_Weil";
     public final static String ABOUT_FILE = "FIT_8201_Sviridov_Weil_About.txt";
     public final static String DATA_DIR = "FIT_8201_Sviridov_Weil_Data";
     public final static String UNTITLED_DOCUMENT = "Untitled";
     public static final Color DEFAULT_SUBJECT_COLOR = Color.red;
     public static final Color DEFAULT_CLIP_COLOR = Color.blue;
     public static final Color DEFAULT_INTERSECTING_COLOR = Color.green;
+    public static final Color DEFAULT_BACKGROUND_COLOR = Color.white;
     public static final int DEFAULT_THICKNESS = 1;
     public static final int DEFAULT_SUBJECT_THICKNESS = DEFAULT_THICKNESS;
     public static final int DEFAULT_CLIP_THICKNESS = DEFAULT_THICKNESS;
@@ -175,6 +176,18 @@ public interface WeilSettings {
      * @return clip polygon of the model
      */
     public Polygon getClipPolygon();
+
+    /**
+     * Returns canvas background color
+     * @return canvas background color
+     */
+    public Color getBackground();
+
+    /**
+     * Sets canvas background color to <code>color</code>
+     * @param color new canvas background color
+     */
+    public void setBackground(Color color);
 
     /**
      * Commits changes to become visible after altering model
