@@ -94,7 +94,7 @@ class PreferencesDialog extends javax.swing.JDialog {
                 if (colors[i].equals(colors[j])) {
                     JOptionPane.showMessageDialog(
                             this,
-                            "All colors need to be different.",
+                            "All colors have to be different.",
                             "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
