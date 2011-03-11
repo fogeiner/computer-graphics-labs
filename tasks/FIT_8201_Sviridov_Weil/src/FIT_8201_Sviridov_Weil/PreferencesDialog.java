@@ -175,11 +175,11 @@ class PreferencesDialog extends javax.swing.JDialog {
 	 * @param title
 	 *            Title for <code>TitledBorder</code>
 	 * @param color_label
-	 *            color laber to add <code>MouseListener</code>
+	 *            color label to add <code>MouseListener</code>
 	 * @param slider
-	 *            slider assiciated with thickness
-	 * @param textfield
-	 *            textfield assiciated with thickness
+	 *            slider associated with thickness
+	 * @param spinner
+	 *            spinner associated with thickness
 	 * @return panel with UI widgets
 	 */
 	private JPanel makeSubpanel(String title, final JLabel color_label,

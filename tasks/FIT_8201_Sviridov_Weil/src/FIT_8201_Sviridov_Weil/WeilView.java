@@ -298,7 +298,7 @@ public class WeilView extends JPanel implements WeilSettings {
 	/**
 	 * Adds intersection polygon using all points of another
 	 * 
-	 * @param p
+	 * @param polygon
 	 *            Polygon to be used as source
 	 */
 	private void addIntersectingPolygon(Polygon polygon) {

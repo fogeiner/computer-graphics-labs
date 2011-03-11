@@ -4,14 +4,18 @@
               To include a user specific buildfile here, simply create one in the same
               directory with the processing instruction <?eclipse.ant.import?>
               as the first entry and export the buildfile again. -->
-<project basedir="." default="build" name="FIT_8201_Sviridov_Lines">
+<project basedir="." default="build" name="FIT_8201_Sviridov_Weil">
     <property environment="env"/>
-    <property name="ECLIPSE_HOME" value="../../../../../Program Files/eclipse"/>
+    <property name="FIT_8201_Sviridov_Lines.location" value="../FIT_8201_Sviridov_Lines"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
     <path id="FIT_8201_Sviridov_Lines.classpath">
+        <pathelement location="${FIT_8201_Sviridov_Lines.location}/bin"/>
+    </path>
+    <path id="FIT_8201_Sviridov_Weil.classpath">
         <pathelement location="bin"/>
+        <path refid="FIT_8201_Sviridov_Lines.classpath"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>
@@ -25,33 +29,24 @@
     <target name="clean">
         <delete dir="bin"/>
     </target>
-    <target depends="clean" name="cleanall"/>
+    <target depends="clean" name="cleanall">
+        <ant antfile="build.xml" dir="${FIT_8201_Sviridov_Lines.location}" inheritAll="false" target="clean"/>
+    </target>
     <target depends="build-subprojects,build-project" name="build"/>
-    <target name="build-subprojects"/>
+    <target name="build-subprojects">
+        <ant antfile="build.xml" dir="${FIT_8201_Sviridov_Lines.location}" inheritAll="false" target="build-project"/>
+    </target>
     <target depends="init" name="build-project">
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
             <src path="src"/>
-            <classpath refid="FIT_8201_Sviridov_Lines.classpath"/>
+            <classpath refid="FIT_8201_Sviridov_Weil.classpath"/>
         </javac>
     </target>
     <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
-    <target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
-        <copy todir="${ant.library.dir}">
-            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
-        </copy>
-        <unzip dest="${ant.library.dir}">
-            <patternset includes="jdtCompilerAdapter.jar"/>
-            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
-        </unzip>
-    </target>
-    <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
-        <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
-        <antcall target="build"/>
-    </target>
-    <target name="LinesFrame">
-        <java classname="FIT_8201_Sviridov_Lines.LinesFrame" failonerror="true" fork="yes">
-            <classpath refid="FIT_8201_Sviridov_Lines.classpath"/>
+    <target name="WeilFrame">
+        <java classname="FIT_8201_Sviridov_Weil.WeilFrame" failonerror="true" fork="yes">
+            <classpath refid="FIT_8201_Sviridov_Weil.classpath"/>
         </java>
     </target>
 </project>
