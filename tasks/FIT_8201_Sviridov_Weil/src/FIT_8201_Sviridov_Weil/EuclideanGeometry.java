@@ -12,6 +12,14 @@ public class EuclideanGeometry {
 
 	public static final double EPS = 1E-12;
 
+	/**
+	 * Tests if two segments given by points are parallel
+	 * @param p1 x1
+	 * @param p2 y1
+	 * @param q1 x2
+	 * @param q2 y2
+	 * @return true if they're parallel, false otherwise
+	 */
 	public static boolean areSegmentsParallel(Point2D p1, Point2D p2,
 			Point2D q1, Point2D q2) {
 		double x1 = p1.getX(), x2 = p2.getX(), x3 = q1.getX(), x4 = q2.getX(), y1 = p1
@@ -26,6 +34,15 @@ public class EuclideanGeometry {
 		return false;
 	}
 
+	/**
+	 * Test if two segments given by points have intersection.
+	 * If so, intersection point is returned, null otherwise
+	 * @param p1 x1
+	 * @param p2 y1
+	 * @param q1 x2
+	 * @param q2 y2
+	 * @return intersection point if one exists, null otherwise
+	 */
 	public static Point2D getIntersection(Point2D p1, Point2D p2, Point2D q1,
 			Point2D q2) {
 		double x1 = p1.getX(), x2 = p2.getX(), x3 = q1.getX(), x4 = q2.getX(), y1 = p1

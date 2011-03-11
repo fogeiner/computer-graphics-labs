@@ -3,6 +3,10 @@ package FIT_8201_Sviridov_Weil;
 import java.awt.Color;
 import java.awt.Dimension;
 
+/**
+ * Interface for object knowing about Weil settings - i.e. WeilView
+ * @author alstein
+ */
 public interface WeilSettings {
 
 	public final static int MAX_DIMENSION_SIZE = 3000;

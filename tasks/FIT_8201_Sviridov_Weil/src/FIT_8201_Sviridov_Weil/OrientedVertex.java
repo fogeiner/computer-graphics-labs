@@ -122,6 +122,10 @@ public class OrientedVertex {
 		_next_alt = vertex;
 	}
 
+	/**
+	 * Returns representation of OrientedVertex
+	 * @return String representation of OrientedVertex
+	 */
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();

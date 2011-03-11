@@ -422,7 +422,7 @@ public class WeilView extends JPanel implements WeilSettings {
 	/**
 	 * Constructor with reference to LinesFrame
 	 * 
-	 * @param lines_frame
+	 * @param weil_frame
 	 *            application main frame
 	 */
 	public WeilView(FrameService weil_frame) {

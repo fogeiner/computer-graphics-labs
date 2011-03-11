@@ -697,7 +697,7 @@ public class Polygon {
 	/**
 	 * Returns bound for all points to fit
 	 * 
-	 * @return
+	 * @return bound for all points to fit
 	 */
 	public Rectangle getBounds() {
 		int max_x = 0, max_y = 0;
