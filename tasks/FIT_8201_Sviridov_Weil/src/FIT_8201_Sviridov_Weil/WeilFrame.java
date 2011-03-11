@@ -280,8 +280,8 @@ public class WeilFrame extends MainFrame implements FrameService {
             if (f.exists() == false) {
                 JOptionPane.showMessageDialog(this, "File " + WeilSettings.ABOUT_FILE + " could not be found neither in application directory nor in the preceding directory.", "Opening about file",
                         JOptionPane.ERROR_MESSAGE);
+                return;
             }
-            return;
         }
         try {
             String editor;
