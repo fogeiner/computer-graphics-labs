@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 /**
- * Class for loading polylines from file/saving them to file
+ * Class for loading polygons from file/saving them to file
  * 
  * File format: width height // in pixels k // number of subject polygon
  * contours; k = 1|2 first -- outer { number of points in contour x_i y_i // in

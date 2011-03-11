@@ -7,7 +7,7 @@ import java.util.List;
  * Class incapsulating vertex of the oriented Polygon. Keeps point and reference
  * to the next point.
  * 
- * @author admin
+ * @author alstein
  */
 public class OrientedVertex {
 

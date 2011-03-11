@@ -11,9 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Class incapsulating polygon with such properties as: color, thickness and
+ * Class encapsulating polygon with such properties as: color, thickness and
  * points Based on <code>Point2D.Double</code> Orientation test is based on
- * <link>http://en.wikipedia.org/wiki/Curve_orientation</link>
+ * <link
+ * >http://stackoverflow.com/questions/1165647/how-to-determine-if-a-list-of
+ * -polygon-points-are-in-clockwise-order</link>
  * 
  * @author alstein
  */
@@ -273,7 +275,7 @@ public class Polygon {
 	 * @param orientation
 	 *            orientation of Polygon (CLOCLWISE and COUNTERCLOCKWISE)
 	 * @param color
-	 *            inital color
+	 *            initial color
 	 * @param thickness
 	 *            initial thickness
 	 */
@@ -420,7 +422,7 @@ public class Polygon {
 	 * Returns polygon object in standard representation: number of points,
 	 * coordinates of points
 	 * 
-	 * @return String with standard polyline representation
+	 * @return String with standard polygon representation
 	 */
 	@Override
 	public String toString() {
@@ -545,39 +547,39 @@ public class Polygon {
 	}
 
 	/**
-	 *  Tests if there are no self-enterings
+	 * Tests if there are no self-enterings
+	 * 
 	 * @return true if there are no self-entering, false otherwise
 	 */
-	public boolean testSelfEntering(){
+	public boolean testSelfEntering() {
 		int size = _points.size();
-		if(size < 4){
+		if (size < 4) {
 			return true;
 		}
-		
-		for(int i = 0; i < size; ++i){
+
+		for (int i = 0; i < size; ++i) {
 			Point2D p1, p2;
 			p1 = _points.get(i);
-			if(i == size - 1){
+			if (i == size - 1) {
 				p2 = _points.get(0);
 			} else {
-				p2 = _points.get(i+1);
+				p2 = _points.get(i + 1);
 			}
-			
-			for(int j = i + 2; j < size - 1; ++j){
+
+			for (int j = i + 2; j < size - 1; ++j) {
 				Point2D p3, p4;
 				p3 = _points.get(j);
-				p4 = _points.get(j+1);
-				
-				if(EuclideanGeometry.getIntersection(p1, p2, p3, p4) != null)
+				p4 = _points.get(j + 1);
+
+				if (EuclideanGeometry.getIntersection(p1, p2, p3, p4) != null)
 					return false;
 			}
-			
+
 		}
-		
+
 		return true;
 	}
-	
-	
+
 	/**
 	 * Tests if polygon has self-entering
 	 * 
