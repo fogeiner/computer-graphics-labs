@@ -5,7 +5,7 @@ import java.awt.Dimension;
 
 public interface WeilSettings {
 
-    public final static int MAX_DIMENSION_SIZE = 10000;
+    public final static int MAX_DIMENSION_SIZE = 3000;
     public final static int FRAME_WIDTH = 800;
     public final static int FRAME_HEIGHT = 600;
     public final static int MODEL_PADDING = 50;

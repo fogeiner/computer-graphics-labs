@@ -527,10 +527,8 @@ public class WeilView extends JPanel implements WeilSettings {
                         _current_polygon.addPoint(point);
                         _current_polygon.drawPoint(_back);
                     } else {
-                        JOptionPane.showMessageDialog(
-                                WeilView.this,
-                                "Invalid point: check self-intersections.\nPress Esc to delete the last point.",
-                                "Error", JOptionPane.ERROR_MESSAGE);
+                        // Prob. msg: Invalid point: check self-intersections.
+                        // Press Esc to delete the last point.
                         return;
                     }
                 } else if (button == MouseEvent.BUTTON3) {
@@ -548,7 +546,7 @@ public class WeilView extends JPanel implements WeilSettings {
                     } else if (!_current_polygon.isFinished()) {
                         JOptionPane.showMessageDialog(
                                 WeilView.this,
-                                "Invalid point: check self-intersections.\nPress Esc to delete the last point.",
+                                "Can't finish polygon: check self-intersections.\nPress Esc to delete the last point.",
                                 "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     } else if (_current_polygon.testOrientation() == false) {

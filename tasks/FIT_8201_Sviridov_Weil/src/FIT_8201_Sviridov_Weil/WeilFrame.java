@@ -2,6 +2,7 @@ package FIT_8201_Sviridov_Weil;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
+import java.awt.FlowLayout;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -105,12 +106,14 @@ public class WeilFrame extends MainFrame implements FrameService {
 
             toolBar.setFloatable(false);
 
-            JPanel panel = new JPanel(new BorderLayout());
             _weil_view = new WeilView(this);
-            JScrollPane scrollPane = new JScrollPane(_weil_view);
-            panel.add(scrollPane, BorderLayout.CENTER);
 
-            add(panel);
+            JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            panel.add(_weil_view);
+            
+            JScrollPane scrollPane = new JScrollPane(panel);
+           
+            add(scrollPane);
 
             setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
@@ -278,7 +281,7 @@ public class WeilFrame extends MainFrame implements FrameService {
             path = ".." + System.getProperties().getProperty("file.separator") + WeilSettings.ABOUT_FILE;
             f = new File(path);
             if (f.exists() == false) {
-                JOptionPane.showMessageDialog(this, "File " + WeilSettings.ABOUT_FILE + " could not be found neither in application directory nor in the preceding directory.", "Opening about file",
+                JOptionPane.showMessageDialog(this, "File " + WeilSettings.ABOUT_FILE + " could not be found neither in the application directory nor in the preceding directory.", "Opening about file",
                         JOptionPane.ERROR_MESSAGE);
                 return;
             }
