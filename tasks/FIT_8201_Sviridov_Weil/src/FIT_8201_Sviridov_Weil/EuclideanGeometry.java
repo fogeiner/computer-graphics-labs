@@ -10,7 +10,7 @@ import java.awt.geom.Point2D;
  */
 public class EuclideanGeometry {
 
-	public static final double EPS = 10E-12;
+	public static final double EPS = 1E-12;
 
 	public static boolean areSegmentsParallel(Point2D p1, Point2D p2,
 			Point2D q1, Point2D q2) {

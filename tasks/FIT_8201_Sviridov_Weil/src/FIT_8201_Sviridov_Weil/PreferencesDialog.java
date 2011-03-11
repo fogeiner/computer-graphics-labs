@@ -24,6 +24,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -97,6 +98,17 @@ class PreferencesDialog extends javax.swing.JDialog {
                 }
             }
         }
+
+        if(_canvas_color_label.getBackground().equals(UIManager.getColor("menu"))){
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Canvas color cannot be the same as frame background.",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+            
+        }
+
+
 
         _settings_object.setSubjectPolygonColor(_subject_color_label.getBackground());
         _settings_object.setClipPolygonColor(_clip_color_label.getBackground());

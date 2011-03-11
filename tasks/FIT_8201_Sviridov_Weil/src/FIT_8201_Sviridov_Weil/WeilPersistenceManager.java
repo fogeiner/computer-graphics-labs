@@ -156,7 +156,7 @@ public class WeilPersistenceManager {
 		int x, y;
 
 		points_count = Integer.parseInt(LineParseUtils.nextNormalizedLine(br));
-		if (points_count < 0) {
+		if (points_count < 2) {
 			throw new IllegalArgumentException();
 		}
 

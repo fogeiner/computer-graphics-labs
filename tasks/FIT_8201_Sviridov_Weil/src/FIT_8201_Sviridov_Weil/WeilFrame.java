@@ -214,7 +214,7 @@ public class WeilFrame extends MainFrame implements FrameService {
             int answer = JOptionPane.showConfirmDialog(
                     WeilFrame.this,
                     "Document cannot be saved until you finish editing it.\nDo you want to continue editing?",
-                    "Saving file", JOptionPane.YES_NO_CANCEL_OPTION);
+                    "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION);
 
             if (answer == JOptionPane.NO_OPTION) {
                 System.exit(0);
@@ -229,7 +229,7 @@ public class WeilFrame extends MainFrame implements FrameService {
                 int answer = JOptionPane.showConfirmDialog(
                         WeilFrame.this,
                         "Document cannot be saved until you finish the model.\nDo you want to continue editing?",
-                        "Saving file", JOptionPane.YES_NO_CANCEL_OPTION);
+                        "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION);
 
                 if (answer == JOptionPane.NO_OPTION) {
                     System.exit(0);
@@ -362,7 +362,12 @@ public class WeilFrame extends MainFrame implements FrameService {
                 int answer = JOptionPane.showConfirmDialog(
                         this,
                         "File already exists. Are you sure you want to overwrite it?",
-                        "Saving file", JOptionPane.YES_NO_CANCEL_OPTION);
+                        "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION);
+
+                if(answer == JOptionPane.NO_OPTION){
+                    onSave();
+                    return;
+                }
 
                 if (answer != JOptionPane.OK_OPTION) {
                     return;
