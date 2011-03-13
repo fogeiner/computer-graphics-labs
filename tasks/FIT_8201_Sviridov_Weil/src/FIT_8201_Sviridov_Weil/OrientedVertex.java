@@ -124,6 +124,7 @@ public class OrientedVertex {
 
 	/**
 	 * Returns representation of OrientedVertex
+	 * 
 	 * @return String representation of OrientedVertex
 	 */
 	@Override

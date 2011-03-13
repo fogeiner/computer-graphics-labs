@@ -97,7 +97,7 @@ public class WeilPersistenceManager {
 		width = Integer.parseInt(strs[0]);
 		height = Integer.parseInt(strs[1]);
 
-		if (width < 0 || height < 0) {
+		if (width <= 0 || height <= 0) {
 			throw new IllegalArgumentException();
 		}
 

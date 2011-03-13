@@ -5,6 +5,7 @@ import java.awt.Dimension;
 
 /**
  * Interface for object knowing about Weil settings - i.e. WeilView
+ * 
  * @author alstein
  */
 public interface WeilSettings {

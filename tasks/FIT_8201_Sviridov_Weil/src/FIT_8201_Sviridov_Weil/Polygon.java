@@ -296,10 +296,11 @@ public class Polygon {
 	 * Replaces points with <code>p</code> Polygon's points
 	 */
 	public void setPoints(Polygon p) {
-		if (p == null)
+		if (p == null) {
 			_points.clear();
-		else
+		} else {
 			_points = p._points;
+		}
 	}
 
 	/**
@@ -571,8 +572,9 @@ public class Polygon {
 				p3 = _points.get(j);
 				p4 = _points.get(j + 1);
 
-				if (EuclideanGeometry.getIntersection(p1, p2, p3, p4) != null)
+				if (EuclideanGeometry.getIntersection(p1, p2, p3, p4) != null) {
 					return false;
+				}
 			}
 
 		}
@@ -592,23 +594,16 @@ public class Polygon {
 			return true;
 		}
 
-		Point2D first = _points.get(0);
-		Point2D second = _points.get(1);
 		Point2D last = _points.get(size - 1);
 
 		// self-entering checking
-		for (int i = 1; i < size - 2; ++i) {
-			Point2D p3 = _points.get(i);
-			Point2D p4 = _points.get(i + 1);
+		for (int i = 0; i < size - 2; ++i) {
+			Point2D p1 = _points.get(i);
+			Point2D p2 = _points.get(i + 1);
 
-			if (EuclideanGeometry.getIntersection(last, p, p3, p4) != null) {
+			if (EuclideanGeometry.getIntersection(last, p, p1, p2) != null) {
 				return false;
 			}
-		}
-
-		if (size > 2
-				&& (EuclideanGeometry.getIntersection(last, p, first, second) != null)) {
-			return false;
 		}
 
 		return true;
@@ -695,6 +690,40 @@ public class Polygon {
 	}
 
 	/**
+	 * Tests if this and polygon made of two points have any intersections
+	 * 
+	 * @param p1
+	 *            fisrt point
+	 * @param p2
+	 *            second point
+	 * @return true if they have intersections, false otherwise
+	 * 
+	 */
+	public boolean hasIntersection(Point2D p1, Point2D p2) {
+
+		if (p1 == null || p2 == null) {
+			return false;
+		}
+
+		int this_size = _points.size();
+
+		for (int j = 1; j < this_size + 1; ++j) {
+			Point2D t1 = _points.get(j - 1);
+			Point2D t2 = null;
+			if (j == this_size) {
+				t2 = _points.get(0);
+			} else {
+				t2 = _points.get(j);
+			}
+
+			if (EuclideanGeometry.getIntersection(p1, p2, t1, t2) != null) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Returns bound for all points to fit
 	 * 
 	 * @return bound for all points to fit
@@ -714,5 +743,18 @@ public class Polygon {
 		}
 
 		return new Rectangle(max_x, max_y);
+	}
+
+	/**
+	 * Returns last polygon point. If polygon is empty, null is returned
+	 * 
+	 * @return last polygon point if polygon is not empty, null otherwise
+	 */
+	public Point2D getLastPoint() {
+		int size = _points.size();
+		if (size < 1) {
+			return null;
+		}
+		return _points.get(size - 1);
 	}
 }

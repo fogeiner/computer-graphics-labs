@@ -29,5 +29,4 @@ public interface FrameService {
 	 * @param value
 	 */
 	public void setIntersectBlocked(boolean value);
-
 }

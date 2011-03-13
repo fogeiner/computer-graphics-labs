@@ -158,21 +158,29 @@ public class WeilView extends JPanel implements WeilSettings {
 						JOptionPane.ERROR_MESSAGE);
 
 				reset();
-
+				break;
 			}
 			if (p.testSelfEntering() == false) {
 				JOptionPane.showMessageDialog(WeilView.this, "Loaded " + name
 						+ " polygon has self-entering.\n", "Error",
 						JOptionPane.ERROR_MESSAGE);
 				reset();
+				break;
+			}
+		}
+
+		if (!_subject_polygon.isEmpty() && !_hole_polygon.isEmpty()) {
+			if (!_subject_polygon.isInside(_hole_polygon)) {
+				JOptionPane.showMessageDialog(WeilView.this,
+						"Hole polygon isn't inside subject polygon.\n",
+						"Error", JOptionPane.ERROR_MESSAGE);
+				reset();
 
 			}
 		}
 
-		fullRepaint(true);
-
+		fullRepaint();
 		this.revalidate();
-		repaint();
 	}
 
 	/**
@@ -274,13 +282,14 @@ public class WeilView extends JPanel implements WeilSettings {
 		_intersecting_polygons.clear();
 		_weil_frame.setModified(true);
 		_weil_frame.setBlocked(true);
-		fullRepaint(true);
-		repaint();
+		fullRepaint();
+
 		synchronized (_monitor) {
 			_rubber_line = true;
 			_monitor.notifyAll();
 		}
 		setState(EDIT_STATE);
+		requestFocusInWindow();
 	}
 
 	/**
@@ -507,7 +516,7 @@ public class WeilView extends JPanel implements WeilSettings {
 		this.addMouseListener(new MouseAdapter() {
 
 			@Override
-			public void mousePressed(MouseEvent event) {
+			public void mouseClicked(MouseEvent event) {
 				requestFocusInWindow();
 				if (getState() != EDIT_STATE) {
 					return;
@@ -517,6 +526,25 @@ public class WeilView extends JPanel implements WeilSettings {
 				point.setLocation(point.x, getHeight() - point.y);
 				// left mouse click
 				if (button == MouseEvent.BUTTON1) {
+					if (_current_polygon == _subject_polygon
+							&& !_hole_polygon.isEmpty()) {
+
+						if (!(!_hole_polygon.isInside(point) && !_hole_polygon
+								.hasIntersection(point,
+										_current_polygon.getLastPoint()))) {
+							return;
+						}
+					}
+
+					if (_current_polygon == _hole_polygon
+							&& !_subject_polygon.isEmpty()) {
+						if (!(_subject_polygon.isInside(point) && !_subject_polygon
+								.hasIntersection(point,
+										_hole_polygon.getLastPoint()))) {
+							return;
+						}
+					}
+
 					if (_current_polygon.isPointValid(point)) {
 						_current_polygon.addPoint(point);
 						_current_polygon.drawPoint(_back);
@@ -526,6 +554,20 @@ public class WeilView extends JPanel implements WeilSettings {
 						return;
 					}
 				} else if (button == MouseEvent.BUTTON3) {
+					if ((_current_polygon == _subject_polygon && !_hole_polygon
+							.isEmpty())
+							|| _current_polygon == _hole_polygon
+							&& !_subject_polygon.isEmpty()) {
+						if (!_subject_polygon.isInside(_hole_polygon)) {
+							JOptionPane
+									.showMessageDialog(
+											WeilView.this,
+											"Hole polygon must be inside subject polygon.\nPress Esc to delete the last point.",
+											"Error", JOptionPane.ERROR_MESSAGE);
+							return;
+						}
+					}
+
 					if (_current_polygon.verticesCount() == 0) {
 						JOptionPane.showMessageDialog(WeilView.this,
 								"Press Esc to cancel polygon drawing.",

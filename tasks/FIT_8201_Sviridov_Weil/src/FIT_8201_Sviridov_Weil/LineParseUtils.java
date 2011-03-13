@@ -10,6 +10,7 @@ import java.io.IOException;
  * @author alstein
  */
 public class LineParseUtils {
+
 	/**
 	 * Reads line from BufferedReader, trims, gets rid of C-style one-line
 	 * comments and empty lines
@@ -24,14 +25,16 @@ public class LineParseUtils {
 			throws IOException {
 		while (true) {
 			String str = br.readLine();
-			if (str == null)
+			if (str == null) {
 				return null;
+			}
 			StringBuffer sb = new StringBuffer();
 
 			str = str.trim();
 
-			if (str.length() == 0)
+			if (str.length() == 0) {
 				continue;
+			}
 
 			int IN = 0;
 			int OUT = 1;
@@ -39,8 +42,9 @@ public class LineParseUtils {
 
 			for (int i = 0; i < str.length(); ++i) {
 
-				if (str.substring(i).startsWith("//"))
+				if (str.substring(i).startsWith("//")) {
 					break;
+				}
 
 				Character c = str.charAt(i);
 

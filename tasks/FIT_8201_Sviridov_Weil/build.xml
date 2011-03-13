@@ -6,16 +6,11 @@
               as the first entry and export the buildfile again. -->
 <project basedir="." default="build" name="FIT_8201_Sviridov_Weil">
     <property environment="env"/>
-    <property name="FIT_8201_Sviridov_Lines.location" value="../FIT_8201_Sviridov_Lines"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
-    <path id="FIT_8201_Sviridov_Lines.classpath">
-        <pathelement location="${FIT_8201_Sviridov_Lines.location}/bin"/>
-    </path>
     <path id="FIT_8201_Sviridov_Weil.classpath">
         <pathelement location="bin"/>
-        <path refid="FIT_8201_Sviridov_Lines.classpath"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>
@@ -29,13 +24,9 @@
     <target name="clean">
         <delete dir="bin"/>
     </target>
-    <target depends="clean" name="cleanall">
-        <ant antfile="build.xml" dir="${FIT_8201_Sviridov_Lines.location}" inheritAll="false" target="clean"/>
-    </target>
+    <target depends="clean" name="cleanall"/>
     <target depends="build-subprojects,build-project" name="build"/>
-    <target name="build-subprojects">
-        <ant antfile="build.xml" dir="${FIT_8201_Sviridov_Lines.location}" inheritAll="false" target="build-project"/>
-    </target>
+    <target name="build-subprojects"/>
     <target depends="init" name="build-project">
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">

@@ -14,10 +14,15 @@ public class EuclideanGeometry {
 
 	/**
 	 * Tests if two segments given by points are parallel
-	 * @param p1 x1
-	 * @param p2 y1
-	 * @param q1 x2
-	 * @param q2 y2
+	 * 
+	 * @param p1
+	 *            1st line 1st point
+	 * @param p2
+	 *            1st line 2nd point
+	 * @param q1
+	 *            2nd line 1st point
+	 * @param q2
+	 *            2nd line 2nd point
 	 * @return true if they're parallel, false otherwise
 	 */
 	public static boolean areSegmentsParallel(Point2D p1, Point2D p2,
@@ -35,12 +40,17 @@ public class EuclideanGeometry {
 	}
 
 	/**
-	 * Test if two segments given by points have intersection.
-	 * If so, intersection point is returned, null otherwise
-	 * @param p1 x1
-	 * @param p2 y1
-	 * @param q1 x2
-	 * @param q2 y2
+	 * Test if two segments given by points have intersection. If so,
+	 * intersection point is returned, null otherwise
+	 * 
+	 * @param p1
+	 *            1st line 1st point
+	 * @param p2
+	 *            1st line 2nd point
+	 * @param q1
+	 *            2nd line 1st point
+	 * @param q2
+	 *            2nd line 2nd point
 	 * @return intersection point if one exists, null otherwise
 	 */
 	public static Point2D getIntersection(Point2D p1, Point2D p2, Point2D q1,
