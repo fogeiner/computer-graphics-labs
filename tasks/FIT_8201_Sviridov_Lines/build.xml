@@ -6,7 +6,7 @@
               as the first entry and export the buildfile again. -->
 <project basedir="." default="build" name="FIT_8201_Sviridov_Lines">
     <property environment="env"/>
-    <property name="ECLIPSE_HOME" value="../../../../../Program Files/eclipse"/>
+    <property name="FIT_8201_Sviridov_Weil.location" value="../FIT_8201_Sviridov_Weil"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
@@ -35,23 +35,8 @@
             <classpath refid="FIT_8201_Sviridov_Lines.classpath"/>
         </javac>
     </target>
-    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
-    <target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
-        <copy todir="${ant.library.dir}">
-            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
-        </copy>
-        <unzip dest="${ant.library.dir}">
-            <patternset includes="jdtCompilerAdapter.jar"/>
-            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
-        </unzip>
-    </target>
-    <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
-        <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
-        <antcall target="build"/>
-    </target>
-    <target name="LinesFrame">
-        <java classname="FIT_8201_Sviridov_Lines.LinesFrame" failonerror="true" fork="yes">
-            <classpath refid="FIT_8201_Sviridov_Lines.classpath"/>
-        </java>
+    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects">
+        <ant antfile="build.xml" dir="${FIT_8201_Sviridov_Weil.location}" inheritAll="false" target="clean"/>
+        <ant antfile="build.xml" dir="${FIT_8201_Sviridov_Weil.location}" inheritAll="false" target="build"/>
     </target>
 </project>
