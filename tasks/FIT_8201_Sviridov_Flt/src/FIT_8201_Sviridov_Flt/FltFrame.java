@@ -12,21 +12,25 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.border.AbstractBorder;
+import javax.swing.border.EmptyBorder;
 
 import ru.nsu.cg.MainFrame;
 
 /**
- * Lines Frame - Lines application main frame
+ * Frame - Application main frame
  * 
  * @author alstein
  */
 public class FltFrame extends MainFrame {
 
-    private static final long serialVersionUID = 5852264472785688626L;
-    public boolean _is_modified = false;
+    private ImagePanel _zone_a = new ImagePanel("Zone A");
+    private ImagePanel _zone_b = new ImagePanel("Zone B");
+    private ImagePanel _zone_c = new ImagePanel("Zone C");
+    private ImagePanel _zones[] = new ImagePanel[]{_zone_a, _zone_b, _zone_c};
 
     /**
-     * Sets application title to "<code>name</code> - Lines"
+     * Sets application title to "<code>name</code> - App name"
      *
      * @param name
      *            first part of application title
@@ -60,7 +64,7 @@ public class FltFrame extends MainFrame {
 
             addSubMenu("Edit", KeyEvent.VK_E);
 
-             addSubMenu("Help", KeyEvent.VK_H);
+            addSubMenu("Help", KeyEvent.VK_H);
 
             addMenuItem("Help/About",
                     "View application version and author information",
@@ -78,12 +82,14 @@ public class FltFrame extends MainFrame {
 
             toolBar.setFloatable(false);
 
-            JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+            panel.setBorder(new EmptyBorder(FltSettings.PANEL_PADDING, 0, FltSettings.PANEL_PADDING, 0));
+            for (JPanel p : _zones) {
+                panel.add(p);
+            }
 
             JScrollPane scrollPane = new JScrollPane(panel);
-
             add(scrollPane);
-
             setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
             addWindowListener(new WindowAdapter() {
@@ -108,6 +114,10 @@ public class FltFrame extends MainFrame {
      */
     public void onNew() {
 
+        for (ImagePanel p : _zones) {
+            p.setImage(null);
+        }
+        
         setDocumentName(FltSettings.UNTITLED_DOCUMENT);
     }
 
@@ -167,12 +177,16 @@ public class FltFrame extends MainFrame {
 
         try {
 
-            File file = getOpenFileName("txt", "Text files");
+            File file = getOpenFileName("bmp", "24-bit color bitmap pictures");
             if (file == null) {
                 return;
             }
+
+            _zone_a.setImage(BmpImage.readBmpImage(file));
+
             setDocumentName(file.getName());
         } catch (IllegalArgumentException ex) {
+            System.out.println(ex);
             JOptionPane.showMessageDialog(this,
                     "Document is of unknown format", "Loading document",
                     JOptionPane.ERROR_MESSAGE);
@@ -192,7 +206,7 @@ public class FltFrame extends MainFrame {
     public void onSave() {
 
         try {
-            File file = getSaveFileName("txt", "Text files");
+            File file = getSaveFileName("bmp", "24-bit color bitmap pictures");
             if (file == null) {
                 return;
             }
