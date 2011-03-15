@@ -49,6 +49,7 @@ public class FltFrame extends MainFrame {
      */
     public FltFrame(int width, int height) {
         super(width, height, "");
+
         try {
             // constructing Menu
             addSubMenu("File", KeyEvent.VK_F);
@@ -80,31 +81,30 @@ public class FltFrame extends MainFrame {
             addToolBarSeparator();
             addToolBarButton("File/Exit");
 
-            toolBar.setFloatable(false);
-
-            JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-            panel.setBorder(new EmptyBorder(FltSettings.PANEL_PADDING, 0, FltSettings.PANEL_PADDING, 0));
-            for (JPanel p : _zones) {
-                panel.add(p);
-            }
-
-            JScrollPane scrollPane = new JScrollPane(panel);
-            add(scrollPane);
-            setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-
-            addWindowListener(new WindowAdapter() {
-
-                @Override
-                public void windowClosing(WindowEvent e) {
-                    onExit();
-                }
-            });
-
-            setDocumentName(FltSettings.UNTITLED_DOCUMENT);
 
         } catch (Exception ex) {
             System.err.println(ex.toString());
         }
+
+        setResizable(false);
+        toolBar.setFloatable(false);
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        panel.setBorder(new EmptyBorder(FltSettings.PANEL_PADDING, 0, FltSettings.PANEL_PADDING, 0));
+        for (JPanel p : _zones) {
+            panel.add(p);
+        }
+        add(panel);
+        pack();
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+
+            @Override
+            public void windowClosing(WindowEvent e) {
+                onExit();
+            }
+        });
+        setDocumentName(FltSettings.UNTITLED_DOCUMENT);
+
     }
 
     /**
@@ -117,7 +117,7 @@ public class FltFrame extends MainFrame {
         for (ImagePanel p : _zones) {
             p.setImage(null);
         }
-        
+
         setDocumentName(FltSettings.UNTITLED_DOCUMENT);
     }
 
@@ -228,7 +228,7 @@ public class FltFrame extends MainFrame {
                 }
             }
 
-            BmpImage.writeBmpImage((BmpImage)_zone_a.getImage(), file);
+            BmpImage.writeBmpImage((BmpImage) _zone_a.getImage(), file);
 
             setDocumentName(file.getName());
         } catch (Exception e) {
