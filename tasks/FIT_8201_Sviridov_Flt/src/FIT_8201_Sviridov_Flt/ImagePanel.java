@@ -34,7 +34,7 @@ public class ImagePanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
+
 
         if (_img != null) {
             g.drawImage(_img, 0, 0, _img.getWidth(), _img.getHeight(), null);
@@ -49,6 +49,6 @@ public class ImagePanel extends JPanel {
             int msg_y = getHeight() / 2 - descent / 2 + ascent / 2;
             g.drawString(_title, msg_x, msg_y);
         }
-
+        g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
     }
 }
