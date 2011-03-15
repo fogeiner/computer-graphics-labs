@@ -14,7 +14,7 @@ public class LittleEndianDataInputStream {
 
     private DataInputStream _dis;
 
-    private byte[] readBytes(int n) throws IOException{
+    private byte[] readBytes(int n) throws IOException {
         byte[] buffer = new byte[n];
         int bytesRead = _dis.read(buffer);
         if (bytesRead != n) {

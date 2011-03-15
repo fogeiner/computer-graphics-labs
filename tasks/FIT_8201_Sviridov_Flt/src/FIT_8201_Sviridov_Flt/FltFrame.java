@@ -176,7 +176,6 @@ public class FltFrame extends MainFrame {
     public void onLoad() {
 
         try {
-
             File file = getOpenFileName("bmp", "24-bit color bitmap pictures");
             if (file == null) {
                 return;
@@ -191,9 +190,10 @@ public class FltFrame extends MainFrame {
                     "Document is of unknown format", "Loading document",
                     JOptionPane.ERROR_MESSAGE);
             setDocumentName(FltSettings.UNTITLED_DOCUMENT);
-        } catch (Exception e) {
+        } catch (Exception ex) {
+            System.out.println(ex);
             JOptionPane.showMessageDialog(this,
-                    "Error loading file: \n" + e.getLocalizedMessage(),
+                    "Error loading file: \n" + ex.getLocalizedMessage(),
                     "Loading document", JOptionPane.ERROR_MESSAGE);
             setDocumentName(FltSettings.UNTITLED_DOCUMENT);
         }
@@ -228,8 +228,11 @@ public class FltFrame extends MainFrame {
                 }
             }
 
+            BmpImage.writeBmpImage((BmpImage)_zone_a.getImage(), file);
+
             setDocumentName(file.getName());
         } catch (Exception e) {
+            System.out.println(e);
             JOptionPane.showMessageDialog(this,
                     "Error saving file: \n" + e.getLocalizedMessage(),
                     "Saving document", JOptionPane.ERROR_MESSAGE);

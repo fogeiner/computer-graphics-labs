@@ -17,7 +17,7 @@ public class LittleEndianDataOutputStream {
         _dos = dos;
     }
 
-    private void writeBytes(byte[] b) throws IOException {
+    public final void write(byte[] b) throws IOException{
         _dos.write(b);
     }
 
@@ -28,22 +28,25 @@ public class LittleEndianDataOutputStream {
     public final void writeShort(int v) throws IOException {
         ByteBuffer bb = ByteBuffer.allocate(2);
         bb.putShort((short) v);
+        bb.position(0);
         bb.order(ByteOrder.LITTLE_ENDIAN);
-        _dos.write(bb.array());
+        _dos.writeShort(bb.getShort());
     }
 
     public final void writeLong(long v) throws IOException {
         ByteBuffer bb = ByteBuffer.allocate(8);
         bb.putLong(v);
+        bb.position(0);
         bb.order(ByteOrder.LITTLE_ENDIAN);
-        _dos.write(bb.array());
+        _dos.writeLong(bb.getLong());
     }
 
     public final void writeInt(int v) throws IOException {
         ByteBuffer bb = ByteBuffer.allocate(4);
         bb.putInt(v);
+        bb.position(0);
         bb.order(ByteOrder.LITTLE_ENDIAN);
-        _dos.write(bb.array());
+        _dos.writeInt(bb.getInt());
     }
 
     public final void writeChars(String s) throws IOException {
@@ -55,8 +58,9 @@ public class LittleEndianDataOutputStream {
     public final void writeChar(int v) throws IOException {
         ByteBuffer bb = ByteBuffer.allocate(2);
         bb.putChar((char) v);
+        bb.position(0);
         bb.order(ByteOrder.LITTLE_ENDIAN);
-        _dos.write(bb.array());
+        _dos.writeChar(bb.getChar());
     }
 
     public final void writeBytes(String s) throws IOException {
