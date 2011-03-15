@@ -2,7 +2,6 @@ package FIT_8201_Sviridov_Flt;
 
 import java.io.DataInput;
 import java.io.DataInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -40,14 +39,6 @@ public class LittleEndianDataInputStream {
         return _dis.readUnsignedByte();
     }
 
-    public static final String readUTF(DataInput in) throws IOException {
-        return DataInputStream.readUTF(in);
-    }
-
-    public final String readUTF() throws IOException {
-        return _dis.readUTF();
-    }
-
     public final short readShort() throws IOException {
         return ByteBuffer.wrap(readBytes(2)).order(ByteOrder.LITTLE_ENDIAN).getShort();
     }
@@ -55,11 +46,6 @@ public class LittleEndianDataInputStream {
     public final long readLong() throws IOException {
         return ByteBuffer.wrap(readBytes(8)).order(ByteOrder.LITTLE_ENDIAN).getLong();
     }
-
-    public final String readLine() throws IOException {
-        return _dis.readLine();
-    }
-
     public final int readInt() throws IOException {
         return ByteBuffer.wrap(readBytes(4)).order(ByteOrder.LITTLE_ENDIAN).getInt();
     }
@@ -72,16 +58,8 @@ public class LittleEndianDataInputStream {
         _dis.readFully(b);
     }
 
-    public final float readFloat() throws IOException {
-        return _dis.readFloat();
-    }
-
-    public final double readDouble() throws IOException {
-        return _dis.readDouble();
-    }
-
     public final char readChar() throws IOException {
-        return _dis.readChar();
+        return ByteBuffer.wrap(readBytes(2)).order(ByteOrder.LITTLE_ENDIAN).getChar();
     }
 
     public final byte readByte() throws IOException {
