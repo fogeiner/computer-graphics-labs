@@ -86,14 +86,15 @@ public class FltFrame extends MainFrame {
             System.err.println(ex.toString());
         }
 
-        setResizable(false);
         toolBar.setFloatable(false);
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         panel.setBorder(new EmptyBorder(FltSettings.PANEL_PADDING, 0, FltSettings.PANEL_PADDING, 0));
         for (JPanel p : _zones) {
             panel.add(p);
         }
-        add(panel);
+
+        JScrollPane scroll_pane = new JScrollPane(panel);
+        add(scroll_pane);
         pack();
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {

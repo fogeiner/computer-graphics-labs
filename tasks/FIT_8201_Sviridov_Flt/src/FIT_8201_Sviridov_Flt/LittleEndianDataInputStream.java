@@ -1,6 +1,5 @@
 package FIT_8201_Sviridov_Flt;
 
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
