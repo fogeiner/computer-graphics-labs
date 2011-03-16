@@ -90,9 +90,9 @@ public class ImageNavigationPanel extends ImagePanel {
                     _selection_y = display_height - _selection_height;
                 }
 
-                System.out.println("display width: " + display_width + " display height: " + display_height
-                        + " left_upper_x: " + left_upper_x + " left_upper_y: " + left_upper_y + " right_lower_x: " + right_lower_x
-                        + " right_lower_y: " + right_lower_y + " selection_x: " + _selection_x + " selection_y: " + _selection_y);
+//                System.out.println("display width: " + display_width + " display height: " + display_height
+//                        + " left_upper_x: " + left_upper_x + " left_upper_y: " + left_upper_y + " right_lower_x: " + right_lower_x
+//                        + " right_lower_y: " + right_lower_y + " selection_x: " + _selection_x + " selection_y: " + _selection_y);
 
                 repaint();
             }

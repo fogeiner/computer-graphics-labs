@@ -113,6 +113,7 @@ public class FltFrame extends MainFrame implements FltFrameService {
 
         _zone_a.setFrameService(this);
         setSelectBlocked(true);
+        setSaveBlocked(true);
     }
 
     public void onSelect() {
@@ -281,5 +282,13 @@ public class FltFrame extends MainFrame implements FltFrameService {
         JMenu edit = (JMenu) menu_bar.getComponent(1);
         edit.getMenuComponent(0).setEnabled(!value);
         toolBar.getComponent(4).setEnabled(!value);
+    }
+
+    @Override
+    public void setSaveBlocked(boolean value) {
+        JMenuBar menu_bar = getJMenuBar();
+        JMenu file = (JMenu) menu_bar.getComponent(0);
+        file.getMenuComponent(2).setEnabled(!value);
+        toolBar.getComponent(2).setEnabled(!value);
     }
 }

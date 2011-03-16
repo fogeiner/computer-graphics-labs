@@ -11,4 +11,5 @@ package FIT_8201_Sviridov_Flt;
 public interface FltFrameService {
 
     public void setSelectBlocked(boolean value);
+    public void setSaveBlocked(boolean value);
 }
