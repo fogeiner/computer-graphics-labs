@@ -28,15 +28,13 @@ public class ImagePanel extends JPanel {
     // is gragging active
     private boolean _dragging = false;
     // x coordingate of left upeer corner
-    private int _selection_x = 10;
+    private int _selection_x;
     // y coordinate of left upper corner of selection
-    private int _selection_y = 10;
+    private int _selection_y;
     // selection width
-    private int _selection_width = 100;
+    private int _selection_width;
     // selection height
-    private int _select_height = 100;
-    // saved selection stroke
-    private Stroke _stroke;
+    private int _selection_height;
 
     public ImagePanel(String title) {
         _title = title;
@@ -44,6 +42,38 @@ public class ImagePanel extends JPanel {
         setPreferredSize(FltSettings.PANEL_SIZE);
 
         class MouseHandler extends MouseAdapter {
+
+            private void updateSelection(MouseEvent e) {
+                Point p = e.getPoint();
+                int x = p.x;
+                int y = p.y;
+
+                int display_width = _display_img.getWidth(null);
+                int display_height = _display_img.getHeight(null);
+
+                int left_upper_x = x - _selection_width / 2, left_upper_y = y - _selection_height / 2;
+                int right_lower_x = x + _selection_width / 2, right_lower_y = y + _selection_height / 2;
+
+                if (left_upper_x >= 0 && right_lower_x <= display_width) {
+                    _selection_x = left_upper_x;
+                } else if (left_upper_x < 0) {
+                    _selection_x = 0;
+                } else if (right_lower_x > display_width) {
+                    _selection_x = display_width - _selection_width;
+                }
+
+                if (left_upper_y >= 0 && right_lower_y <= display_height) {
+                    _selection_y = left_upper_y;
+                } else if (left_upper_y < 0) {
+                    _selection_y = 0;
+                } else if (right_lower_y > display_height) {
+                    _selection_y = display_height - _selection_height;
+                }
+
+
+                repaint();
+            }
+
             @Override
             public void mouseDragged(MouseEvent e) {
                 super.mouseDragged(e);
@@ -52,51 +82,7 @@ public class ImagePanel extends JPanel {
                     return;
                 }
 
-                Graphics g = getGraphics();
-
-                Point p = e.getPoint();
-                int x = p.x;
-                int y = p.y;
-
-
-                /*
-                 * ._________.
-                 * |         |
-                 * |         |
-                 * |         |
-                 * ._________. 
-                 */
-
-                int img_width = _img.getWidth(),
-                        img_height = _img.getHeight();
-
-                repaint();
-
-                int width = 300 * 300 / img_width;
-                int height = 300 * 300 / img_height;
-
-                int xlu, ylu, xrl, yrl;
-                xlu = x - width / 2 - 1;
-                ylu = y - height / 2 - 1;
-
-                xrl = x + width / 2;
-                yrl = y + height / 2;
-
-                if (xlu < 0) {
-                    xlu = 0;
-                }
-                if (ylu < 0) {
-                    ylu = 0;
-                }
-
-                if (xrl > img_width) {
-                    xrl = img_width - 1;
-                }
-                if (xrl > img_height) {
-                    yrl = img_height - 1;
-                }
-
-                g.drawRect(xlu, ylu, width, height);
+                updateSelection(e);
             }
 
             @Override
@@ -104,6 +90,7 @@ public class ImagePanel extends JPanel {
                 super.mousePressed(e);
                 System.out.println("mousePressed");
                 _dragging = true;
+                updateSelection(e);
             }
 
             @Override
@@ -111,6 +98,7 @@ public class ImagePanel extends JPanel {
                 super.mouseReleased(e);
                 System.out.println("mouseReleased");
                 _dragging = false;
+                repaint();
             }
         }
 
@@ -128,30 +116,47 @@ public class ImagePanel extends JPanel {
             return;
         }
 
-        int width = getWidth(),
-                height = getHeight(),
+        int panel_width = getWidth(),
+                panel_height = getHeight(),
                 img_width = _img.getWidth(),
                 img_height = _img.getHeight();
 
-        double w_ratio = (double) img_width / width;
-        double h_ratio = (double) img_height / height;
-
+        double w_ratio = (double) img_width / panel_width;
+        double h_ratio = (double) img_height / panel_height;
 
         int scale_opt = Image.SCALE_SMOOTH;
 
-        if (img_width > width && img_height > height) {
+        if (img_width > panel_width && img_height > panel_height) {
+            // width and height are considered to be equal!
             if (w_ratio > h_ratio) {
-                _display_img = _img.getScaledInstance(width, -1, scale_opt);
+                _display_img = _img.getScaledInstance(panel_width, -1, scale_opt);
             } else {
-                _display_img = _img.getScaledInstance(-1, height, scale_opt);
+                _display_img = _img.getScaledInstance(-1, panel_height, scale_opt);
             }
-        } else if (img_width > width) {
-            _display_img = _img.getScaledInstance(width, -1, scale_opt);
-        } else if (img_height > height) {
-            _display_img = _img.getScaledInstance(-1, height, scale_opt);
+
+            double ratio = (double) _display_img.getHeight(null) / _img.getHeight();
+            _selection_width = (int) (ratio * _display_img.getWidth(null));
+            _selection_height = (int) (ratio * _display_img.getHeight(null));
+        } else if (img_width > panel_width) {
+            _display_img = _img.getScaledInstance(panel_width, -1, scale_opt);
+
+            double ratio = (double) _display_img.getHeight(null) / _img.getHeight();
+            _selection_width = (int) (ratio * _display_img.getWidth(null));
+            _selection_height = _display_img.getHeight(null);
+        } else if (img_height > panel_height) {
+            _display_img = _img.getScaledInstance(-1, panel_height, scale_opt);
+            double ratio = (double) _display_img.getHeight(null) / _img.getHeight();
+            _selection_width = _display_img.getWidth(null);
+            _selection_height = (int) (ratio * _display_img.getHeight(null));
         } else {
             _display_img = _img;
+            _selection_height = panel_height;
+            _selection_width = panel_width;
         }
+
+        _selection_x = 0;
+        _selection_y = 0;
+
         repaint();
     }
 
@@ -163,18 +168,12 @@ public class ImagePanel extends JPanel {
     protected void paintComponent(Graphics g1) {
         super.paintComponent(g1);
         Graphics2D g = (Graphics2D) g1;
-
+        g.drawLine(0, 0, 0, 10);
         if (_display_img != null) {
             g.drawImage(_display_img, 0, 0, null);
             if (_dragging == true) {
-                if (_stroke == null) {
-                    _stroke = new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 10,
-                            new float[]{1, 1}, 0);
-                }
-                Stroke old_stroke = g.getStroke();
-                g.setStroke(_stroke);
-                g.drawRect(_selection_x, _selection_y, 10, 10);
-                g.setStroke(old_stroke);
+
+                g.drawRect(_selection_x, _selection_y, _selection_width - 1, _selection_height - 1);
             }
         } else {
             g.setFont(new Font("Monospaced", Font.BOLD, 48));

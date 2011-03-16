@@ -15,8 +15,8 @@ public class LittleEndianDataInputStream {
 
     private byte[] readBytes(int n) throws IOException {
         byte[] buffer = new byte[n];
-        int bytesRead = _dis.read(buffer);
-        if (bytesRead != n) {
+        int bytes_read = _dis.read(buffer);
+        if (bytes_read != n) {
             throw new IOException("Unexpected End of Stream");
         }
         return buffer;
