@@ -9,10 +9,11 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.border.AbstractBorder;
 import javax.swing.border.EmptyBorder;
 
 import ru.nsu.cg.MainFrame;
@@ -22,10 +23,10 @@ import ru.nsu.cg.MainFrame;
  * 
  * @author alstein
  */
-public class FltFrame extends MainFrame {
+public class FltFrame extends MainFrame implements FltFrameService {
 
-    private ImagePanel _zone_a = new ImagePanel("Zone A");
-    private ImagePanel _zone_b = new ImagePanel("Zone B");
+    private ImageNavigationViewerPanel _zone_b = new ImageNavigationViewerPanel("Zone B");
+    private ImageNavigationPanel _zone_a = new ImageNavigationPanel("Zone A", _zone_b);
     private ImagePanel _zone_c = new ImagePanel("Zone C");
     private ImagePanel _zones[] = new ImagePanel[]{_zone_a, _zone_b, _zone_c};
 
@@ -65,6 +66,8 @@ public class FltFrame extends MainFrame {
 
             addSubMenu("Edit", KeyEvent.VK_E);
 
+            addMenuItem("Edit/Select", "Select region", KeyEvent.VK_S, "select.gif", "onSelect");
+
             addSubMenu("Help", KeyEvent.VK_H);
 
             addMenuItem("Help/About",
@@ -75,7 +78,8 @@ public class FltFrame extends MainFrame {
             addToolBarButton("File/New");
             addToolBarButton("File/Load");
             addToolBarButton("File/Save as...");
-
+            addToolBarSeparator();
+            addToolBarButton("Edit/Select");
             addToolBarSeparator();
             addToolBarButton("Help/About");
             addToolBarSeparator();
@@ -95,7 +99,7 @@ public class FltFrame extends MainFrame {
 
         JScrollPane scroll_pane = new JScrollPane(panel);
         add(scroll_pane);
-        pack();
+
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
 
@@ -105,7 +109,15 @@ public class FltFrame extends MainFrame {
             }
         });
         setDocumentName(FltSettings.UNTITLED_DOCUMENT);
+        pack();
 
+        _zone_a.setFrameService(this);
+        setSelectBlocked(true);
+    }
+
+    public void onSelect() {
+        setSelectBlocked(true);
+        _zone_a.startSelecting();
     }
 
     /**
@@ -118,7 +130,7 @@ public class FltFrame extends MainFrame {
         for (ImagePanel p : _zones) {
             p.setImage(null);
         }
-
+        setSelectBlocked(true);
         setDocumentName(FltSettings.UNTITLED_DOCUMENT);
     }
 
@@ -184,6 +196,9 @@ public class FltFrame extends MainFrame {
 
             _zone_a.setImage(BmpImage.readBmpImage(file));
 
+            _zone_b.setImage(null);
+            _zone_c.setImage(null);
+            setSelectBlocked(false);
             setDocumentName(file.getName());
         } catch (IllegalArgumentException ex) {
             System.out.println(ex);
@@ -258,5 +273,13 @@ public class FltFrame extends MainFrame {
                 frame.setVisible(true);
             }
         });
+    }
+
+    @Override
+    public void setSelectBlocked(boolean value) {
+        JMenuBar menu_bar = getJMenuBar();
+        JMenu edit = (JMenu) menu_bar.getComponent(1);
+        edit.getMenuComponent(0).setEnabled(!value);
+        toolBar.getComponent(4).setEnabled(!value);
     }
 }
