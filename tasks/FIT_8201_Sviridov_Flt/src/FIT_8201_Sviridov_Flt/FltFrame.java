@@ -113,7 +113,7 @@ public class FltFrame extends MainFrame implements FltFrameService {
 
         _zone_a.setFrameService(this);
         setSelectBlocked(true);
-        setSaveBlocked(true);
+        //setSaveBlocked(true);
     }
 
     public void onSelect() {
