@@ -117,7 +117,7 @@ public class BmpImage extends BufferedImage {
         return img;
     }
 
-    static public void writeBmpImage(BmpImage img, File file) throws FileNotFoundException, IOException {
+    static public void writeBmpImage(BufferedImage img, File file) throws FileNotFoundException, IOException {
         FileOutputStream fos = new FileOutputStream(file);
         BufferedOutputStream bos = new BufferedOutputStream(fos);
         DataOutputStream dos = new DataOutputStream(bos);

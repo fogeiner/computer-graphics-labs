@@ -29,6 +29,8 @@ public class ImageNavigationPanel extends ImagePanel {
     private int _selection_width;
     // selection height
     private int _selection_height;
+    // selecting should be started after click
+    private boolean _selecting_after_pressed = false;
     // selecting region
     private boolean _selecting = false;
     // Stroke for dashed rectangle
@@ -52,11 +54,7 @@ public class ImageNavigationPanel extends ImagePanel {
             return;
         }
 
-        _selecting = true;
-        _selection_x = 0;
-        _selection_y = 0;
-        _viewer_panel.setImage(getImage());
-        repaint();
+        _selecting_after_pressed = true;
     }
 
     public void setFrameService(FltFrameService frame) {
@@ -80,18 +78,19 @@ public class ImageNavigationPanel extends ImagePanel {
                 int left_upper_x = x - _selection_width / 2, left_upper_y = y - _selection_height / 2;
                 int right_lower_x = x + _selection_width / 2, right_lower_y = y + _selection_height / 2;
 
-                if (left_upper_x >= 0 && right_lower_x <= display_width) {
+                if (left_upper_x > 0 && right_lower_x <= display_width) {
                     _selection_x = left_upper_x;
-                } else if (left_upper_x < 0) {
-                    _selection_x = 0;
+                } else if (left_upper_x <= 0) {
+                    _selection_x = 1;
                 } else if (right_lower_x > display_width) {
-                    _selection_x = display_width - _selection_width;
+                    // -1 for rect not to be go beyond right border
+                    _selection_x = display_width - _selection_width - 1;
                 }
 
-                if (left_upper_y >= 0 && right_lower_y <= display_height) {
+                if (left_upper_y > 0 && right_lower_y <= display_height) {
                     _selection_y = left_upper_y;
-                } else if (left_upper_y < 0) {
-                    _selection_y = 0;
+                } else if (left_upper_y <= 0) {
+                    _selection_y = 1;
                 } else if (right_lower_y > display_height) {
                     _selection_y = display_height - _selection_height;
                 }
@@ -122,6 +121,12 @@ public class ImageNavigationPanel extends ImagePanel {
             @Override
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e);
+                if(_selecting_after_pressed == true){
+                    _selecting_after_pressed = false;
+                    _selecting = true;
+                    _viewer_panel.setImage(getImage());
+                }
+
                 if (_selecting == false) {
                     return;
                 }

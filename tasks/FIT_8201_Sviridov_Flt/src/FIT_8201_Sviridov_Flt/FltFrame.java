@@ -11,6 +11,9 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -19,6 +22,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
+import javax.swing.plaf.ListUI;
+import org.jcp.xml.dsig.internal.dom.Utils;
 
 import ru.nsu.cg.MainFrame;
 
@@ -127,26 +132,161 @@ public class FltFrame extends MainFrame implements FltFrameService {
 
             @Override
             public void mouseClicked(MouseEvent e) {
-                onEmboss();
+                onAquarelle();
             }
         });
     }
 
-    private BufferedImage applyConvolutionMatrix(BufferedImage o, int m[][], int r_offset, int g_offset, int b_offset) {
+    public void onAquarelle() {
+        BufferedImage o = _zone_b.getImage();
+        BufferedImage csi = getColorSmoothedImage(o, 5);
+        BufferedImage si = applyConvolutionMatrix(csi, new double[][]{new double[]{0, -1, 0}, new double[]{-1, 5, -1}, new double[]{0, -1, 0}}, 0, 0, 0);
+        _zone_c.setImage(si);
+    }
+
+    public BufferedImage getColorSmoothedImage(BufferedImage o, int size) {
+        int width = o.getWidth(), height = o.getHeight();
+
+        int m = size / 2;
+
+        BufferedImage n = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        for (int h = m; h < height - m; ++h) {
+            for (int w = m; w < width - m; ++w) {
+                List<Integer> rs = new ArrayList<Integer>(size * size);
+                List<Integer> gs = new ArrayList<Integer>(size * size);
+                List<Integer> bs = new ArrayList<Integer>(size * size);
+
+                for (int i = 0; i < size; ++i) {
+                    for (int j = 0; j < size; ++j) {
+                        Color c = new Color(o.getRGB(w + j - m, h + i - m));
+                        rs.add(c.getRed());
+                        gs.add(c.getGreen());
+                        bs.add(c.getBlue());
+                    }
+                }
+
+
+                Collections.sort(rs);
+                Collections.sort(gs);
+                Collections.sort(bs);
+
+                int R = rs.get(rs.size() / 2), G = gs.get(rs.size() / 2), B = bs.get(rs.size() / 2);
+
+                n.setRGB(w, h, (new Color(R, G, B)).getRGB());
+            }
+        }
+
+        for (int h = 0; h < height; ++h) {
+            for (int w = 0; w < m; ++w) {
+                int rgb = o.getRGB(w, h);
+                n.setRGB(w, h, rgb);
+            }
+
+            for (int w = width - m; w < width; ++w) {
+                int rgb = o.getRGB(w, h);
+                n.setRGB(w, h, rgb);
+            }
+        }
+        for (int w = 0; w < width; ++w) {
+            for (int h = 0; h < m; ++h) {
+                int rgb = o.getRGB(w, h);
+                n.setRGB(w, h, rgb);
+            }
+
+            for (int h = height - m; h < height; ++h) {
+                int rgb = o.getRGB(w, h);
+                n.setRGB(w, h, rgb);
+            }
+        }
+
+
+        return n;
+    }
+    private double _S = 50.0;
+
+    public void onSobel() {
+        BufferedImage o = _zone_b.getImage();
+        BufferedImage gs = getGreyscaleImage(o);
+
+
+        int width = gs.getWidth(), height = gs.getHeight();
+        BufferedImage n = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
+        for (int h = 0; h < height - 2; ++h) {
+            for (int w = 0; w < width - 2; ++w) {
+                double g11 = (new Color(gs.getRGB(w, h))).getRed(),
+                        g12 = (new Color(gs.getRGB(w, h + 1))).getRed(),
+                        g13 = (new Color(gs.getRGB(w, h + 2))).getRed(),
+                        g21 = (new Color(gs.getRGB(w + 1, h))).getRed(),
+                        g22 = (new Color(gs.getRGB(w + 1, h + 1))).getRed(),
+                        g23 = (new Color(gs.getRGB(w + 1, h + 2))).getRed(),
+                        g31 = (new Color(gs.getRGB(w + 2, h))).getRed(),
+                        g32 = (new Color(gs.getRGB(w + 2, h + 1))).getRed(),
+                        g33 = (new Color(gs.getRGB(w + 2, h + 2))).getRed();
+
+                double Sx = (g13 + 2 * g23 + g33) - (g11 + 2 * g21 + g31);
+                double Sy = (g31 + 2 * g32 + g33) - (g11 + 2 * g12 + g13);
+
+                double S = Math.abs(Sx) + Math.abs(Sy);
+                if (S > _S) {
+                    n.setRGB(w, h, Color.white.getRGB());
+                } else {
+                    n.setRGB(w, h, Color.black.getRGB());
+                }
+
+            }
+        }
+
+        _zone_c.setImage(n);
+    }
+    private double _R = 20.0;
+
+    public void onRoberts() {
+        BufferedImage o = _zone_b.getImage();
+        BufferedImage gs = getGreyscaleImage(o);
+
+
+        int width = gs.getWidth(), height = gs.getHeight();
+        BufferedImage n = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
+        for (int h = 0; h < height - 1; ++h) {
+            for (int w = 0; w < width - 1; ++w) {
+                double g11 = (new Color(gs.getRGB(w, h))).getRed(),
+                        g12 = (new Color(gs.getRGB(w, h + 1))).getRed(),
+                        g21 = (new Color(gs.getRGB(w + 1, h))).getRed(),
+                        g22 = (new Color(gs.getRGB(w + 1, h + 1))).getRed();
+
+                double R = Math.abs(g11 - g22) + Math.abs(g12 - g21);
+                if (R > _R) {
+                    n.setRGB(w, h, Color.white.getRGB());
+                } else {
+                    n.setRGB(w, h, Color.black.getRGB());
+                }
+
+            }
+        }
+
+        _zone_c.setImage(n);
+    }
+
+    public static BufferedImage applyConvolutionMatrix(BufferedImage o, double m[][], double r_s, double g_s, double b_s) {
 
         int width = o.getWidth(), height = o.getHeight();
         BufferedImage n = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
-        for (int h = 0; h < height; ++h) {
-            for (int w = 0; w < width; ++w) {
-                int R = 0, G = 0, B = 0;
+        int m_h = m.length / 2;
+        int m_w = m[0].length / 2;
+
+        for (int h = m_h; h < height - m_h; ++h) {
+            for (int w = m_w; w < width - m_w; ++w) {
+                double R = 0, G = 0, B = 0;
 
                 for (int i = 0; i < m.length; ++i) {
                     for (int j = 0; j < m[0].length; ++j) {
-                        int r = 0, g = 0, b = 0;
+                        double r = 0, g = 0, b = 0;
 
-                        int k = h + i - 1;
-                        int l = w + j - 1;
+                        int k = h + i - m.length / 2;
+                        int l = w + j - m[0].length / 2;
 
                         if (k >= 0 && k < height && l >= 0 && l < width) {
                             Color c = new Color(o.getRGB(l, k));
@@ -162,35 +302,80 @@ public class FltFrame extends MainFrame implements FltFrameService {
                 }
 
 
-                R = Math.min(Math.max(0, R + r_offset), 255);
-                G = Math.min(Math.max(0, G + g_offset), 255);
-                B = Math.min(Math.max(0, B + b_offset), 255);
+                R = Math.min(Math.max(0, R + r_s), 255);
+                G = Math.min(Math.max(0, G + g_s), 255);
+                B = Math.min(Math.max(0, B + b_s), 255);
 
-                n.setRGB(w, h, (new Color(R, G, B)).getRGB());
+                n.setRGB(w, h, (new Color((int) (R + 0.5), (int) (G + 0.5), (int) (B + 0.5))).getRGB());
             }
         }
+        for (int h = 0; h < height; ++h) {
+            for (int w = 0; w < m_w; ++w) {
+                int rgb = o.getRGB(w, h);
+                n.setRGB(w, h, rgb);
+            }
+
+            for (int w = width - m_w; w < width; ++w) {
+                int rgb = o.getRGB(w, h);
+                n.setRGB(w, h, rgb);
+            }
+        }
+        for (int w = 0; w < width; ++w) {
+            for (int h = 0; h < m_h; ++h) {
+                int rgb = o.getRGB(w, h);
+                n.setRGB(w, h, rgb);
+            }
+
+            for (int h = height - m_h; h < height; ++h) {
+                int rgb = o.getRGB(w, h);
+                n.setRGB(w, h, rgb);
+            }
+        }
+
         return n;
+    }
+
+    public static BufferedImage getGreyscaleImage(BufferedImage o) {
+        int width = o.getWidth(), height = o.getHeight();
+        BufferedImage n = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        for (int i = 0; i < height; ++i) {
+            for (int j = 0; j < width; ++j) {
+                Color c = new Color(o.getRGB(j, i));
+                double R = c.getRed() / 255.0, G = c.getGreen() / 255.0, B = c.getBlue() / 255.0;
+                int y = (int) (((double) 0.299 * R + 0.587 * G + 0.114 * B) * 255 + 0.5);
+                n.setRGB(j, i, (new Color(y, y, y)).getRGB());
+            }
+        }
+
+        return n;
+    }
+
+    public void onBlur() {
+        BufferedImage o = _zone_b.getImage();
+
+        double m[][] = new double[][]{
+            new double[]{1.0 / 74, 2.0 / 74, 3.0 / 74, 2.0 / 74, 1.0 / 74},
+            new double[]{2.0 / 74, 4.0 / 74, 5.0 / 74, 4.0 / 74, 2.0 / 74},
+            new double[]{3.0 / 74, 5.0 / 74, 6.0 / 74, 5.0 / 74, 3.0 / 74},
+            new double[]{2.0 / 74, 4.0 / 74, 5.0 / 74, 4.0 / 74, 2.0 / 74},
+            new double[]{1.0 / 74, 2.0 / 74, 3.0 / 74, 2.0 / 74, 1.0 / 74}};
+        _zone_c.setImage(applyConvolutionMatrix(o, m, 0, 0, 0));
     }
 
     public void onEmboss() {
 
         BufferedImage o = _zone_b.getImage();
-
-        int m[][] = new int[][]{new int[]{0, 1, 0}, new int[]{-1, 0, 1}, new int[]{0, -1, 0}};
-
+        double m[][] = new double[][]{new double[]{0, 1, 0}, new double[]{-1, 0, 1}, new double[]{0, -1, 0}};
         _zone_c.setImage(applyConvolutionMatrix(o, m, 128, 128, 128));
     }
 
     public void onSharpen() {
 
         BufferedImage o = _zone_b.getImage();
-        int m[][] = new int[][]{new int[]{0, -1, 0}, new int[]{-1, 5, -1}, new int[]{0, -1, 0}};
+        double m[][] = new double[][]{new double[]{0, -1, 0}, new double[]{-1, 5, -1}, new double[]{0, -1, 0}};
         _zone_c.setImage(applyConvolutionMatrix(o, m, 0, 0, 0));
     }
 
-    /**
-     *
-     */
     public void onNegative() {
 
         BufferedImage o = _zone_b.getImage();
@@ -208,24 +393,11 @@ public class FltFrame extends MainFrame implements FltFrameService {
         _zone_c.setImage(n);
     }
 
-    /**
-     *
-     */
     public void onGrayscale() {
 
         BufferedImage o = _zone_b.getImage();
-        int width = o.getWidth(), height = o.getHeight();
-        BufferedImage n = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        for (int i = 0; i < height; ++i) {
-            for (int j = 0; j < width; ++j) {
-                Color c = new Color(o.getRGB(j, i));
-                double R = c.getRed() / 255.0, G = c.getGreen() / 255.0, B = c.getBlue() / 255.0;
-                int y = (int) (((double) 0.299 * R + 0.587 * G + 0.114 * B) * 255 + 0.5);
-                n.setRGB(j, i, (new Color(y, y, y)).getRGB());
-            }
-        }
 
-        _zone_c.setImage(n);
+        _zone_c.setImage(getGreyscaleImage(o));
     }
 
     /**
@@ -366,7 +538,7 @@ public class FltFrame extends MainFrame implements FltFrameService {
                 }
             }
 
-            BmpImage.writeBmpImage((BmpImage) _zone_a.getImage(), file);
+            BmpImage.writeBmpImage(_zone_c.getImage(), file);
 
             setDocumentName(file.getName());
         } catch (Exception e) {
