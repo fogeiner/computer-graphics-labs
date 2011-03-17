@@ -127,13 +127,89 @@ public class FltFrame extends MainFrame implements FltFrameService {
 
             @Override
             public void mouseClicked(MouseEvent e) {
-                onGrayscale();
+                onEmboss();
             }
         });
     }
 
+    private BufferedImage applyConvolutionMatrix(BufferedImage o, int m[][], int r_offset, int g_offset, int b_offset) {
+
+        int width = o.getWidth(), height = o.getHeight();
+        BufferedImage n = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
+        for (int h = 0; h < height; ++h) {
+            for (int w = 0; w < width; ++w) {
+                int R = 0, G = 0, B = 0;
+
+                for (int i = 0; i < m.length; ++i) {
+                    for (int j = 0; j < m[0].length; ++j) {
+                        int r = 0, g = 0, b = 0;
+
+                        int k = h + i - 1;
+                        int l = w + j - 1;
+
+                        if (k >= 0 && k < height && l >= 0 && l < width) {
+                            Color c = new Color(o.getRGB(l, k));
+                            r = c.getRed();
+                            g = c.getGreen();
+                            b = c.getBlue();
+                        }
+
+                        R += m[i][j] * r;
+                        G += m[i][j] * g;
+                        B += m[i][j] * b;
+                    }
+                }
+
+
+                R = Math.min(Math.max(0, R + r_offset), 255);
+                G = Math.min(Math.max(0, G + g_offset), 255);
+                B = Math.min(Math.max(0, B + b_offset), 255);
+
+                n.setRGB(w, h, (new Color(R, G, B)).getRGB());
+            }
+        }
+        return n;
+    }
+
+    public void onEmboss() {
+
+        BufferedImage o = _zone_b.getImage();
+
+        int m[][] = new int[][]{new int[]{0, 1, 0}, new int[]{-1, 0, 1}, new int[]{0, -1, 0}};
+
+        _zone_c.setImage(applyConvolutionMatrix(o, m, 128, 128, 128));
+    }
+
+    public void onSharpen() {
+
+        BufferedImage o = _zone_b.getImage();
+        int m[][] = new int[][]{new int[]{0, -1, 0}, new int[]{-1, 5, -1}, new int[]{0, -1, 0}};
+        _zone_c.setImage(applyConvolutionMatrix(o, m, 0, 0, 0));
+    }
+
     /**
-     * 
+     *
+     */
+    public void onNegative() {
+
+        BufferedImage o = _zone_b.getImage();
+        int width = o.getWidth(), height = o.getHeight();
+        BufferedImage n = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        for (int i = 0; i < height; ++i) {
+            for (int j = 0; j < width; ++j) {
+                Color c = new Color(o.getRGB(j, i));
+                int R = c.getRed(), G = c.getGreen(), B = c.getBlue();
+
+                n.setRGB(j, i, (new Color(255 - R, 255 - G, 255 - B)).getRGB());
+            }
+        }
+
+        _zone_c.setImage(n);
+    }
+
+    /**
+     *
      */
     public void onGrayscale() {
 
