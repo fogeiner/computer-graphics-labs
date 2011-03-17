@@ -1,8 +1,12 @@
 package FIT_8201_Sviridov_Flt;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.Stroke;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -27,9 +31,11 @@ public class ImageNavigationPanel extends ImagePanel {
     private int _selection_height;
     // selecting region
     private boolean _selecting = false;
+    // Stroke for dashed rectangle
+    private Stroke _stroke;
     // panel to view original sized part of the image
     private ImageNavigationViewerPanel _viewer_panel;
-    FltFrameService _frame;
+    private FltFrameService _frame;
 
     public void startSelecting() {
         Image img = getImage();
@@ -219,13 +225,20 @@ public class ImageNavigationPanel extends ImagePanel {
     }
 
     @Override
-    protected void paintComponent(Graphics g) {
+    protected void paintComponent(Graphics g1) {
+        Graphics2D g = (Graphics2D) g1;
         clearBackground(g);
 
         if (_display_img != null) {
             g.drawImage(_display_img, 0, 0, null);
             if (_selecting) {
+                if (_stroke == null) {
+                    _stroke = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 10, new float[]{5, 3}, 0);
+                }
+                Stroke old_stroke = g.getStroke();
+                g.setStroke(_stroke);
                 g.drawRect(_selection_x, _selection_y, _selection_width - 1, _selection_height - 1);
+                g.setStroke(old_stroke);
             }
         } else {
             drawBackgroundTitle(g);

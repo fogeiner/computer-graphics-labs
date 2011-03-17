@@ -67,6 +67,8 @@ public class FltFrame extends MainFrame implements FltFrameService {
             addSubMenu("Edit", KeyEvent.VK_E);
 
             addMenuItem("Edit/Select", "Select region", KeyEvent.VK_S, "select.gif", "onSelect");
+            addMenuItem("Edit/From C to B", "Copy image fron zone C to zone B",
+                    KeyEvent.VK_C, "back.gif", "onFromCtoB");
 
             addSubMenu("Help", KeyEvent.VK_H);
 
@@ -80,6 +82,7 @@ public class FltFrame extends MainFrame implements FltFrameService {
             addToolBarButton("File/Save as...");
             addToolBarSeparator();
             addToolBarButton("Edit/Select");
+            addToolBarButton("Edit/From C to B");
             addToolBarSeparator();
             addToolBarButton("Help/About");
             addToolBarSeparator();
@@ -113,7 +116,16 @@ public class FltFrame extends MainFrame implements FltFrameService {
 
         _zone_a.setFrameService(this);
         setSelectBlocked(true);
-        //setSaveBlocked(true);
+        setSaveBlocked(true);
+        setFromCtoBBlocked(true);
+    }
+
+    /**
+     * Method is invoked after user presses Back toolbar buttons or chooses
+     * Edit -> From C to B
+     */
+    public void onFromCtoB(){
+        
     }
 
     public void onSelect() {
@@ -291,4 +303,11 @@ public class FltFrame extends MainFrame implements FltFrameService {
         file.getMenuComponent(2).setEnabled(!value);
         toolBar.getComponent(2).setEnabled(!value);
     }
+
+    @Override
+    public void setFromCtoBBlocked(boolean value) {
+        JMenuBar menu_bar = getJMenuBar();
+        JMenu edit = (JMenu) menu_bar.getComponent(1);
+        edit.getMenuComponent(1).setEnabled(!value);
+        toolBar.getComponent(5).setEnabled(!value);}
 }
