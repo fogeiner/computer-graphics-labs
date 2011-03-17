@@ -127,6 +127,7 @@ public class ImageNavigationPanel extends ImagePanel {
                 }
 
                 updateSelection(e);
+                _viewer_panel.setImageOffset((int) (_selection_x * _x_ratio + 0.5), (int) (_selection_y * _y_ratio + 0.5));
             }
 
             @Override

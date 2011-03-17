@@ -68,7 +68,6 @@ public class BmpImage extends BufferedImage {
                 throw exc;
             }
             width = ledis.readInt();
-
             height = ledis.readInt();
             num_of_color_planes = ledis.readShort();
             if (num_of_color_planes != 1) {
@@ -95,18 +94,17 @@ public class BmpImage extends BufferedImage {
 
 
             for (int i = height - 1; i >= 0; --i) {
-                int j = 0;
+                int j;
                 for (j = 0; j < width; ++j) {
                     int B = ledis.readUnsignedByte();
                     int G = ledis.readUnsignedByte();
                     int R = ledis.readUnsignedByte();
 
-
                     img.setRGB(j, i, (new Color(R, G, B)).getRGB());
                 }
-
-                if (3 * j % 4 != 0) {
-                    ledis.skipBytes(4 - (3 * j + 4) % 4);
+                j = j * 3;
+                if (j % 4 != 0) {
+                    ledis.skipBytes(4 - (j + 4) % 4);
                 }
 
             }

@@ -1,10 +1,14 @@
 package FIT_8201_Sviridov_Flt;
 
+import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
@@ -116,16 +120,45 @@ public class FltFrame extends MainFrame implements FltFrameService {
 
         _zone_a.setFrameService(this);
         setSelectBlocked(true);
-        setSaveBlocked(true);
-        setFromCtoBBlocked(true);
+        //setSaveBlocked(true);
+        //setFromCtoBBlocked(true);
+
+        _zone_b.addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                onGrayscale();
+            }
+        });
+    }
+
+    /**
+     * 
+     */
+    public void onGrayscale() {
+
+        BufferedImage o = _zone_b.getImage();
+        int width = o.getWidth(), height = o.getHeight();
+        BufferedImage n = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        for (int i = 0; i < height; ++i) {
+            for (int j = 0; j < width; ++j) {
+                Color c = new Color(o.getRGB(j, i));
+                double R = c.getRed() / 255.0, G = c.getGreen() / 255.0, B = c.getBlue() / 255.0;
+                int y = (int) (((double) 0.299 * R + 0.587 * G + 0.114 * B) * 255 + 0.5);
+                n.setRGB(j, i, (new Color(y, y, y)).getRGB());
+            }
+        }
+
+        _zone_c.setImage(n);
     }
 
     /**
      * Method is invoked after user presses Back toolbar buttons or chooses
      * Edit -> From C to B
      */
-    public void onFromCtoB(){
-        
+    public void onFromCtoB() {
+        BufferedImage img = _zone_c.getImage();
+        _zone_b.setImage(img.getSubimage(0, 0, img.getWidth(), img.getHeight()));
     }
 
     public void onSelect() {
@@ -309,5 +342,6 @@ public class FltFrame extends MainFrame implements FltFrameService {
         JMenuBar menu_bar = getJMenuBar();
         JMenu edit = (JMenu) menu_bar.getComponent(1);
         edit.getMenuComponent(1).setEnabled(!value);
-        toolBar.getComponent(5).setEnabled(!value);}
+        toolBar.getComponent(5).setEnabled(!value);
+    }
 }
