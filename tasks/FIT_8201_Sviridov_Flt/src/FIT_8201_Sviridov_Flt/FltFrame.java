@@ -12,6 +12,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -150,27 +151,30 @@ public class FltFrame extends MainFrame implements FltFrameService {
         int m = size / 2;
 
         BufferedImage n = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
+        int[] rs = new int[size * size];
+        int[] gs = new int[size * size];
+        int[] bs = new int[size * size];
+
+
         for (int h = m; h < height - m; ++h) {
             for (int w = m; w < width - m; ++w) {
-                List<Integer> rs = new ArrayList<Integer>(size * size);
-                List<Integer> gs = new ArrayList<Integer>(size * size);
-                List<Integer> bs = new ArrayList<Integer>(size * size);
 
                 for (int i = 0; i < size; ++i) {
                     for (int j = 0; j < size; ++j) {
-                        Color c = new Color(o.getRGB(w + j - m, h + i - m));
-                        rs.add(c.getRed());
-                        gs.add(c.getGreen());
-                        bs.add(c.getBlue());
+                        int rgb = o.getRGB(w + j - m, h + i - m);
+                        rs[i * size + j] = (rgb >> 16) & 0xFF;
+                        gs[i * size + j] = (rgb >> 8) & 0xFF;
+                        bs[i * size + j] = rgb & 0xFF;
                     }
                 }
 
 
-                Collections.sort(rs);
-                Collections.sort(gs);
-                Collections.sort(bs);
+                Arrays.sort(rs);
+                Arrays.sort(gs);
+                Arrays.sort(bs);
 
-                int R = rs.get(rs.size() / 2), G = gs.get(rs.size() / 2), B = bs.get(rs.size() / 2);
+                int R = rs[size * m], G = gs[size * m], B = bs[size * m];
 
                 n.setRGB(w, h, (new Color(R, G, B)).getRGB());
             }
