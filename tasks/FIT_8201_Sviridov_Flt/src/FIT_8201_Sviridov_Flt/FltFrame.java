@@ -132,25 +132,142 @@ public class FltFrame extends MainFrame implements FltFrameService {
 
             @Override
             public void mouseClicked(MouseEvent e) {
-                onOrderedDither();
+                onDoubleScale();
             }
         });
     }
 
-    public void onOrderedDither() {
-
-        double m[][] = new double[][]{
-            new double[]{1 / 65.0, 49 / 65.0, 13 / 65.0, 61 / 65.0, 4 / 65.0, 52 / 65.0, 16 / 65.0, 64 / 65.0},
-            new double[]{33 / 65.0, 17 / 65.0, 45 / 65.0, 29 / 65.0, 36 / 65.0, 20 / 65.0, 48 / 65.0, 32 / 65.0},
-            new double[]{9 / 65.0, 57 / 65.0, 5 / 65.0, 53 / 65.0, 12 / 65.0, 60 / 65.0, 8 / 65.0, 56 / 65.0},
-            new double[]{41 / 65.0, 25 / 65.0, 37 / 65.0, 21 / 65.0, 44 / 65.0, 28 / 65.0, 40 / 65.0, 24 / 65.0},
-            new double[]{3 / 65.0, 51 / 65.0, 15 / 65.0, 63 / 65.0, 2 / 65.0, 50 / 65.0, 14 / 65.0, 62 / 65.0},
-            new double[]{35 / 65.0, 19 / 65.0, 47 / 65.0, 31 / 65.0, 34 / 65.0, 18 / 65.0, 46 / 65.0, 30 / 65.0},
-            new double[]{11 / 65.0, 59 / 65.0, 7 / 65.0, 55 / 65.0, 10 / 65.0, 58 / 65.0, 6 / 65.0, 54 / 65.0},
-            new double[]{43 / 65.0, 27 / 65.0, 39 / 65.0, 23 / 65.0, 42 / 65.0, 26 / 65.0, 38 / 65.0, 22 / 65.0}
-        };
-
+    public void onDoubleScale() {
         BufferedImage o = _zone_b.getImage();
+        int o_width = o.getWidth(), o_height = o.getHeight();
+
+        int center_height, center_width;
+        center_width = o_width / 2 + (o_width / 2 % 2 == 0 ? 0 : 1);
+        center_height = o_height / 2 + (o_height / 2 % 2 == 0 ? 0 : 1);
+
+        BufferedImage c = o.getSubimage(o_width / 4, o_height / 4, center_width, center_height);
+
+
+        BufferedImage n = new BufferedImage(2*center_width, 2*center_height, BufferedImage.TYPE_INT_RGB);
+
+        int n_width = n.getWidth(), n_height = n.getHeight();
+
+
+        for (int h = 0; h < center_height; h += 2) {
+            for (int w = 0; w < center_width; w += 2) {
+                int rgb11 = c.getRGB(w, h);
+                int rgb12 = c.getRGB(w + 1, h);
+                int rgb21 = c.getRGB(w, h + 1);
+                int rgb22 = c.getRGB(w + 1, h + 1);
+
+                int RGB11[] = {(rgb11 >> 16) & 0xFF, (rgb11 >> 8) & 0xFF, rgb11 & 0xFF};
+                int RGB12[] = {(rgb12 >> 16) & 0xFF, (rgb12 >> 8) & 0xFF, rgb12 & 0xFF};
+                int RGB21[] = {(rgb21 >> 16) & 0xFF, (rgb21 >> 8) & 0xFF, rgb21 & 0xFF};
+                int RGB22[] = {(rgb22 >> 16) & 0xFF, (rgb22 >> 8) & 0xFF, rgb22 & 0xFF};
+
+
+                int AN[] = new int[3];
+                int AE[] = new int[3];
+                int AS[] = new int[3];
+                int AW[] = new int[3];
+                int AM[] = new int[3];
+
+                for (int k = 0; k < 3; ++k) {
+                    AN[k] = (int) ((double) (RGB11[k] + RGB12[k]) / 2 + 0.5);
+                    AE[k] = (int) ((double) (RGB12[k] + RGB22[k]) / 2 + 0.5);
+                    AS[k] = (int) ((double) (RGB21[k] + RGB22[k]) / 2 + 0.5);
+                    AW[k] = (int) ((double) (RGB11[k] + RGB21[k]) / 2 + 0.5);
+                    AM[k] = (int) ((double) (RGB11[k] + RGB12[k] + RGB21[k] + RGB22[k]) / 4 + 0.5);
+                }
+
+
+                for (int i = 0; i < 4; ++i) {
+                    for (int j = 0; j < 4; ++j) {
+                        int h_offset = 4 * h/2;
+                        int w_offset = 4 * w/2;
+
+
+
+                        if (i == 0 && j > 0 && j < 4) {
+                            int rgb = AN[2] + AN[1] * 256 + AN[0] * 256 * 256;
+                            n.setRGB(w_offset + j, h_offset + i, rgb);
+                        }
+
+                        if (j == 0 && i > 0 && i < 4) {
+                            int rgb = AW[2] + AW[1] * 256 + AW[0] * 256 * 256;
+                            n.setRGB(w_offset + j, h_offset + i, rgb);
+                        }
+
+                        if (i == 3 && j > 0 && j < 4) {
+                            int rgb = AS[2] + AS[1] * 256 + AS[0] * 256 * 256;
+                            n.setRGB(w_offset + j, h_offset + i, rgb);
+                        }
+
+                        if (j == 3 && i > 0 && i < 4) {
+                            int rgb = AE[2] + AE[1] * 256 + AE[0] * 256 * 256;
+                            n.setRGB(w_offset + j, h_offset + i, rgb);
+                        }
+
+
+                        if (i > 0 && i < 4 && j > 0 && j < 4) {
+                            int rgb = AM[2] + AM[1] * 256 + AM[0] * 256 * 256;
+                            n.setRGB(w_offset + j, h_offset + i, rgb);
+                        }
+
+
+                        if (i == 0 && j == 0) {
+                            n.setRGB(w_offset + j, h_offset + i, rgb11);
+                        }
+                        if (i == 3 && j == 3) {
+                            n.setRGB(w_offset + j, h_offset + i, rgb22);
+                        }
+
+                        if (i == 0 && j == 3) {
+                            n.setRGB(w_offset + j, h_offset + i, rgb12);
+                        }
+                        if (i == 3 && j == 0) {
+                            n.setRGB(w_offset + j, h_offset + i, rgb21);
+                        }
+                    }
+                }
+
+
+
+            }
+        }
+
+
+        _zone_c.setImage(n);
+    }
+
+    public static double[][] generateBayerMatrix(int n) {
+
+        int dim = 1 << n;
+
+        double m[][] = new double[dim][dim];
+        for (int i = 0; i < dim; ++i) {
+            m[i] = new double[dim];
+        }
+
+        for (int y = 0; y < dim; ++y) {
+            for (int x = 0; x < dim; ++x) {
+                int v = 0, mask = n - 1, yc = y, xc = x ^ y;
+                for (int bit = 0; bit < 2 * n; --mask) {
+                    v |= ((yc >> mask) & 1) << bit++;
+                    v |= ((xc >> mask) & 1) << bit++;
+                }
+
+                m[x][y] = v * 1.0 / (dim * dim);
+            }
+        }
+
+        return m;
+    }
+
+    public void onOrderedDither() {
+        BufferedImage o = _zone_b.getImage();
+
+        double m[][] = generateBayerMatrix(4);
 
         int width = o.getWidth(), height = o.getHeight();
         BufferedImage n = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -158,17 +275,13 @@ public class FltFrame extends MainFrame implements FltFrameService {
         for (int h = 0; h < height; h += m.length) {
             for (int w = 0; w < width; w += m[0].length) {
 
-                for (int i = 0; i < m.length; ++i) {
-                    for (int j = 0; j < m[0].length; ++j) {
+                for (int i = 0; i < m.length && h + i < height; ++i) {
+                    for (int j = 0; j < m[0].length && w + j < width; ++j) {
 
-                        if (h + i >= height || w + j >= width) {
-                            break;
-                        }
 
                         int rgb = o.getRGB(w + j, h + i);
 
-                        int RGB[] = {(rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF
-                        };
+                        int RGB[] = {(rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF};
 
                         for (int k = 0; k < RGB.length; ++k) {
                             if (RGB[k] / 255.0 <= m[i][j]) {
@@ -178,7 +291,8 @@ public class FltFrame extends MainFrame implements FltFrameService {
                             }
                         }
 
-                        n.setRGB(w + j, h + i, (new Color(RGB[0], RGB[1], RGB[2])).getRGB());
+                        rgb = RGB[2] + RGB[1] * 256 + RGB[0] * 256 * 256;
+                        n.setRGB(w + j, h + i, rgb);
 
                     }
                 }
@@ -196,7 +310,7 @@ public class FltFrame extends MainFrame implements FltFrameService {
         _zone_c.setImage(si);
     }
 
-    public BufferedImage getColorSmoothedImage(BufferedImage o, int size) {
+    public static BufferedImage getColorSmoothedImage(BufferedImage o, int size) {
         int width = o.getWidth(), height = o.getHeight();
 
         int m = size / 2;
@@ -257,7 +371,7 @@ public class FltFrame extends MainFrame implements FltFrameService {
 
         return n;
     }
-    private double _S = 50.0;
+    private static double _S = 50.0;
 
     public void onSobel() {
         BufferedImage o = _zone_b.getImage();
