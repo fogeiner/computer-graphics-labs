@@ -24,7 +24,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.ListUI;
-import org.jcp.xml.dsig.internal.dom.Utils;
 
 import ru.nsu.cg.MainFrame;
 
@@ -133,9 +132,61 @@ public class FltFrame extends MainFrame implements FltFrameService {
 
             @Override
             public void mouseClicked(MouseEvent e) {
-                onAquarelle();
+                onOrderedDither();
             }
         });
+    }
+
+    public void onOrderedDither() {
+
+        double m[][] = new double[][]{
+            new double[]{1 / 65.0, 49 / 65.0, 13 / 65.0, 61 / 65.0, 4 / 65.0, 52 / 65.0, 16 / 65.0, 64 / 65.0},
+            new double[]{33 / 65.0, 17 / 65.0, 45 / 65.0, 29 / 65.0, 36 / 65.0, 20 / 65.0, 48 / 65.0, 32 / 65.0},
+            new double[]{9 / 65.0, 57 / 65.0, 5 / 65.0, 53 / 65.0, 12 / 65.0, 60 / 65.0, 8 / 65.0, 56 / 65.0},
+            new double[]{41 / 65.0, 25 / 65.0, 37 / 65.0, 21 / 65.0, 44 / 65.0, 28 / 65.0, 40 / 65.0, 24 / 65.0},
+            new double[]{3 / 65.0, 51 / 65.0, 15 / 65.0, 63 / 65.0, 2 / 65.0, 50 / 65.0, 14 / 65.0, 62 / 65.0},
+            new double[]{35 / 65.0, 19 / 65.0, 47 / 65.0, 31 / 65.0, 34 / 65.0, 18 / 65.0, 46 / 65.0, 30 / 65.0},
+            new double[]{11 / 65.0, 59 / 65.0, 7 / 65.0, 55 / 65.0, 10 / 65.0, 58 / 65.0, 6 / 65.0, 54 / 65.0},
+            new double[]{43 / 65.0, 27 / 65.0, 39 / 65.0, 23 / 65.0, 42 / 65.0, 26 / 65.0, 38 / 65.0, 22 / 65.0}
+        };
+
+        BufferedImage o = _zone_b.getImage();
+
+        int width = o.getWidth(), height = o.getHeight();
+        BufferedImage n = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
+        for (int h = 0; h < height; h += m.length) {
+            for (int w = 0; w < width; w += m[0].length) {
+
+                for (int i = 0; i < m.length; ++i) {
+                    for (int j = 0; j < m[0].length; ++j) {
+
+                        if (h + i >= height || w + j >= width) {
+                            break;
+                        }
+
+                        int rgb = o.getRGB(w + j, h + i);
+
+                        int RGB[] = {(rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF
+                        };
+
+                        for (int k = 0; k < RGB.length; ++k) {
+                            if (RGB[k] / 255.0 <= m[i][j]) {
+                                RGB[k] = 0;
+                            } else {
+                                RGB[k] = 255;
+                            }
+                        }
+
+                        n.setRGB(w + j, h + i, (new Color(RGB[0], RGB[1], RGB[2])).getRGB());
+
+                    }
+                }
+
+            }
+        }
+
+        _zone_c.setImage(n);
     }
 
     public void onAquarelle() {
