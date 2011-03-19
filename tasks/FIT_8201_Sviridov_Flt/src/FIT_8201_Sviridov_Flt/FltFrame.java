@@ -30,8 +30,8 @@ import ru.nsu.cg.MainFrame;
  */
 public class FltFrame extends MainFrame implements FltFrameService {
 
-	private static final long serialVersionUID = -5961249108882455789L;
-	private ImageNavigationViewerPanel _zone_b = new ImageNavigationViewerPanel("Zone B", this);
+    private static final long serialVersionUID = -5961249108882455789L;
+    private ImageNavigationViewerPanel _zone_b = new ImageNavigationViewerPanel("Zone B", this);
     private ImageNavigationPanel _zone_a = new ImageNavigationPanel("Zone A", _zone_b, this);
     private ImagePanel _zone_c = new ImageResultPanel("Zone C", this);
     private ImagePanel _zones[] = new ImagePanel[]{_zone_a, _zone_b, _zone_c};
@@ -213,7 +213,11 @@ public class FltFrame extends MainFrame implements FltFrameService {
 
     public static BufferedImage getFloydSteinbergDitheredImage(BufferedImage o, int r_count, int g_count, int b_count) {
         int width = o.getWidth(), height = o.getHeight();
-        BufferedImage n = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        int data[] = o.getRGB(0, 0, width, height, null, 0, width);
+
+        BufferedImage n = new BufferedImage(width, height, o.getType());
+        int n_data[] = n.getRGB(0, 0, width, height, null, 0, width);
+
         double errors[][][] = new double[][][]{
             new double[width][height],
             new double[width][height],
@@ -226,7 +230,7 @@ public class FltFrame extends MainFrame implements FltFrameService {
         };
         for (int h = 0; h < height; ++h) {
             for (int w = 0; w < width; ++w) {
-                int rgb = o.getRGB(w, h);
+                int rgb = data[h * width + w];
                 int RGB[] = {(rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF};
                 for (int k = 0; k < 3; ++k) {
                     RGB[k] += (int) (errors[k][w][h] + 0.5);
@@ -247,9 +251,10 @@ public class FltFrame extends MainFrame implements FltFrameService {
                     }
                 }
                 rgb = RGB[2] + RGB[1] * 256 + RGB[0] * 256 * 256;
-                n.setRGB(w, h, rgb);
+                n_data[h * width + w] = rgb;
             }
         }
+        n.setRGB(0, 0, width, height, n_data, 0, width);
         return n;
     }
 
@@ -315,79 +320,7 @@ public class FltFrame extends MainFrame implements FltFrameService {
                 n.setRGB(w_offset + 1, h_offset + 1, rgb);
             }
         }
-        _zone_c.setImage(n);
-    }
-
-    public void onDoubleScaleSquares() {
-        BufferedImage o = _zone_b.getImage();
-        int o_width = o.getWidth(), o_height = o.getHeight();
-        int center_height, center_width;
-        center_width = o_width / 2 + (o_width / 2 % 2 == 0 ? 0 : 1);
-        center_height = o_height / 2 + (o_height / 2 % 2 == 0 ? 0 : 1);
-        BufferedImage c = o.getSubimage(o_width / 4, o_height / 4, center_width, center_height);
-        BufferedImage n = new BufferedImage(2 * center_width, 2 * center_height, BufferedImage.TYPE_INT_RGB);
-        for (int h = 0; h < center_height; h += 2) {
-            for (int w = 0; w < center_width; w += 2) {
-                int rgb11 = c.getRGB(w, h);
-                int rgb12 = c.getRGB(w + 1, h);
-                int rgb21 = c.getRGB(w, h + 1);
-                int rgb22 = c.getRGB(w + 1, h + 1);
-                int RGB11[] = {(rgb11 >> 16) & 0xFF, (rgb11 >> 8) & 0xFF, rgb11 & 0xFF};
-                int RGB12[] = {(rgb12 >> 16) & 0xFF, (rgb12 >> 8) & 0xFF, rgb12 & 0xFF};
-                int RGB21[] = {(rgb21 >> 16) & 0xFF, (rgb21 >> 8) & 0xFF, rgb21 & 0xFF};
-                int RGB22[] = {(rgb22 >> 16) & 0xFF, (rgb22 >> 8) & 0xFF, rgb22 & 0xFF};
-                int AN[] = new int[3];
-                int AE[] = new int[3];
-                int AS[] = new int[3];
-                int AW[] = new int[3];
-                int AM[] = new int[3];
-                for (int k = 0; k < 3; ++k) {
-                    AN[k] = (int) ((double) (RGB11[k] + RGB12[k]) / 2 + 0.5);
-                    AE[k] = (int) ((double) (RGB12[k] + RGB22[k]) / 2 + 0.5);
-                    AS[k] = (int) ((double) (RGB21[k] + RGB22[k]) / 2 + 0.5);
-                    AW[k] = (int) ((double) (RGB11[k] + RGB21[k]) / 2 + 0.5);
-                    AM[k] = (int) ((double) (RGB11[k] + RGB12[k] + RGB21[k] + RGB22[k]) / 4 + 0.5);
-                }
-                for (int i = 0; i < 4; ++i) {
-                    for (int j = 0; j < 4; ++j) {
-                        int h_offset = 4 * h / 2;
-                        int w_offset = 4 * w / 2;
-                        if (i == 0 && j > 0 && j < 4) {
-                            int rgb = AN[2] + AN[1] * 256 + AN[0] * 256 * 256;
-                            n.setRGB(w_offset + j, h_offset + i, rgb);
-                        }
-                        if (j == 0 && i > 0 && i < 4) {
-                            int rgb = AW[2] + AW[1] * 256 + AW[0] * 256 * 256;
-                            n.setRGB(w_offset + j, h_offset + i, rgb);
-                        }
-                        if (i == 3 && j > 0 && j < 4) {
-                            int rgb = AS[2] + AS[1] * 256 + AS[0] * 256 * 256;
-                            n.setRGB(w_offset + j, h_offset + i, rgb);
-                        }
-                        if (j == 3 && i > 0 && i < 4) {
-                            int rgb = AE[2] + AE[1] * 256 + AE[0] * 256 * 256;
-                            n.setRGB(w_offset + j, h_offset + i, rgb);
-                        }
-                        if (i > 0 && i < 4 && j > 0 && j < 4) {
-                            int rgb = AM[2] + AM[1] * 256 + AM[0] * 256 * 256;
-                            n.setRGB(w_offset + j, h_offset + i, rgb);
-                        }
-                        if (i == 0 && j == 0) {
-                            n.setRGB(w_offset + j, h_offset + i, rgb11);
-                        }
-                        if (i == 3 && j == 3) {
-                            n.setRGB(w_offset + j, h_offset + i, rgb22);
-                        }
-                        if (i == 0 && j == 3) {
-                            n.setRGB(w_offset + j, h_offset + i, rgb12);
-                        }
-                        if (i == 3 && j == 0) {
-                            n.setRGB(w_offset + j, h_offset + i, rgb21);
-                        }
-                    }
-                }
-            }
-        }
+        
         _zone_c.setImage(n);
     }
 
@@ -412,14 +345,20 @@ public class FltFrame extends MainFrame implements FltFrameService {
 
     public void onOrderedDithering() {
         BufferedImage o = _zone_b.getImage();
-        int m[][] = generateBayerMatrix(4);
         int width = o.getWidth(), height = o.getHeight();
-        BufferedImage n = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        int data[] = o.getRGB(0, 0, width, height, null, 0, width);
+
+        BufferedImage n = new BufferedImage(width, height, o.getType());
+        int n_data[] = n.getRGB(0, 0, width, height, null, 0, width);
+
+        int m[][] = generateBayerMatrix(4);
+
         for (int h = 0; h < height; h += m.length) {
             for (int w = 0; w < width; w += m[0].length) {
                 for (int i = 0; i < m.length && h + i < height; ++i) {
                     for (int j = 0; j < m[0].length && w + j < width; ++j) {
-                        int rgb = o.getRGB(w + j, h + i);
+                        int rgb = data[(h + i) * width + (w + j)];
+
                         int RGB[] = {(rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF};
                         for (int k = 0; k < RGB.length; ++k) {
                             if (RGB[k] <= m[i][j]) {
@@ -429,11 +368,13 @@ public class FltFrame extends MainFrame implements FltFrameService {
                             }
                         }
                         rgb = RGB[2] + RGB[1] * 256 + RGB[0] * 256 * 256;
-                        n.setRGB(w + j, h + i, rgb);
+                        n_data[(h + i) * width + (w + j)] = rgb;
                     }
                 }
             }
         }
+
+        n.setRGB(0, 0, width, height, n_data, 0, width);
         _zone_c.setImage(n);
     }
 
@@ -453,108 +394,143 @@ public class FltFrame extends MainFrame implements FltFrameService {
 
     public static BufferedImage getColorSmoothedImage(BufferedImage o, int size) {
         int width = o.getWidth(), height = o.getHeight();
+        int data[] = o.getRGB(0, 0, width, height, null, 0, width);
         int m = size / 2;
-        BufferedImage n = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
+        BufferedImage n = new BufferedImage(width, height, o.getType());
+        int n_data[] = n.getRGB(0, 0, width, height, null, 0, width);
+
         int[] rs = new int[size * size];
         int[] gs = new int[size * size];
         int[] bs = new int[size * size];
+        int middle = rs.length / 2;
         for (int h = m; h < height - m; ++h) {
             for (int w = m; w < width - m; ++w) {
                 for (int i = 0; i < size; ++i) {
                     for (int j = 0; j < size; ++j) {
-                        int rgb = o.getRGB(w + j - m, h + i - m);
+                        int rgb = data[(h + i - m) * width + (w + j - m)];
+
                         rs[i * size + j] = (rgb >> 16) & 0xFF;
                         gs[i * size + j] = (rgb >> 8) & 0xFF;
                         bs[i * size + j] = rgb & 0xFF;
                     }
                 }
+
                 Arrays.sort(rs);
                 Arrays.sort(gs);
                 Arrays.sort(bs);
-                int middle = rs.length / 2;
+
                 int R = rs[middle], G = gs[middle], B = bs[middle];
-                n.setRGB(w, h, (new Color(R, G, B)).getRGB());
+                n_data[h * width + w] = B + 256 * G + 256 * 256 * R;
             }
         }
         for (int h = 0; h < height; ++h) {
             for (int w = 0; w < m; ++w) {
-                int rgb = o.getRGB(w, h);
-                n.setRGB(w, h, rgb);
+                n_data[h * width + w] = data[h * width + w];
             }
             for (int w = width - m; w < width; ++w) {
-                int rgb = o.getRGB(w, h);
-                n.setRGB(w, h, rgb);
+                n_data[h * width + w] = data[h * width + w];
             }
         }
         for (int w = 0; w < width; ++w) {
             for (int h = 0; h < m; ++h) {
-                int rgb = o.getRGB(w, h);
-                n.setRGB(w, h, rgb);
+                n_data[h * width + w] = data[h * width + w];
             }
             for (int h = height - m; h < height; ++h) {
-                int rgb = o.getRGB(w, h);
-                n.setRGB(w, h, rgb);
+                n_data[h * width + w] = data[h * width + w];
             }
         }
+        n.setRGB(0, 0, width, height, n_data, 0, width);
         return n;
     }
     private static double _S = 50.0;
 
     public void onSobel() {
         BufferedImage o = _zone_b.getImage();
+
+        int width = o.getWidth(), height = o.getHeight();
+
+        BufferedImage n = new BufferedImage(width, height, o.getType());
+        int n_data[] = n.getRGB(0, 0, width, height, null, 0, width);
+
         BufferedImage gs = getGreyscaleImage(o);
-        int width = gs.getWidth(), height = gs.getHeight();
-        BufferedImage n = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        int data[] = gs.getRGB(0, 0, width, height, null, 0, width);
+
+        int white_rgb = Color.white.getRGB();
+        int black_rgb = Color.black.getRGB();
         for (int h = 0; h < height - 2; ++h) {
             for (int w = 0; w < width - 2; ++w) {
-                double g11 = (new Color(gs.getRGB(w, h))).getRed(),
-                        g12 = (new Color(gs.getRGB(w, h + 1))).getRed(),
-                        g13 = (new Color(gs.getRGB(w, h + 2))).getRed(),
-                        g21 = (new Color(gs.getRGB(w + 1, h))).getRed(),
-                        g22 = (new Color(gs.getRGB(w + 1, h + 1))).getRed(),
-                        g23 = (new Color(gs.getRGB(w + 1, h + 2))).getRed(),
-                        g31 = (new Color(gs.getRGB(w + 2, h))).getRed(),
-                        g32 = (new Color(gs.getRGB(w + 2, h + 1))).getRed(),
-                        g33 = (new Color(gs.getRGB(w + 2, h + 2))).getRed();
+                double g11 = data[h * width + w] & 0xFF,
+                        g12 = data[(h + 1) * width + w] & 0xFF,
+                        g13 = data[(h + 2) * width + w] & 0xFF,
+                        g21 = data[h * width + (w + 1)] & 0xFF,
+                        g22 = data[(h + 1) * width + (w + 1)] & 0xFF,
+                        g23 = data[(h + 2) * width + (w + 1)] & 0xFF,
+                        g31 = data[h * width + (w + 2)] & 0xFF,
+                        g32 = data[(h + 1) * width + (w + 2)] & 0xFF,
+                        g33 = data[(h + 2) * width + (w + 2)] & 0xFF;
+
                 double Sx = (g13 + 2 * g23 + g33) - (g11 + 2 * g21 + g31);
                 double Sy = (g31 + 2 * g32 + g33) - (g11 + 2 * g12 + g13);
+
                 double S = Math.abs(Sx) + Math.abs(Sy);
+
                 if (S > _S) {
-                    n.setRGB(w, h, Color.white.getRGB());
+                    n_data[h * width + w] = white_rgb;
                 } else {
-                    n.setRGB(w, h, Color.black.getRGB());
+                    n_data[h * width + w] = black_rgb;
                 }
             }
         }
+        n.setRGB(0, 0, width, height, n_data, 0, width);
         _zone_c.setImage(n);
     }
     private double _R = 20.0;
 
     public void onRoberts() {
         BufferedImage o = _zone_b.getImage();
+
+
+        int width = o.getWidth(), height = o.getHeight();
+
+        BufferedImage n = new BufferedImage(width, height, o.getType());
+        int n_data[] = n.getRGB(0, 0, width, height, null, 0, width);
+
         BufferedImage gs = getGreyscaleImage(o);
-        int width = gs.getWidth(), height = gs.getHeight();
-        BufferedImage n = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        int data[] = gs.getRGB(0, 0, width, height, null, 0, width);
+
+        int white_rgb = Color.white.getRGB();
+        int black_rgb = Color.black.getRGB();
+
+
         for (int h = 0; h < height - 1; ++h) {
             for (int w = 0; w < width - 1; ++w) {
-                double g11 = (new Color(gs.getRGB(w, h))).getRed(),
-                        g12 = (new Color(gs.getRGB(w, h + 1))).getRed(),
-                        g21 = (new Color(gs.getRGB(w + 1, h))).getRed(),
-                        g22 = (new Color(gs.getRGB(w + 1, h + 1))).getRed();
+
+                double g11 = data[h * width + w] & 0xFF,
+                        g12 = data[(h + 1) * width + w] & 0xFF,
+                        g21 = data[h * width + (w + 1)] & 0xFF,
+                        g22 = data[(h + 1) * width + (w + 1)] & 0xFF;
+
                 double R = Math.abs(g11 - g22) + Math.abs(g12 - g21);
                 if (R > _R) {
-                    n.setRGB(w, h, Color.white.getRGB());
+                    n_data[h * width + w] = white_rgb;
                 } else {
-                    n.setRGB(w, h, Color.black.getRGB());
+                    n_data[h * width + w] = black_rgb;
                 }
             }
         }
+
+        n.setRGB(0, 0, width, height, n_data, 0, width);
         _zone_c.setImage(n);
     }
 
     public static BufferedImage applyConvolutionMatrix(BufferedImage o, double m[][], double r_s, double g_s, double b_s) {
         int width = o.getWidth(), height = o.getHeight();
-        BufferedImage n = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        int data[] = o.getRGB(0, 0, width, height, null, 0, width);
+
+        BufferedImage n = new BufferedImage(width, height, o.getType());
+        int n_data[] = n.getRGB(0, 0, width, height, null, 0, width);
+
         int m_h = m.length / 2;
         int m_w = m[0].length / 2;
         for (int h = m_h; h < height - m_h; ++h) {
@@ -566,7 +542,7 @@ public class FltFrame extends MainFrame implements FltFrameService {
                         int k = h + i - m_h;
                         int l = w + j - m_w;
 
-                        int rgb = o.getRGB(l, k);
+                        int rgb = data[k * width + l];
                         int RGB[] = {(rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF};
 
                         R += m[i][j] * RGB[0];
@@ -577,45 +553,51 @@ public class FltFrame extends MainFrame implements FltFrameService {
                 R = Math.min(Math.max(0, R + r_s), 255);
                 G = Math.min(Math.max(0, G + g_s), 255);
                 B = Math.min(Math.max(0, B + b_s), 255);
-                n.setRGB(w, h, 256 * 256 * ((int) (R + 0.5)) + 256 * ((int) (G + 0.5)) + (int) (B + 0.5));
+                n_data[h * width + w] = 256 * 256 * ((int) (R + 0.5)) + 256 * ((int) (G + 0.5)) + (int) (B + 0.5);
             }
         }
         for (int h = 0; h < height; ++h) {
             for (int w = 0; w < m_w; ++w) {
-                int rgb = o.getRGB(w, h);
-                n.setRGB(w, h, rgb);
+                n_data[h * width + w] = data[h * width + w];
             }
             for (int w = width - m_w; w < width; ++w) {
-                int rgb = o.getRGB(w, h);
-                n.setRGB(w, h, rgb);
+                n_data[h * width + w] = data[h * width + w];
             }
         }
         for (int w = 0; w < width; ++w) {
             for (int h = 0; h < m_h; ++h) {
-                int rgb = o.getRGB(w, h);
-                n.setRGB(w, h, rgb);
+                n_data[h * width + w] = data[h * width + w];
             }
             for (int h = height - m_h; h < height; ++h) {
-                int rgb = o.getRGB(w, h);
-                n.setRGB(w, h, rgb);
+                n_data[h * width + w] = data[h * width + w];
             }
         }
+
+        n.setRGB(0, 0, width, height, n_data, 0, width);
         return n;
     }
 
     public static BufferedImage getGreyscaleImage(BufferedImage o) {
         int width = o.getWidth(), height = o.getHeight();
-        BufferedImage n = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        for (int i = 0; i < height; ++i) {
-            for (int j = 0; j < width; ++j) {
-                int rgb = o.getRGB(j, i);
+        int data[] = o.getRGB(0, 0, width, height, null, 0, width);
+
+        BufferedImage n = new BufferedImage(width, height, o.getType());
+        int n_data[] = n.getRGB(0, 0, width, height, null, 0, width);
+        for (int h = 0; h < height; ++h) {
+            for (int w = 0; w < width; ++w) {
+                //  int rgb = o.getRGB(j, i);
+                int rgb = data[h * width + w];
                 int RGB[] = {(rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF};
-                Color c = new Color(o.getRGB(j, i));
+
                 double R = RGB[0] / 255.0, G = RGB[1] / 255.0, B = RGB[2] / 255.0;
+
                 int y = (int) (((double) 0.299 * R + 0.587 * G + 0.114 * B) * 255 + 0.5);
-                n.setRGB(j, i, 256 * (256 * y + y) + y);
+
+                n_data[h * width + w] = 256 * (256 * y + y) + y;
             }
         }
+
+        n.setRGB(0, 0, width, height, n_data, 0, width);
         return n;
     }
 
@@ -644,16 +626,23 @@ public class FltFrame extends MainFrame implements FltFrameService {
 
     public void onNegative() {
         BufferedImage o = _zone_b.getImage();
+
         int width = o.getWidth(), height = o.getHeight();
-        BufferedImage n = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        for (int i = 0; i < height; ++i) {
-            for (int j = 0; j < width; ++j) {
-                int rgb = o.getRGB(j, i);
+        int data[] = o.getRGB(0, 0, width, height, null, 0, width);
+
+        BufferedImage n = new BufferedImage(width, height, o.getType());
+        int n_data[] = n.getRGB(0, 0, width, height, null, 0, width);
+
+        for (int h = 0; h < height; ++h) {
+            for (int w = 0; w < width; ++w) {
+                int rgb = data[h * width + w];
                 int RGB[] = {(rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF};
                 int R = 255 - RGB[0], G = 255 - RGB[1], B = 255 - RGB[2];
-                n.setRGB(j, i, 256 * 256 * R + 256 * G + B);
+                n_data[h * width + w] = 256 * 256 * R + 256 * G + B;
             }
         }
+        n.setRGB(0, 0, width, height, n_data, 0, width);
+
         _zone_c.setImage(n);
     }
 
