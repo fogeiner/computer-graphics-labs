@@ -443,7 +443,14 @@ public class FltFrame extends MainFrame implements FltFrameService {
     public void onAquarelle() {
         BufferedImage o = _zone_b.getImage();
         BufferedImage csi = getColorSmoothedImage(o, 5);
-        BufferedImage si = applyConvolutionMatrix(csi, new double[][]{new double[]{0, -1, 0}, new double[]{-1, 5, -1}, new double[]{0, -1, 0}}, 0, 0, 0);
+        BufferedImage si = applyConvolutionMatrix(csi,
+                new double[][]{
+                    new double[]{0, 0, 0, 0, 0},
+                    new double[]{0, 0, -1, 0, 0},
+                    new double[]{0, -1, 5, -1, 0},
+                    new double[]{0, 0, -1, 0, 0},
+                    new double[]{0, 0, 0, 0, 0}},
+                0, 0, 0);
         _zone_c.setImage(si);
     }
 
