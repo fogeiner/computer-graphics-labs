@@ -54,7 +54,7 @@ public class ImagePanel extends JPanel {
     public void clearBackground(Graphics g) {
         Color c = g.getColor();
         g.setColor(getBackground());
-        g.fillRect(0, 0, getWidth() - 1, getHeight() - 1);
+        g.fillRect(0, 0, getWidth(), getHeight());
         g.setColor(c);
     }
 
@@ -68,6 +68,6 @@ public class ImagePanel extends JPanel {
             drawBackgroundTitle(g);
         }
 
-        drawBorder(g);
+    //    drawBorder(g);
     }
 }

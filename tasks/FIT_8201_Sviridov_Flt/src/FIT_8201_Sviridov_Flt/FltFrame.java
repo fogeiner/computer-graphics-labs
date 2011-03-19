@@ -3,6 +3,7 @@ package FIT_8201_Sviridov_Flt;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
+import java.awt.Insets;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -22,6 +23,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.MatteBorder;
 import javax.swing.plaf.ListUI;
 import ru.nsu.cg.MainFrame;
 
@@ -94,7 +96,11 @@ public class FltFrame extends MainFrame implements FltFrameService {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         panel.setBorder(new EmptyBorder(FltSettings.PANEL_PADDING, 0, FltSettings.PANEL_PADDING, 0));
         for (JPanel p : _zones) {
-            panel.add(p);
+            JPanel outer = new JPanel();
+            outer.setBorder(new MatteBorder(new Insets(1, 1, 1, 1), Color.black));
+            p.setBorder(new EmptyBorder(new Insets(1, 1, 1, 1)));
+            outer.add(p);
+            panel.add(outer);
         }
         JScrollPane scroll_pane = new JScrollPane(panel);
         add(scroll_pane);
@@ -116,7 +122,7 @@ public class FltFrame extends MainFrame implements FltFrameService {
 
             @Override
             public void mouseClicked(MouseEvent e) {
-                onOrderedDither();
+                onAquarelle();
             }
         });
     }
@@ -496,20 +502,18 @@ public class FltFrame extends MainFrame implements FltFrameService {
                         int k = h + i - m_h;
                         int l = w + j - m_w;
 
-                        Color c = new Color(o.getRGB(l, k));
-                        r = c.getRed();
-                        g = c.getGreen();
-                        b = c.getBlue();
+                        int rgb = o.getRGB(l, k);
+                        int RGB[] = {(rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF};
 
-                        R += m[i][j] * r;
-                        G += m[i][j] * g;
-                        B += m[i][j] * b;
+                        R += m[i][j] * RGB[0];
+                        G += m[i][j] * RGB[1];
+                        B += m[i][j] * RGB[2];
                     }
                 }
                 R = Math.min(Math.max(0, R + r_s), 255);
                 G = Math.min(Math.max(0, G + g_s), 255);
                 B = Math.min(Math.max(0, B + b_s), 255);
-                n.setRGB(w, h, (new Color((int) (R + 0.5), (int) (G + 0.5), (int) (B + 0.5))).getRGB());
+                n.setRGB(w, h, 256 * 256 * ((int) (R + 0.5)) + 256 * ((int) (G + 0.5)) + (int) (B + 0.5));
             }
         }
         for (int h = 0; h < height; ++h) {
@@ -540,10 +544,12 @@ public class FltFrame extends MainFrame implements FltFrameService {
         BufferedImage n = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         for (int i = 0; i < height; ++i) {
             for (int j = 0; j < width; ++j) {
+                int rgb = o.getRGB(j, i);
+                int RGB[] = {(rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF};
                 Color c = new Color(o.getRGB(j, i));
-                double R = c.getRed() / 255.0, G = c.getGreen() / 255.0, B = c.getBlue() / 255.0;
+                double R = RGB[0] / 255.0, G = RGB[1] / 255.0, B = RGB[2] / 255.0;
                 int y = (int) (((double) 0.299 * R + 0.587 * G + 0.114 * B) * 255 + 0.5);
-                n.setRGB(j, i, (new Color(y, y, y)).getRGB());
+                n.setRGB(j, i, 256 * (256 * y + y) + y);
             }
         }
         return n;
@@ -578,9 +584,10 @@ public class FltFrame extends MainFrame implements FltFrameService {
         BufferedImage n = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         for (int i = 0; i < height; ++i) {
             for (int j = 0; j < width; ++j) {
-                Color c = new Color(o.getRGB(j, i));
-                int R = c.getRed(), G = c.getGreen(), B = c.getBlue();
-                n.setRGB(j, i, (new Color(255 - R, 255 - G, 255 - B)).getRGB());
+                int rgb = o.getRGB(j, i);
+                int RGB[] = {(rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF};
+                int R = 255 - RGB[0], G = 255 - RGB[1], B = 255 - RGB[2];
+                n.setRGB(j, i, 256 * 256 * R + 256 * G + B);
             }
         }
         _zone_c.setImage(n);
