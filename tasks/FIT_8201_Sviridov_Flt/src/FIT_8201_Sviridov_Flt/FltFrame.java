@@ -184,8 +184,6 @@ public class FltFrame extends MainFrame implements FltFrameService {
         setDocumentName(FltSettings.UNTITLED_DOCUMENT);
     }
 
- 
-
     public void onFloydSteinbergDithering() {
         BufferedImage o = _zone_b.getImage();
         _zone_c.setImage(Filters.getFloydSteinbergDitheredImage(o, 2, 2, 2));
@@ -193,63 +191,7 @@ public class FltFrame extends MainFrame implements FltFrameService {
 
     public void onDoubleScale() {
         BufferedImage o = _zone_b.getImage();
-        int o_width = o.getWidth(), o_height = o.getHeight();
-        int center_height, center_width;
-        center_width = o_width / 2 + (o_width / 2 % 2 == 0 ? 0 : 1);
-        center_height = o_height / 2 + (o_height / 2 % 2 == 0 ? 0 : 1);
-        BufferedImage c = o.getSubimage(o_width / 4, o_height / 4, center_width, center_height);
-        BufferedImage n = new BufferedImage(2 * center_width, 2 * center_height, BufferedImage.TYPE_INT_RGB);
-        for (int h = 0; h < center_height; ++h) {
-            for (int w = 0; w < center_width; ++w) {
-                int h_offset = 2 * h;
-                int w_offset = 2 * w;
-                int rgb;
-                int rgb11 = c.getRGB(w, h);
-                int rgb12;
-                if (w != center_width - 1) {
-                    rgb12 = c.getRGB(w + 1, h);
-                } else {
-                    rgb12 = c.getRGB(w, h);
-                }
-                int rgb21;
-                if (h != center_height - 1) {
-                    rgb21 = c.getRGB(w, h + 1);
-                } else {
-                    rgb21 = c.getRGB(w, h);
-                }
-                int rgb22;
-                if (h != center_height - 1 && w != center_width - 1) {
-                    rgb22 = c.getRGB(w + 1, h + 1);
-                } else if (h != center_height - 1) {
-                    rgb22 = c.getRGB(w, h + 1);
-                } else if (w != center_width - 1) {
-                    rgb22 = c.getRGB(w + 1, h);
-                } else {
-                    rgb22 = c.getRGB(w, h);
-                }
-                int RGB11[] = {(rgb11 >> 16) & 0xFF, (rgb11 >> 8) & 0xFF, rgb11 & 0xFF};
-                int RGB12[] = {(rgb12 >> 16) & 0xFF, (rgb12 >> 8) & 0xFF, rgb12 & 0xFF};
-                int RGB21[] = {(rgb21 >> 16) & 0xFF, (rgb21 >> 8) & 0xFF, rgb21 & 0xFF};
-                int RGB22[] = {(rgb22 >> 16) & 0xFF, (rgb22 >> 8) & 0xFF, rgb22 & 0xFF};
-                int AR[] = new int[3];
-                int AL[] = new int[3];
-                int ARL[] = new int[3];
-                for (int k = 0; k < 3; ++k) {
-                    AR[k] = (int) ((double) (RGB11[k] + RGB12[k]) / 2 + 0.5);
-                    AL[k] = (int) ((double) (RGB11[k] + RGB21[k]) / 2 + 0.5);
-                    ARL[k] = (int) ((double) (RGB11[k] + RGB12[k] + RGB21[k] + RGB22[k]) / 4 + 0.5);
-                }
-                n.setRGB(w_offset, h_offset, rgb11);
-                rgb = AR[2] + AR[1] * 256 + AR[0] * 256 * 256;
-                n.setRGB(w_offset + 1, h_offset, rgb);
-                rgb = AL[2] + AL[1] * 256 + AL[0] * 256 * 256;
-                n.setRGB(w_offset, h_offset + 1, rgb);
-                rgb = ARL[2] + ARL[1] * 256 + ARL[0] * 256 * 256;
-                n.setRGB(w_offset + 1, h_offset + 1, rgb);
-            }
-        }
-
-        _zone_c.setImage(n);
+        _zone_c.setImage(Filters.getDoubleScaleImage(o));
     }
 
     public void onOrderedDithering() {
