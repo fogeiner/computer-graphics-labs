@@ -14,8 +14,8 @@ public class ImageResultPanel extends ImagePanel {
 
 	private static final long serialVersionUID = -3234449880812469456L;
 
-	public ImageResultPanel(String title, FltFrameService frame) {
-        super(title, frame);
+	public ImageResultPanel(String title) {
+        super(title);
     }
 
     @Override

@@ -13,21 +13,24 @@ import javax.swing.JPanel;
  */
 public class ImagePanel extends JPanel {
 
-	private static final long serialVersionUID = -4771755251258011769L;
-	// saved image
+    private static final long serialVersionUID = -4771755251258011769L;
+    // saved image
     private BufferedImage _img = null;
     // background zone title
     private String _title = null;
     // x coordingate of left upeer corner
-
     protected FltFrameService _frame;
 
-    public ImagePanel(String title, FltFrameService frame) {
-        _frame = frame;
+    public ImagePanel(String title) {
+
         _title = title;
         setBackground(FltSettings.PANEL_COLOR);
         setPreferredSize(FltSettings.PANEL_SIZE);
 
+    }
+
+    public void setFrameService(FltFrameService frame) {
+        _frame = frame;
     }
 
     public void setImage(BufferedImage img) {

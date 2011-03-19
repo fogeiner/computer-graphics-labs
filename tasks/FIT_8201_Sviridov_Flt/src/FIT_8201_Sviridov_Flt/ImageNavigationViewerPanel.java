@@ -21,8 +21,8 @@ public class ImageNavigationViewerPanel extends ImagePanel {
     private int _offset_y;
     private boolean _image_chosen;
 
-    public ImageNavigationViewerPanel(String title, FltFrameService frame) {
-        super(title, frame);
+    public ImageNavigationViewerPanel(String title) {
+        super(title);
     }
 
     private static void copySrcIntoDstAt(final BufferedImage src, final BufferedImage dst, final int dx, final int dy) {

@@ -1,25 +1,40 @@
 package FIT_8201_Sviridov_Flt;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import javax.swing.AbstractAction;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFormattedTextField;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSlider;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerDateModel;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.text.NumberFormatter;
 
 import ru.nsu.cg.MainFrame;
 
@@ -31,9 +46,9 @@ import ru.nsu.cg.MainFrame;
 public class FltFrame extends MainFrame implements FltFrameService {
 
     private static final long serialVersionUID = -5961249108882455789L;
-    private ImageNavigationViewerPanel _zone_b = new ImageNavigationViewerPanel("Zone B", this);
-    private ImageNavigationPanel _zone_a = new ImageNavigationPanel("Zone A", _zone_b, this);
-    private ImagePanel _zone_c = new ImageResultPanel("Zone C", this);
+    private ImageNavigationViewerPanel _zone_b = new ImageNavigationViewerPanel("Zone B");
+    private ImageNavigationPanel _zone_a = new ImageNavigationPanel("Zone A", _zone_b);
+    private ImagePanel _zone_c = new ImageResultPanel("Zone C");
     private ImagePanel _zones[] = new ImagePanel[]{_zone_a, _zone_b, _zone_c};
 
     /**
@@ -166,7 +181,10 @@ public class FltFrame extends MainFrame implements FltFrameService {
         });
 
 
-        _zone_a.setFrameService(this);
+        this._zone_a.setFrameService(this);
+        this._zone_b.setFrameService(this);
+        this._zone_c.setFrameService(this);
+
         pack();
         reset();
     }
@@ -184,9 +202,71 @@ public class FltFrame extends MainFrame implements FltFrameService {
         setDocumentName(FltSettings.UNTITLED_DOCUMENT);
     }
 
+    class FloydSteinbergDitheringDialog extends JDialog {
+
+        private JSpinner r = new JSpinner(new SpinnerNumberModel(8, 1, 255, 1));
+        private JSpinner g = new JSpinner(new SpinnerNumberModel(8, 1, 255, 1));
+        private JSpinner b = new JSpinner(new SpinnerNumberModel(4, 1, 255, 1));
+        private JButton ok = new JButton("Apply");
+
+        public void showDialog() {
+            process();
+            setVisible(true);
+        }
+
+        public void process() {
+            BufferedImage o = _zone_b.getImage();
+            _zone_c.setImage(Filters.getFloydSteinbergDitheredImage(o, (Integer) r.getValue(), (Integer) g.getValue(), (Integer) b.getValue()));
+        }
+
+        public FloydSteinbergDitheringDialog() {
+            super(FltFrame.this, "Floyd-Steinberg dithering dialog", true);
+            setLocationRelativeTo(FltFrame.this);
+            setResizable(false);
+            setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
+
+            add(new JLabel("Red:"));
+            add(r);
+            add(new JLabel("Green:"));
+            add(g);
+            add(new JLabel("Blue:"));
+            add(b);
+            add(ok);
+
+            ChangeListener cl = new ChangeListener() {
+
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    process();
+                }
+            };
+
+            for (JSpinner s : new JSpinner[]{r, g, b}) {
+                JComponent editor = s.getEditor();
+                JFormattedTextField textfield = ((JSpinner.DefaultEditor) editor).getTextField();
+                NumberFormatter n_format = (NumberFormatter) textfield.getFormatter();
+                n_format.setCommitsOnValidEdit(true);
+                n_format.setAllowsInvalid(false);
+
+                s.addChangeListener(cl);
+            }
+
+
+            ok.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    setVisible(false);
+                }
+            });
+
+            pack();
+        }
+    }
+    FloydSteinbergDitheringDialog _floyd_steinberg_dialog = new FloydSteinbergDitheringDialog();
+
     public void onFloydSteinbergDithering() {
-        BufferedImage o = _zone_b.getImage();
-        _zone_c.setImage(Filters.getFloydSteinbergDitheredImage(o, 2, 2, 2));
+        _floyd_steinberg_dialog.showDialog();
     }
 
     public void onDoubleScale() {
@@ -205,17 +285,114 @@ public class FltFrame extends MainFrame implements FltFrameService {
         BufferedImage si = Filters.getSharpen5Image(csi);
         _zone_c.setImage(si);
     }
-    private static double _S = 50.0;
+
+    class EdgeDetectionDialog extends JDialog {
+
+        protected int threshold;
+        protected int max_threshold;
+        protected JSlider slider = new JSlider(0, max_threshold, threshold);
+        protected JSpinner spinner = new JSpinner(new SpinnerNumberModel(threshold, 0, max_threshold, 5));
+        protected JButton ok = new JButton("Apply");
+
+        public void showDialog() {
+            process();
+            setVisible(true);
+        }
+
+        public void process() {
+        }
+
+        public EdgeDetectionDialog(String title, int init, int max) {
+            super(FltFrame.this, title, true);
+
+            threshold = init;
+            max_threshold = max;
+
+            slider = new JSlider(0, max_threshold, threshold);
+            spinner = new JSpinner(new SpinnerNumberModel(threshold, 0, max_threshold, 5));
+
+            setLocationRelativeTo(FltFrame.this);
+
+            this.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
+            this.setResizable(false);
+
+            slider.setMajorTickSpacing(max_threshold / 5);
+            slider.setPaintTicks(true);
+            slider.setPaintLabels(true);
+
+            JComponent editor = spinner.getEditor();
+            JFormattedTextField textfield = ((JSpinner.DefaultEditor) editor).getTextField();
+            NumberFormatter n_format = (NumberFormatter) textfield.getFormatter();
+            n_format.setCommitsOnValidEdit(true);
+            n_format.setAllowsInvalid(false);
+
+            spinner.addChangeListener(new ChangeListener() {
+
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    slider.setValue((Integer) ((JSpinner) e.getSource()).getValue());
+                    threshold = slider.getValue();
+                    process();
+                }
+            });
+
+            slider.addChangeListener(new ChangeListener() {
+
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    spinner.setValue((Integer) ((JSlider) e.getSource()).getValue());
+                    threshold = (Integer) spinner.getValue();
+                }
+            });
+            add(slider);
+            add(spinner);
+            add(ok);
+
+            ok.addActionListener(new AbstractAction() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    EdgeDetectionDialog.this.setVisible(false);
+                }
+            });
+            pack();
+        }
+    }
+
+    class SobelDialog extends EdgeDetectionDialog {
+
+        @Override
+        public void process() {
+            BufferedImage o = _zone_b.getImage();
+            _zone_c.setImage(Filters.getSobelImage(o, threshold));
+        }
+
+        public SobelDialog() {
+            super("Sobel threshold dialog", 60, 1020);
+        }
+    }
+    private SobelDialog _sobel_dialog = new SobelDialog();
 
     public void onSobel() {
-        BufferedImage o = _zone_b.getImage();
-        _zone_c.setImage(Filters.getSobelImage(o, _S));
+        _sobel_dialog.showDialog();
     }
-    private double _R = 20.0;
+
+    class RobertsDialog extends EdgeDetectionDialog {
+
+        @Override
+        public void process() {
+            BufferedImage o = _zone_b.getImage();
+            _zone_c.setImage(Filters.getRobertsImage(o, threshold));
+        }
+
+        public RobertsDialog() {
+            super("Roberts threshold dialog", 60, 510);
+        }
+    }
+    private RobertsDialog _roberts_dialog = new RobertsDialog();
 
     public void onRoberts() {
-        BufferedImage o = _zone_b.getImage();
-        _zone_c.setImage(Filters.getRobertsImage(o, _R));
+        _roberts_dialog.showDialog();
     }
 
     public void onBlur() {

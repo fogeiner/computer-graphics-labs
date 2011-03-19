@@ -16,8 +16,8 @@ import java.awt.image.BufferedImage;
  */
 public class ImageNavigationPanel extends ImagePanel {
 
-	private static final long serialVersionUID = -230617714845237734L;
-	// scaled image to be displayed
+    private static final long serialVersionUID = -230617714845237734L;
+    // scaled image to be displayed
     private Image _display_img = null;
     // x coordingate of left upeer corner
     private int _selection_x;
@@ -37,7 +37,6 @@ public class ImageNavigationPanel extends ImagePanel {
     private Stroke _stroke;
     // panel to view original sized part of the image
     private ImageNavigationViewerPanel _viewer_panel;
-    private FltFrameService _frame;
 
     public void startSelecting() {
         Image img = getImage();
@@ -57,12 +56,8 @@ public class ImageNavigationPanel extends ImagePanel {
         _selecting_after_pressed = true;
     }
 
-    public void setFrameService(FltFrameService frame) {
-        _frame = frame;
-    }
-
-    public ImageNavigationPanel(String title, ImageNavigationViewerPanel viewer_panel, FltFrameService frame) {
-        super(title, frame);
+    public ImageNavigationPanel(String title, ImageNavigationViewerPanel viewer_panel) {
+        super(title);
         _viewer_panel = viewer_panel;
 
         class MouseHandler extends MouseAdapter {
