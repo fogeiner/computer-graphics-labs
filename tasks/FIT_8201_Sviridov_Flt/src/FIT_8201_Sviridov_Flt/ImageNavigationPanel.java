@@ -92,7 +92,7 @@ public class ImageNavigationPanel extends ImagePanel {
                 } else if (left_upper_y <= 0) {
                     _selection_y = 1;
                 } else if (right_lower_y > display_height) {
-                    _selection_y = display_height - _selection_height;
+                    _selection_y = display_height - _selection_height - 1;
                 }
 
 //                System.out.println("display width: " + display_width + " display height: " + display_height
@@ -185,8 +185,8 @@ public class ImageNavigationPanel extends ImagePanel {
                 _display_img = img.getScaledInstance(-1, panel_height, scale_opt);
             }
 //            System.out.println("Image after scaling: " + _display_img.getWidth(null) + "x" + _display_img.getHeight(null));
-            _selection_width = (int) ((double) panel_width * _display_img.getWidth(null) / img_width + 0.5);
-            _selection_height = (int) ((double) panel_height * _display_img.getHeight(null) / img_height + 0.5);
+            _selection_width = (int) ((double) panel_width * _display_img.getWidth(null) / img_width + 0.5) - 1;
+            _selection_height = (int) ((double) panel_height * _display_img.getHeight(null) / img_height + 0.5) - 1;
 
 
             _x_ratio = (double) img_width / _display_img.getWidth(null);
@@ -194,26 +194,26 @@ public class ImageNavigationPanel extends ImagePanel {
         } else if (img_width > panel_width) {
             _display_img = img.getScaledInstance(panel_width, -1, scale_opt);
 
-            _selection_height = _display_img.getHeight(null);
+            _selection_height = _display_img.getHeight(null) - 1;
 
             //double ratio = (double) _display_img.getHeight(null) / img_height;
-            _selection_width = (int) ((double) panel_width * _display_img.getWidth(null) / img_width + 0.5);
+            _selection_width = (int) ((double) panel_width * _display_img.getWidth(null) / img_width + 0.5) - 1;
             _x_ratio = (double) img_width / _display_img.getWidth(null);
             _y_ratio = 1;
         } else if (img_height > panel_height) {
             _display_img = img.getScaledInstance(-1, panel_height, scale_opt);
 
-            _selection_width = _display_img.getWidth(null);
+            _selection_width = _display_img.getWidth(null) - 1;
             //double ratio = (double) _display_img.getWidth(null) / img_width;
-            _selection_height = (int) ((double) panel_height * _display_img.getHeight(null) / img_height + 0.5);
+            _selection_height = (int) ((double) panel_height * _display_img.getHeight(null) / img_height + 0.5) - 1;
 
             _x_ratio = 1;
             _y_ratio = (double) img_height / _display_img.getHeight(null);
 
         } else {
             _display_img = img;
-            _selection_height = panel_height;
-            _selection_width = panel_width;
+            _selection_height = panel_height - 1;
+            _selection_width = panel_width - 1;
             _x_ratio = 1;
             _y_ratio = 1;
         }
