@@ -67,7 +67,5 @@ public class ImagePanel extends JPanel {
         } else {
             drawBackgroundTitle(g);
         }
-
-    //    drawBorder(g);
     }
 }

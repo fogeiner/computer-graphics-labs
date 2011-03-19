@@ -80,30 +80,24 @@ public class ImageNavigationPanel extends ImagePanel {
 
                 if (left_upper_x > 0 && right_lower_x < display_width) {
                     _selection_x = left_upper_x;
-                    System.out.println("1");
                 } else if (left_upper_x <= 0) {
                     _selection_x = 0;
-                    System.out.println("2");
                 } else if (right_lower_x >= display_width) {
                     // -1 for rect not to be go beyond right border
-                    _selection_x = display_width - _selection_width ;
-                    System.out.println("3");
+                    _selection_x = display_width - _selection_width;
                 }
 
                 if (left_upper_y > 0 && right_lower_y < display_height) {
                     _selection_y = left_upper_y;
-                    System.out.println("4");
                 } else if (left_upper_y <= 0) {
                     _selection_y = 0;
-                    System.out.println("5");
                 } else if (right_lower_y >= display_height) {
-                    _selection_y = display_height - _selection_height ;
-                    System.out.println("6");
+                    _selection_y = display_height - _selection_height;
                 }
 
-                System.out.println("display width: " + display_width + " display height: " + display_height
-                        + " left_upper_x: " + left_upper_x + " left_upper_y: " + left_upper_y + " right_lower_x: " + right_lower_x
-                        + " right_lower_y: " + right_lower_y + " selection_x: " + _selection_x + " selection_y: " + _selection_y);
+//                System.out.println("display width: " + display_width + " display height: " + display_height
+//                        + " left_upper_x: " + left_upper_x + " left_upper_y: " + left_upper_y + " right_lower_x: " + right_lower_x
+//                        + " right_lower_y: " + right_lower_y + " selection_x: " + _selection_x + " selection_y: " + _selection_y);
 
                 repaint();
             }
@@ -127,7 +121,7 @@ public class ImageNavigationPanel extends ImagePanel {
             @Override
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e);
-                if(_selecting_after_pressed == true){
+                if (_selecting_after_pressed == true) {
                     _selecting_after_pressed = false;
                     _selecting = true;
                     _viewer_panel.setImage(getImage());
@@ -191,8 +185,8 @@ public class ImageNavigationPanel extends ImagePanel {
                 _display_img = img.getScaledInstance(-1, panel_height, scale_opt);
             }
 //            System.out.println("Image after scaling: " + _display_img.getWidth(null) + "x" + _display_img.getHeight(null));
-            _selection_width = (int) ((double) panel_width * _display_img.getWidth(null) / img_width + 0.5) ;
-            _selection_height = (int) ((double) panel_height * _display_img.getHeight(null) / img_height + 0.5) ;
+            _selection_width = (int) ((double) panel_width * _display_img.getWidth(null) / img_width + 0.5);
+            _selection_height = (int) ((double) panel_height * _display_img.getHeight(null) / img_height + 0.5);
 
 
             _x_ratio = (double) img_width / _display_img.getWidth(null);
@@ -200,7 +194,7 @@ public class ImageNavigationPanel extends ImagePanel {
         } else if (img_width > panel_width) {
             _display_img = img.getScaledInstance(panel_width, -1, scale_opt);
 
-            _selection_height = _display_img.getHeight(null) ;
+            _selection_height = _display_img.getHeight(null);
 
             //double ratio = (double) _display_img.getHeight(null) / img_height;
             _selection_width = (int) ((double) panel_width * _display_img.getWidth(null) / img_width + 0.5);
@@ -209,17 +203,17 @@ public class ImageNavigationPanel extends ImagePanel {
         } else if (img_height > panel_height) {
             _display_img = img.getScaledInstance(-1, panel_height, scale_opt);
 
-            _selection_width = _display_img.getWidth(null) ;
+            _selection_width = _display_img.getWidth(null);
             //double ratio = (double) _display_img.getWidth(null) / img_width;
-            _selection_height = (int) ((double) panel_height * _display_img.getHeight(null) / img_height + 0.5) ;
+            _selection_height = (int) ((double) panel_height * _display_img.getHeight(null) / img_height + 0.5);
 
             _x_ratio = 1;
             _y_ratio = (double) img_height / _display_img.getHeight(null);
 
         } else {
             _display_img = img;
-            _selection_height = panel_height ;
-            _selection_width = panel_width ;
+            _selection_height = panel_height;
+            _selection_width = panel_width;
             _x_ratio = 1;
             _y_ratio = 1;
         }
@@ -256,6 +250,5 @@ public class ImageNavigationPanel extends ImagePanel {
             drawBackgroundTitle(g);
         }
 
-    //    drawBorder(g);
     }
 }

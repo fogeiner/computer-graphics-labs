@@ -74,6 +74,41 @@ public class FltFrame extends MainFrame implements FltFrameService {
             addMenuItem("Edit/Select", "Select region", KeyEvent.VK_S, "select.gif", "onSelect");
             addMenuItem("Edit/From C to B", "Copy image fron zone C to zone B",
                     KeyEvent.VK_C, "back.gif", "onFromCtoB");
+
+            addMenuItem("Edit/Grayscale", "Apply black&white (grayscale) filter",
+                    KeyEvent.VK_G, "grayscale.gif", "onGrayscale");
+
+            addMenuItem("Edit/Negative", "Apply negative filter",
+                    KeyEvent.VK_N, "negative.gif", "onNegative");
+
+            addMenuItem("Edit/Floyd-Steinberg dithering", "Apply Floyd-Steinberg dithering filter",
+                    KeyEvent.VK_F, "fs_dithering.gif", "onFloydSteinbergDithering");
+
+            addMenuItem("Edit/Orderted dithering", "Apply ordered dithering filter",
+                    KeyEvent.VK_O, "o_dithering.gif", "onOrderedDithering");
+
+            addMenuItem("Edit/Double scale", "Apply double scale filter",
+                    KeyEvent.VK_D, "scale.gif", "onDoubleScale");
+
+            addMenuItem("Edit/Roberts edge detecting", "Apply Roberts operator edge detection filter",
+                    KeyEvent.VK_R, "roberts.gif", "onRoberts");
+
+            addMenuItem("Edit/Sobel edge detecting", "Apply Sobel operator edge detection filter",
+                    KeyEvent.VK_L, "sobel.gif", "onSobel");
+
+            addMenuItem("Edit/Blur", "Apply blur filter",
+                    KeyEvent.VK_B, "blur.gif", "onBlur");
+
+            addMenuItem("Edit/Sharpen", "Apply sharpen filter",
+                    KeyEvent.VK_S, "sharpen.gif", "onSharpen");
+
+            addMenuItem("Edit/Emboss", "Apply emboss filter",
+                    KeyEvent.VK_E, "emboss.gif", "onEmboss");
+
+
+            addMenuItem("Edit/Aquarelle", "Apply aquarelle filter",
+                    KeyEvent.VK_A, "aquarelle.gif", "onAquarelle");
+
             addSubMenu("Help", KeyEvent.VK_H);
             addMenuItem("Help/About",
                     "View application version and author information",
@@ -85,6 +120,26 @@ public class FltFrame extends MainFrame implements FltFrameService {
             addToolBarSeparator();
             addToolBarButton("Edit/Select");
             addToolBarButton("Edit/From C to B");
+            addToolBarSeparator();
+
+
+            addToolBarButton("Edit/Grayscale");
+            addToolBarButton("Edit/Negative");
+            addToolBarSeparator();
+            addToolBarButton("Edit/Floyd-Steinberg dithering");
+            addToolBarButton("Edit/Orderted dithering");
+            addToolBarSeparator();
+            addToolBarButton("Edit/Double scale");
+            addToolBarSeparator();
+            addToolBarButton("Edit/Roberts edge detecting");
+            addToolBarButton("Edit/Sobel edge detecting");
+            addToolBarSeparator();
+            addToolBarButton("Edit/Blur");
+            addToolBarButton("Edit/Sharpen");
+            addToolBarSeparator();
+            addToolBarButton("Edit/Emboss");
+            addToolBarButton("Edit/Aquarelle");
+
             addToolBarSeparator();
             addToolBarButton("Help/About");
             addToolBarSeparator();
@@ -196,7 +251,7 @@ public class FltFrame extends MainFrame implements FltFrameService {
         return n;
     }
 
-    public void onFloydSteinberg() {
+    public void onFloydSteinbergDithering() {
         BufferedImage o = _zone_b.getImage();
         _zone_c.setImage(getFloydSteinbergDitheredImage(o, 2, 2, 2));
     }
@@ -353,7 +408,7 @@ public class FltFrame extends MainFrame implements FltFrameService {
         return m;
     }
 
-    public void onOrderedDither() {
+    public void onOrderedDithering() {
         BufferedImage o = _zone_b.getImage();
         int m[][] = generateBayerMatrix(4);
         int width = o.getWidth(), height = o.getHeight();
