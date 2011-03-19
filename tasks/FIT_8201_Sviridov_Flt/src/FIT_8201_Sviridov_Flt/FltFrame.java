@@ -34,9 +34,9 @@ import ru.nsu.cg.MainFrame;
  */
 public class FltFrame extends MainFrame implements FltFrameService {
 
-    private ImageNavigationViewerPanel _zone_b = new ImageNavigationViewerPanel("Zone B");
-    private ImageNavigationPanel _zone_a = new ImageNavigationPanel("Zone A", _zone_b);
-    private ImagePanel _zone_c = new ImagePanel("Zone C");
+    private ImageNavigationViewerPanel _zone_b = new ImageNavigationViewerPanel("Zone B", this);
+    private ImageNavigationPanel _zone_a = new ImageNavigationPanel("Zone A", _zone_b, this);
+    private ImagePanel _zone_c = new ImageResultPanel("Zone C", this);
     private ImagePanel _zones[] = new ImagePanel[]{_zone_a, _zone_b, _zone_c};
 
     /**
@@ -167,19 +167,24 @@ public class FltFrame extends MainFrame implements FltFrameService {
                 onExit();
             }
         });
-        setDocumentName(FltSettings.UNTITLED_DOCUMENT);
-        pack();
-        _zone_a.setFrameService(this);
-        setSelectBlocked(true);
-        //setSaveBlocked(true);
-        //setFromCtoBBlocked(true);
-        _zone_b.addMouseListener(new MouseAdapter() {
 
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                onAquarelle();
-            }
-        });
+
+        _zone_a.setFrameService(this);
+        pack();
+        reset();
+    }
+
+    public void reset() {
+        setDocumentName(FltSettings.UNTITLED_DOCUMENT);
+        setSelectBlocked(true);
+        setSaveBlocked(true);
+        setFromCtoBBlocked(true);
+        setFiltersBlocked(true);
+        for (ImagePanel p : _zones) {
+            p.setImage(null);
+        }
+        setSelectBlocked(true);
+        setDocumentName(FltSettings.UNTITLED_DOCUMENT);
     }
 
     public static int[] generateGradations(int n, int count) {
@@ -673,12 +678,7 @@ public class FltFrame extends MainFrame implements FltFrameService {
      * state
      */
     public void onNew() {
-        for (ImagePanel p : _zones) {
-            p.setImage(null);
-        }
-        setSelectBlocked(true);
-        setDocumentName(
-                FltSettings.UNTITLED_DOCUMENT);
+        reset();
     }
 
     /**
@@ -819,6 +819,22 @@ public class FltFrame extends MainFrame implements FltFrameService {
         JMenu edit = (JMenu) menu_bar.getComponent(1);
         edit.getMenuComponent(0).setEnabled(!value);
         toolBar.getComponent(4).setEnabled(!value);
+    }
+
+    @Override
+    public void setFiltersBlocked(boolean value) {
+        JMenuBar menu_bar = getJMenuBar();
+        JMenu edit = (JMenu) menu_bar.getComponent(1);
+        for (int i = 2; i < 13; ++i) {
+            edit.getMenuComponent(i).setEnabled(!value);
+        }
+
+        for (int i = 7; i < 23; ++i) {
+            if (i != 9 && i != 12 && i != 14 && i != 17 && i != 20) {
+                toolBar.getComponent(i).setEnabled(!value);
+            }
+        }
+
     }
 
     @Override

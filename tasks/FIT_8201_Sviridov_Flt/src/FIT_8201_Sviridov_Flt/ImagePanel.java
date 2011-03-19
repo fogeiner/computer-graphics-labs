@@ -19,7 +19,10 @@ public class ImagePanel extends JPanel {
     private String _title = null;
     // x coordingate of left upeer corner
 
-    public ImagePanel(String title) {
+    protected FltFrameService _frame;
+
+    public ImagePanel(String title, FltFrameService frame) {
+        _frame = frame;
         _title = title;
         setBackground(FltSettings.PANEL_COLOR);
         setPreferredSize(FltSettings.PANEL_SIZE);

@@ -20,8 +20,8 @@ public class ImageNavigationViewerPanel extends ImagePanel {
     private int _offset_y;
     private boolean _image_chosen;
 
-    public ImageNavigationViewerPanel(String title) {
-        super(title);
+    public ImageNavigationViewerPanel(String title, FltFrameService frame) {
+        super(title, frame);
     }
 
     private static void copySrcIntoDstAt(final BufferedImage src, final BufferedImage dst, final int dx, final int dy) {
@@ -47,6 +47,15 @@ public class ImageNavigationViewerPanel extends ImagePanel {
         setImage(n);
 
         _image_chosen = true;
+        _frame.setFiltersBlocked(false);
+    }
+
+    @Override
+    public void setImage(BufferedImage img) {
+        super.setImage(img);
+        if (img == null) {
+            _frame.setFiltersBlocked(true);
+        }
     }
 
     public void setImageOffset(int x, int y) {

@@ -61,8 +61,8 @@ public class ImageNavigationPanel extends ImagePanel {
         _frame = frame;
     }
 
-    public ImageNavigationPanel(String title, ImageNavigationViewerPanel viewer_panel) {
-        super(title);
+    public ImageNavigationPanel(String title, ImageNavigationViewerPanel viewer_panel, FltFrameService frame) {
+        super(title, frame);
         _viewer_panel = viewer_panel;
 
         class MouseHandler extends MouseAdapter {

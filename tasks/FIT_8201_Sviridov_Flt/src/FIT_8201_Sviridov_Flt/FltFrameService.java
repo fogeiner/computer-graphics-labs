@@ -13,4 +13,5 @@ public interface FltFrameService {
     public void setSelectBlocked(boolean value);
     public void setFromCtoBBlocked(boolean value);
     public void setSaveBlocked(boolean value);
+    public void setFiltersBlocked(boolean value);
 }
