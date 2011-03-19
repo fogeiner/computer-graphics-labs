@@ -116,7 +116,7 @@ public class FltFrame extends MainFrame implements FltFrameService {
 
             @Override
             public void mouseClicked(MouseEvent e) {
-                onFloydSteinberg();
+                onOrderedDither();
             }
         });
     }
@@ -328,11 +328,11 @@ public class FltFrame extends MainFrame implements FltFrameService {
         _zone_c.setImage(n);
     }
 
-    public static double[][] generateBayerMatrix(int n) {
+    public static int[][] generateBayerMatrix(int n) {
         int dim = 1 << n;
-        double m[][] = new double[dim][dim];
+        int m[][] = new int[dim][dim];
         for (int i = 0; i < dim; ++i) {
-            m[i] = new double[dim];
+            m[i] = new int[dim];
         }
         for (int y = 0; y < dim; ++y) {
             for (int x = 0; x < dim; ++x) {
@@ -341,7 +341,7 @@ public class FltFrame extends MainFrame implements FltFrameService {
                     v |= ((yc >> mask) & 1) << bit++;
                     v |= ((xc >> mask) & 1) << bit++;
                 }
-                m[x][y] = v * 1.0 / (dim * dim);
+                m[x][y] = v;
             }
         }
         return m;
@@ -349,7 +349,7 @@ public class FltFrame extends MainFrame implements FltFrameService {
 
     public void onOrderedDither() {
         BufferedImage o = _zone_b.getImage();
-        double m[][] = generateBayerMatrix(4);
+        int m[][] = generateBayerMatrix(4);
         int width = o.getWidth(), height = o.getHeight();
         BufferedImage n = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         for (int h = 0; h < height; h += m.length) {
@@ -359,7 +359,7 @@ public class FltFrame extends MainFrame implements FltFrameService {
                         int rgb = o.getRGB(w + j, h + i);
                         int RGB[] = {(rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF};
                         for (int k = 0; k < RGB.length; ++k) {
-                            if (RGB[k] / 255.0 <= m[i][j]) {
+                            if (RGB[k] <= m[i][j]) {
                                 RGB[k] = 0;
                             } else {
                                 RGB[k] = 255;
@@ -389,8 +389,7 @@ public class FltFrame extends MainFrame implements FltFrameService {
         int[] gs = new int[size * size];
         int[] bs = new int[size * size];
         for (int h = m; h < height - m; ++h) {
-            for (int w = m; w
-                    < width - m; ++w) {
+            for (int w = m; w < width - m; ++w) {
                 for (int i = 0; i < size; ++i) {
                     for (int j = 0; j < size; ++j) {
                         int rgb = o.getRGB(w + j - m, h + i - m);
@@ -402,7 +401,8 @@ public class FltFrame extends MainFrame implements FltFrameService {
                 Arrays.sort(rs);
                 Arrays.sort(gs);
                 Arrays.sort(bs);
-                int R = rs[size * m], G = gs[size * m], B = bs[size * m];
+                int middle = rs.length / 2;
+                int R = rs[middle], G = gs[middle], B = bs[middle];
                 n.setRGB(w, h, (new Color(R, G, B)).getRGB());
             }
         }
@@ -493,14 +493,14 @@ public class FltFrame extends MainFrame implements FltFrameService {
                 for (int i = 0; i < m.length; ++i) {
                     for (int j = 0; j < m[0].length; ++j) {
                         double r = 0, g = 0, b = 0;
-                        int k = h + i - m.length / 2;
-                        int l = w + j - m[0].length / 2;
-                        if (k >= 0 && k < height && l >= 0 && l < width) {
-                            Color c = new Color(o.getRGB(l, k));
-                            r = c.getRed();
-                            g = c.getGreen();
-                            b = c.getBlue();
-                        }
+                        int k = h + i - m_h;
+                        int l = w + j - m_w;
+
+                        Color c = new Color(o.getRGB(l, k));
+                        r = c.getRed();
+                        g = c.getGreen();
+                        b = c.getBlue();
+
                         R += m[i][j] * r;
                         G += m[i][j] * g;
                         B += m[i][j] * b;
