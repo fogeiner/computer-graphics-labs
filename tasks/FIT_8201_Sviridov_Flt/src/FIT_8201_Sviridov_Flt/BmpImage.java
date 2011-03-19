@@ -43,9 +43,8 @@ public class BmpImage extends BufferedImage {
         IllegalArgumentException exc = new IllegalArgumentException();
 
         BmpImage img = null;
-        int file_size, offset, header_size, width, height, num_of_color_planes,
-                bits_per_pixel, compression, image_size, hor_res, ver_res,
-                num_of_colors, num_of_imp_color;
+        int header_size, width, height, num_of_color_planes,
+                bits_per_pixel, compression;
 
 
         // magic
@@ -59,9 +58,9 @@ public class BmpImage extends BufferedImage {
                 throw exc;
             }
 
-            file_size = ledis.readInt();
+            ledis.readInt();
             ledis.skipBytes(4);
-            offset = ledis.readInt();
+            ledis.readInt();
 
             header_size = ledis.readInt();
             if (header_size != DIB_HEADER_LENGTH) {
@@ -82,11 +81,11 @@ public class BmpImage extends BufferedImage {
                 throw exc;
             }
 
-            image_size = ledis.readInt();
-            hor_res = ledis.readInt();
-            ver_res = ledis.readInt();
-            num_of_colors = ledis.readInt();
-            num_of_imp_color = ledis.readInt();
+            ledis.readInt();
+            ledis.readInt();
+            ledis.readInt();
+            ledis.readInt();
+            ledis.readInt();
 
             img = new BmpImage(width, height);
 
@@ -129,50 +128,50 @@ public class BmpImage extends BufferedImage {
 
         byte pad[] = new byte[4 - (3 * width + 4) % 4];
         int file_size = height * width * 3 + (width % 4 == 0 ? 0 : height * pad.length) + BMP_HEADER_LENGTH + DIB_HEADER_LENGTH;
-        // magic
+  
         try {
             ledos.writeByte('B');
             ledos.writeByte('M');
 
-            //file_size = ledis.readInt();
+            //file_size
             ledos.writeInt(file_size);
 
-            // ledis.skipBytes(4);
+            // skipBytes 4
             ledos.writeInt(0);
 
-            //offset = ledis.readInt();
+            //offset 
             ledos.writeInt(BMP_HEADER_LENGTH + DIB_HEADER_LENGTH);
 
-            // header_size = ledis.readInt();
+            // header_size 
             ledos.writeInt(DIB_HEADER_LENGTH);
 
-            //width = ledis.readInt();
+            //width 
             ledos.writeInt(width);
 
-            // height = ledis.readInt();
+            // height 
             ledos.writeInt(height);
 
 
-            //num_of_color_planes = ledis.readShort();
+            //num_of_color_planes 
             ledos.writeShort(1);
 
-            //bits_per_pixel = ledis.readShort();
+            //bits_per_pixel 
             ledos.writeShort(24);
 
-            //compression = ledis.readInt();
+            //compression 
             ledos.writeInt(0);
 
-            //image_size = ledis.readInt();
+            //image_size 
             ledos.writeInt(file_size - BMP_HEADER_LENGTH - DIB_HEADER_LENGTH);
 
-            // hor_res = ledis.readInt();
+            // hor_res 
             ledos.writeInt(0);
-            // ver_res = ledis.readInt();
+            // ver_res 
             ledos.writeInt(0);
 
-            //num_of_colors = ledis.readInt();
+            //num_of_colors
             ledos.writeInt(0);
-            //num_of_imp_color = ledis.readInt();
+            //num_of_imp_color 
             ledos.writeInt(0);
 
             byte bgr[] = new byte[3];

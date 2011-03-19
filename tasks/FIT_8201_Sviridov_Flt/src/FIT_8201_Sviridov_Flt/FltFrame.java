@@ -5,17 +5,13 @@ import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.Insets;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -24,7 +20,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
-import javax.swing.plaf.ListUI;
+
 import ru.nsu.cg.MainFrame;
 
 /**
@@ -34,7 +30,8 @@ import ru.nsu.cg.MainFrame;
  */
 public class FltFrame extends MainFrame implements FltFrameService {
 
-    private ImageNavigationViewerPanel _zone_b = new ImageNavigationViewerPanel("Zone B", this);
+	private static final long serialVersionUID = -5961249108882455789L;
+	private ImageNavigationViewerPanel _zone_b = new ImageNavigationViewerPanel("Zone B", this);
     private ImageNavigationPanel _zone_a = new ImageNavigationPanel("Zone A", _zone_b, this);
     private ImagePanel _zone_c = new ImageResultPanel("Zone C", this);
     private ImagePanel _zones[] = new ImagePanel[]{_zone_a, _zone_b, _zone_c};

@@ -12,7 +12,9 @@ import java.awt.image.BufferedImage;
  */
 public class ImageResultPanel extends ImagePanel {
 
-    public ImageResultPanel(String title, FltFrameService frame) {
+	private static final long serialVersionUID = -3234449880812469456L;
+
+	public ImageResultPanel(String title, FltFrameService frame) {
         super(title, frame);
     }
 

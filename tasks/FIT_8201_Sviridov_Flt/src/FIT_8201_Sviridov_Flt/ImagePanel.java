@@ -13,7 +13,8 @@ import javax.swing.JPanel;
  */
 public class ImagePanel extends JPanel {
 
-    // saved image
+	private static final long serialVersionUID = -4771755251258011769L;
+	// saved image
     private BufferedImage _img = null;
     // background zone title
     private String _title = null;

@@ -12,11 +12,12 @@ import java.awt.image.BufferedImage;
 
 /**
  *
- * @author admin
+ * @author alstein
  */
 public class ImageNavigationViewerPanel extends ImagePanel {
 
-    private int _offset_x;
+	private static final long serialVersionUID = -2987046765416923007L;
+	private int _offset_x;
     private int _offset_y;
     private boolean _image_chosen;
 
