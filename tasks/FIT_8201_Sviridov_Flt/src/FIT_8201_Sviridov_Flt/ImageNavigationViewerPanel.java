@@ -21,10 +21,21 @@ public class ImageNavigationViewerPanel extends ImagePanel {
 	private int _offset_y;
 	private boolean _image_chosen;
 
+        /**
+         * Constructor with background title
+         * @param title
+         */
 	public ImageNavigationViewerPanel(String title) {
 		super(title);
 	}
 
+        /**
+         * Copies image to another with offset
+         * @param src source image
+         * @param dst destination image
+         * @param dx x offset
+         * @param dy y offset
+         */
 	private static void copySrcIntoDstAt(final BufferedImage src,
 			final BufferedImage dst, final int dx, final int dy) {
 		for (int x = 0; x < src.getWidth(); x++) {
@@ -34,6 +45,9 @@ public class ImageNavigationViewerPanel extends ImagePanel {
 		}
 	}
 
+        /**
+         * Copies a part of currently viewing image and saves
+         */
 	public void fixateImage() {
 		BufferedImage img = getImage();
 		int width = Math.min(getWidth(), img.getWidth(null) - _offset_x);
@@ -63,6 +77,11 @@ public class ImageNavigationViewerPanel extends ImagePanel {
 		}
 	}
 
+        /**
+         * Changes offset of the displayed image
+         * @param x x offset
+         * @param y y offset
+         */
 	public void setImageOffset(int x, int y) {
 		_image_chosen = false;
 		_offset_x = x;

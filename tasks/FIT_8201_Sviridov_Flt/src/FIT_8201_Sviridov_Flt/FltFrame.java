@@ -7,6 +7,8 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
@@ -126,6 +128,15 @@ public class FltFrame extends MainFrame implements FltFrameService {
             addMenuItem("Edit/Aquarelle", "Apply aquarelle filter",
                     KeyEvent.VK_A, "aquarelle.gif", "onAquarelle");
 
+            addMenuItem("Edit/Gamma", "Apply gamma correction",
+                    KeyEvent.VK_G, "gamma.gif", "onGamma");
+
+            addMenuItem("Edit/Brightness", "Apply brightness correction",
+                    KeyEvent.VK_B, "brightness.gif", "onBrightness");
+
+            addMenuItem("Edit/Contrast", "Apply contrast correction",
+                    KeyEvent.VK_A, "contrast.gif", "onContrast");
+
             addSubMenu("Help", KeyEvent.VK_H);
             addMenuItem("Help/About",
                     "View application version and author information",
@@ -155,6 +166,11 @@ public class FltFrame extends MainFrame implements FltFrameService {
             addToolBarSeparator();
             addToolBarButton("Edit/Emboss");
             addToolBarButton("Edit/Aquarelle");
+            addToolBarSeparator();
+
+            addToolBarButton("Edit/Gamma");
+            addToolBarButton("Edit/Brightness");
+            addToolBarButton("Edit/Contrast");
 
             addToolBarSeparator();
             addToolBarButton("Help/About");
@@ -186,6 +202,7 @@ public class FltFrame extends MainFrame implements FltFrameService {
             }
         });
 
+
         this._zone_a.setFrameService(this);
         this._zone_b.setFrameService(this);
         this._zone_c.setFrameService(this);
@@ -194,6 +211,9 @@ public class FltFrame extends MainFrame implements FltFrameService {
         reset();
     }
 
+    /**
+     * Resets application to state with no images loaded and panels blocked
+     */
     public void reset() {
         setDocumentName(FltSettings.UNTITLED_DOCUMENT);
         setSelectBlocked(true);
@@ -207,6 +227,9 @@ public class FltFrame extends MainFrame implements FltFrameService {
         setDocumentName(FltSettings.UNTITLED_DOCUMENT);
     }
 
+    /**
+     * Class represents dialog for Floyd-Steinberg dithering
+     */
     class FloydSteinbergDitheringDialog extends JDialog {
 
         private static final long serialVersionUID = 4639058986330908356L;
@@ -215,11 +238,17 @@ public class FltFrame extends MainFrame implements FltFrameService {
         private JSpinner b = new JSpinner(new SpinnerNumberModel(4, 1, 255, 1));
         private JButton ok = new JButton("Apply");
 
+        /**
+         * Calls process and makes dialog visible
+         */
         public void showDialog() {
             process();
             setVisible(true);
         }
 
+        /**
+         * Applies filter to image
+         */
         public void process() {
             BufferedImage o = _zone_b.getImage();
             _zone_c.setImage(Filters.getFloydSteinbergDitheredImage(o,
@@ -227,6 +256,9 @@ public class FltFrame extends MainFrame implements FltFrameService {
                     (Integer) b.getValue()));
         }
 
+        /**
+         * Default constructor
+         */
         public FloydSteinbergDitheringDialog() {
             super(FltFrame.this, "Floyd-Steinberg dithering dialog", true);
             setLocationRelativeTo(FltFrame.this);
@@ -272,20 +304,32 @@ public class FltFrame extends MainFrame implements FltFrameService {
     }
     FloydSteinbergDitheringDialog _floyd_steinberg_dialog = new FloydSteinbergDitheringDialog();
 
+    /**
+     * Method is called when user chooses Floyd-Steinberg dithering menu item ot corresponsing button on toolbar
+     */
     public void onFloydSteinbergDithering() {
         _floyd_steinberg_dialog.showDialog();
     }
 
+    /**
+     * Method is called when user chooses double scale menu item ot corresponsing button on toolbar
+     */
     public void onDoubleScale() {
         BufferedImage o = _zone_b.getImage();
         _zone_c.setImage(Filters.getDoubleScaleImage(o));
     }
 
+    /**
+     * Method is called when user chooses ordered dithering menu item ot corresponsing button on toolbar
+     */
     public void onOrderedDithering() {
         BufferedImage o = _zone_b.getImage();
         _zone_c.setImage(Filters.getOrderedDitherImage(o));
     }
 
+    /**
+     * Method is called when user chooses aquarelle menu item ot corresponsing button on toolbar
+     */
     public void onAquarelle() {
         BufferedImage o = _zone_b.getImage();
         BufferedImage csi = Filters.getColorSmoothedImage(o, 5);
@@ -293,23 +337,35 @@ public class FltFrame extends MainFrame implements FltFrameService {
         _zone_c.setImage(si);
     }
 
+    /**
+     * Base class for dialogs with slider, spinner and button
+     */
     class SliderSpinnerDialog extends JDialog {
 
         private static final long serialVersionUID = -5016733013958923881L;
         protected int value;
         protected int max_value;
-        protected DoubleJSlider slider;
+        protected JSlider slider;
         protected JSpinner spinner;
         protected JButton ok = new JButton("Apply");
 
+        /**
+         * Calls process and makes dialog visible
+         */
         public void showDialog() {
             process();
             setVisible(true);
         }
 
+        /**
+         * Method to be overriden with actual action. Does nothing.
+         */
         public void process() {
         }
 
+        /**
+         * Inits dialog components
+         */
         private void init() {
             setLocationRelativeTo(FltFrame.this);
 
@@ -342,14 +398,20 @@ public class FltFrame extends MainFrame implements FltFrameService {
             pack();
         }
 
-        public SliderSpinnerDialog(String title, int init, int max) {
+        /**
+         * Constructor
+         * @param title dialog title
+         * @param init init value
+         * @param max max value
+         */
+        public SliderSpinnerDialog(String title, int init, int min, int max) {
             super(FltFrame.this, title, true);
 
             value = init;
             max_value = max;
 
 
-            slider = new DoubleJSlider(0, max_value, value);
+            slider = new JSlider(min, max_value, value);
             spinner = new JSpinner(new SpinnerNumberModel(value, 0,
                     max_value, 5));
             slider.setMajorTickSpacing(max_value / 5);
@@ -376,26 +438,41 @@ public class FltFrame extends MainFrame implements FltFrameService {
         }
     }
 
+    /**
+     * Class represents sobel edge detection filter dialog
+     */
     class SobelDialog extends SliderSpinnerDialog {
 
         private static final long serialVersionUID = -1560130858483233109L;
 
+        /**
+         * Applies filter
+         */
         @Override
         public void process() {
             BufferedImage o = _zone_b.getImage();
             _zone_c.setImage(Filters.getSobelImage(o, value));
         }
 
+        /**
+         * Default constructor
+         */
         public SobelDialog() {
-            super("Sobel threshold dialog", 60, 1020);
+            super("Sobel threshold dialog", 60, 0, 1020);
         }
     }
     private SobelDialog _sobel_dialog = new SobelDialog();
 
+    /**
+     * Method is called when user chooses Sobel edge detection menu item ot corresponsing button on toolbar
+     */
     public void onSobel() {
         _sobel_dialog.showDialog();
     }
 
+    /**
+     * Class represents Sobel edge detection filter dialog
+     */
     class RobertsDialog extends SliderSpinnerDialog {
 
         private static final long serialVersionUID = 8165566545358931694L;
@@ -406,39 +483,146 @@ public class FltFrame extends MainFrame implements FltFrameService {
             _zone_c.setImage(Filters.getRobertsImage(o, value));
         }
 
+        /**
+         * Default constructor
+         */
         public RobertsDialog() {
-            super("Roberts threshold dialog", 60, 510);
+            super("Roberts threshold dialog", 60, 0, 510);
         }
     }
     private RobertsDialog _roberts_dialog = new RobertsDialog();
 
+    /**
+     * Method is called when user chooses Roberts edge detection menu item ot corresponsing button on toolbar
+     */
     public void onRoberts() {
         _roberts_dialog.showDialog();
     }
 
+    /**
+     * Method is called when user chooses blur filter menu item ot corresponsing button on toolbar
+     */
     public void onBlur() {
         BufferedImage o = _zone_b.getImage();
         _zone_c.setImage(Filters.getBlurImage(o));
     }
 
+    /**
+     * Method is called when user chooses emboss filter menu item ot corresponsing button on toolbar
+     */
     public void onEmboss() {
         BufferedImage o = _zone_b.getImage();
         _zone_c.setImage(Filters.getEmbossImage(o));
     }
 
+    /**
+     * Method is called when user chooses sharpen filter menu item ot corresponsing button on toolbar
+     */
     public void onSharpen() {
         BufferedImage o = _zone_b.getImage();
         _zone_c.setImage(Filters.getSharpen3Image(o));
     }
 
+    /**
+     * Method is called when user chooses negative filter menu item ot corresponsing button on toolbar
+     */
     public void onNegative() {
         BufferedImage o = _zone_b.getImage();
         _zone_c.setImage(Filters.getNegativeImage(o));
     }
 
+    /**
+     * Method is called when user chooses grayscale filter menu item ot corresponsing button on toolbar
+     */
     public void onGrayscale() {
         BufferedImage o = _zone_b.getImage();
         _zone_c.setImage(Filters.getGreyscaleImage(o));
+    }
+
+    /**
+     * Class represents gamma filter dialog
+     */
+    class GammaDialog extends SliderSpinnerDialog {
+
+        @Override
+        public void process() {
+            BufferedImage o = _zone_b.getImage();
+            _zone_c.setImage(Filters.getGammaCorrectedImage(o, (double) value / 100));
+        }
+
+        /**
+         * Default constructor
+         */
+        public GammaDialog() {
+            super("Gamma correction dialog", 100, 0, 1000);
+        }
+    }
+    private GammaDialog _gamma_dialog = new GammaDialog();
+
+    /**
+     * Method is called when user chooses grayscale filter menu item ot corresponsing button on toolbar
+     */
+    public void onGamma() {
+        BufferedImage o = _zone_b.getImage();
+        _gamma_dialog.showDialog();
+        ;
+    }
+
+    /**
+     * Class represents brightness filter dialog
+     */
+    class BrightnessDialog extends SliderSpinnerDialog {
+
+        @Override
+        public void process() {
+            BufferedImage o = _zone_b.getImage();
+            _zone_c.setImage(Filters.getBrightnessCorrectedImage(o, (double) value / 100));
+        }
+
+        /**
+         * Default constructor
+         */
+        public BrightnessDialog() {
+            super("Brightness correction dialog", 0, -100, 100);
+        }
+    }
+    private BrightnessDialog _brightness_dialog = new BrightnessDialog();
+
+    /**
+     * Method is called when user chooses grayscale filter menu item ot corresponsing button on toolbar
+     */
+    public void onBrightness() {
+        BufferedImage o = _zone_b.getImage();
+        _brightness_dialog.showDialog();
+    }
+
+    /**
+     * Class represents contrast filter dialog
+     */
+    class ContrastDialog extends SliderSpinnerDialog {
+
+        @Override
+        public void process() {
+            BufferedImage o = _zone_b.getImage();
+            _zone_c.setImage(Filters.getContrastCorrectedImage(o, (double) value / 100));
+        }
+
+        /**
+         * Default constructor
+         */
+        public ContrastDialog() {
+            super("Contrast correction dialog", 100, 0, 1000);
+        }
+    }
+    private ContrastDialog _contrast_dialog = new ContrastDialog();
+
+    /**
+     * Method is called when user chooses grayscale filter menu item ot corresponsing button on toolbar
+     */
+    public void onContrast() {
+        BufferedImage o = _zone_b.getImage();
+        _contrast_dialog.showDialog();
+
     }
 
     /**
@@ -450,6 +634,9 @@ public class FltFrame extends MainFrame implements FltFrameService {
         _zone_b.setImage(img.getSubimage(0, 0, img.getWidth(), img.getHeight()));
     }
 
+    /**
+     * Method is called when user chooses select menu item ot corresponsing button on toolbar
+     */
     public void onSelect() {
         setSelectBlocked(true);
         _zone_a.startSelecting();
@@ -603,12 +790,12 @@ public class FltFrame extends MainFrame implements FltFrameService {
     public void setFiltersBlocked(boolean value) {
         JMenuBar menu_bar = getJMenuBar();
         JMenu edit = (JMenu) menu_bar.getComponent(1);
-        for (int i = 2; i < 13; ++i) {
+        for (int i = 2; i < 16; ++i) {
             edit.getMenuComponent(i).setEnabled(!value);
         }
 
-        for (int i = 7; i < 23; ++i) {
-            if (i != 9 && i != 12 && i != 14 && i != 17 && i != 20) {
+        for (int i = 7; i < 27; ++i) {
+            if (i != 9 && i != 12 && i != 14 && i != 17 && i != 20 && i != 23) {
                 toolBar.getComponent(i).setEnabled(!value);
             }
         }

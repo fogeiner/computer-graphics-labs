@@ -5,11 +5,16 @@ import java.awt.image.BufferedImage;
 import java.util.Arrays;
 
 /**
- * 
+ * Class incapsulates filters
  * @author alstein
  */
 public class Filters {
 
+    /**
+     * Makes grayscale image
+     * @param o image
+     * @return processed image
+     */
     public static BufferedImage getGreyscaleImage(BufferedImage o) {
         int width = o.getWidth(), height = o.getHeight();
         int data[] = o.getRGB(0, 0, width, height, null, 0, width);
@@ -34,6 +39,11 @@ public class Filters {
         return n;
     }
 
+    /**
+     * Makes negative image
+     * @param o image
+     * @return processed image
+     */
     public static BufferedImage getNegativeImage(BufferedImage o) {
         int width = o.getWidth(), height = o.getHeight();
         int data[] = o.getRGB(0, 0, width, height, null, 0, width);
@@ -53,6 +63,101 @@ public class Filters {
         return n;
     }
 
+    /**
+     * Makes gamma corrected image
+     * @param o image
+     * @return processed image
+     */
+    public static BufferedImage getGammaCorrectedImage(BufferedImage o, double gamma) {
+        int width = o.getWidth(), height = o.getHeight();
+        int data[] = o.getRGB(0, 0, width, height, null, 0, width);
+
+        BufferedImage n = new BufferedImage(width, height, o.getType());
+        int n_data[] = n.getRGB(0, 0, width, height, null, 0, width);
+
+        for (int h = 0; h < height; ++h) {
+            for (int w = 0; w < width; ++w) {
+                int rgb = data[h * width + w];
+                int RGB[] = {(rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF};
+                for (int k = 0; k < 3; ++k) {
+                    RGB[k] = (int) (Math.min(255, Math.max(0, (int) (Math.pow(RGB[k] / 255.0, gamma) * 255 + 0.5))));
+                }
+                n_data[h * width + w] = 256 * 256 * RGB[0] + 256 * RGB[1] + RGB[2];
+            }
+        }
+        n.setRGB(0, 0, width, height, n_data, 0, width);
+        return n;
+    }
+
+    private static double saturation(double v) {
+        if (v < 0) {
+            return 0;
+        }
+
+        if (v > 1) {
+            return 1;
+        }
+
+        return v;
+    }
+
+    /**
+     * Makes brightness corrected image
+     * @param o image
+     * @return processed image
+     */
+    public static BufferedImage getContrastCorrectedImage(BufferedImage o, double gamma) {
+        int width = o.getWidth(), height = o.getHeight();
+        int data[] = o.getRGB(0, 0, width, height, null, 0, width);
+
+        BufferedImage n = new BufferedImage(width, height, o.getType());
+        int n_data[] = n.getRGB(0, 0, width, height, null, 0, width);
+
+        for (int h = 0; h < height; ++h) {
+            for (int w = 0; w < width; ++w) {
+                int rgb = data[h * width + w];
+                int RGB[] = {(rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF};
+                for (int k = 0; k < 3; ++k) {
+                    RGB[k] = (int) (Math.min(255, Math.max(0, (int) (saturation((RGB[k] / 255.0 - 0.5) * gamma + 0.5) * 255 + 0.5))));
+                }
+                n_data[h * width + w] = 256 * 256 * RGB[0] + 256 * RGB[1] + RGB[2];
+            }
+        }
+        n.setRGB(0, 0, width, height, n_data, 0, width);
+        return n;
+    }
+
+    /**
+     * Makes brightness corrected image
+     * @param o image
+     * @return processed image
+     */
+    public static BufferedImage getBrightnessCorrectedImage(BufferedImage o, double gamma) {
+        int width = o.getWidth(), height = o.getHeight();
+        int data[] = o.getRGB(0, 0, width, height, null, 0, width);
+
+        BufferedImage n = new BufferedImage(width, height, o.getType());
+        int n_data[] = n.getRGB(0, 0, width, height, null, 0, width);
+
+        for (int h = 0; h < height; ++h) {
+            for (int w = 0; w < width; ++w) {
+                int rgb = data[h * width + w];
+                int RGB[] = {(rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF};
+                for (int k = 0; k < 3; ++k) {
+                    RGB[k] = (int) (Math.min(255, Math.max(0, (int) (saturation(RGB[k] / 255.0 + gamma) * 255 + 0.5))));
+                }
+                n_data[h * width + w] = 256 * 256 * RGB[0] + 256 * RGB[1] + RGB[2];
+            }
+        }
+        n.setRGB(0, 0, width, height, n_data, 0, width);
+        return n;
+    }
+
+    /**
+     * Makes blurred image
+     * @param o image
+     * @return processed image
+     */
     public static BufferedImage getBlurImage(BufferedImage o) {
         double m[][] = new double[][]{
             new double[]{1.0 / 74, 2.0 / 74, 3.0 / 74, 2.0 / 74, 1.0 / 74},
@@ -63,12 +168,22 @@ public class Filters {
         return Filters.applyConvolutionMatrix(o, m, 0, 0, 0);
     }
 
+    /**
+     * Makes embosses image
+     * @param o image
+     * @return processed image
+     */
     public static BufferedImage getEmbossImage(BufferedImage o) {
         double m[][] = new double[][]{new double[]{0, 1, 0},
             new double[]{-1, 0, 1}, new double[]{0, -1, 0}};
         return Filters.applyConvolutionMatrix(o, m, 128, 128, 128);
     }
 
+    /**
+     * Makes Sobel edge detection to image
+     * @param o image
+     * @return processed image
+     */
     public static BufferedImage getSobelImage(BufferedImage o, double threshold) {
         int width = o.getWidth(), height = o.getHeight();
 
@@ -105,6 +220,11 @@ public class Filters {
         return n;
     }
 
+    /**
+     * Makes Roberts edge detection to image
+     * @param o image
+     * @return processed image
+     */
     public static BufferedImage getRobertsImage(BufferedImage o,
             double threshold) {
         int width = o.getWidth(), height = o.getHeight();
@@ -136,12 +256,22 @@ public class Filters {
         return n;
     }
 
+    /**
+     * Makes sharpen image with 3x3 matrix
+     * @param o image
+     * @return processed image
+     */
     public static BufferedImage getSharpen3Image(BufferedImage o) {
         double m[][] = new double[][]{new double[]{0, -1, 0},
             new double[]{-1, 5, -1}, new double[]{0, -1, 0}};
         return Filters.applyConvolutionMatrix(o, m, 0, 0, 0);
     }
 
+    /**
+     * Makes sharpen image with 5x5 matrix
+     * @param o image
+     * @return processed image
+     */
     public static BufferedImage getSharpen5Image(BufferedImage o) {
         double m[][] = new double[][]{new double[]{0, 0, 0, 0, 0},
             new double[]{0, 0, -1, 0, 0},
@@ -150,6 +280,11 @@ public class Filters {
         return Filters.applyConvolutionMatrix(o, m, 0, 0, 0);
     }
 
+    /**
+     * Makes double scaled image
+     * @param o image
+     * @return processed image
+     */
     public static BufferedImage getDoubleScaleImage(BufferedImage o) {
         int o_width = o.getWidth(), o_height = o.getHeight();
         int center_height, center_width;
@@ -215,6 +350,11 @@ public class Filters {
         return n;
     }
 
+    /**
+     * Makes color smoothed image
+     * @param o image
+     * @return processed image
+     */
     public static BufferedImage getColorSmoothedImage(BufferedImage o, int size) {
         int width = o.getWidth(), height = o.getHeight();
         int data[] = o.getRGB(0, 0, width, height, null, 0, width);
@@ -266,6 +406,11 @@ public class Filters {
         return n;
     }
 
+    /**
+     * Generated Bayer matrix
+     * @param n 2^n is the size
+     * @return Bayer matrix
+     */
     public static int[][] generateBayerMatrix(int n) {
         int dim = 1 << n;
         int m[][] = new int[dim][dim];
@@ -285,6 +430,11 @@ public class Filters {
         return m;
     }
 
+    /**
+     * Makes ordered dithered image
+     * @param o image
+     * @return processed image
+     */
     public static BufferedImage getOrderedDitherImage(BufferedImage o) {
         int width = o.getWidth(), height = o.getHeight();
         int data[] = o.getRGB(0, 0, width, height, null, 0, width);
@@ -320,6 +470,12 @@ public class Filters {
         return n;
     }
 
+    /**
+     * Generates gradations
+     * @param n number
+     * @param count number of gradations
+     * @return gradations
+     */
     public static int[] generateGradations(int n, int count) {
         if (count < 0) {
             throw new IllegalArgumentException("count is not negative");
@@ -340,6 +496,12 @@ public class Filters {
         return a;
     }
 
+    /**
+     * Finds closest number in arrays of gradations
+     * @param n number
+     * @param g gradations
+     * @return closest number
+     */
     public static int findClosestInGradation(int n, int g[]) {
         int dif = Integer.MAX_VALUE;
         int closest = Integer.MAX_VALUE;
@@ -353,6 +515,11 @@ public class Filters {
         return closest;
     }
 
+    /**
+     * Makes Floyd-Steinberg dithered image
+     * @param o image
+     * @return processed image
+     */
     public static BufferedImage getFloydSteinbergDitheredImage(BufferedImage o,
             int r_count, int g_count, int b_count) {
         int width = o.getWidth(), height = o.getHeight();
@@ -400,6 +567,15 @@ public class Filters {
         return n;
     }
 
+    /**
+     * Applies convolution matrix to image
+     * @param o original image
+     * @param m convolution matrix
+     * @param r_s number to be added to R component
+     * @param g_s number to be added to G component
+     * @param b_s number to be added to B component
+     * @return processed image
+     */
     public static BufferedImage applyConvolutionMatrix(BufferedImage o,
             double m[][], double r_s, double g_s, double b_s) {
         int width = o.getWidth(), height = o.getHeight();
