@@ -388,6 +388,8 @@ public class Filters {
 							errors[k][w - 1][h + 1] = ((double) 3 / 16 * error);
 						}
 					}
+
+                                        RGB[k] = Math.min(Math.max(0, RGB[k]), 255);
 				}
 				rgb = RGB[2] + RGB[1] * 256 + RGB[0] * 256 * 256;
 				n_data[h * width + w] = rgb;
