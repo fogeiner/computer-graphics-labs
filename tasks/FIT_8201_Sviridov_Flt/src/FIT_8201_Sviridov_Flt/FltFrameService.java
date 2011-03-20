@@ -5,13 +5,16 @@
 package FIT_8201_Sviridov_Flt;
 
 /**
- *
+ * 
  * @author admin
  */
 public interface FltFrameService {
 
-    public void setSelectBlocked(boolean value);
-    public void setFromCtoBBlocked(boolean value);
-    public void setSaveBlocked(boolean value);
-    public void setFiltersBlocked(boolean value);
+	public void setSelectBlocked(boolean value);
+
+	public void setFromCtoBBlocked(boolean value);
+
+	public void setSaveBlocked(boolean value);
+
+	public void setFiltersBlocked(boolean value);
 }
