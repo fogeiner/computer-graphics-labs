@@ -18,7 +18,7 @@ public class ImageNavigationPanel extends ImagePanel {
 
 	private static final long serialVersionUID = -230617714845237734L;
 	// scaled image to be displayed
-	private Image _display_img = null;
+	private transient Image _display_img = null;
 	// x coordingate of left upeer corner
 	private int _selection_x;
 	// y coordinate of left upper corner of selection
@@ -34,7 +34,7 @@ public class ImageNavigationPanel extends ImagePanel {
 	// selecting region
 	private boolean _selecting = false;
 	// Stroke for dashed rectangle
-	private Stroke _stroke;
+	private transient Stroke _stroke;
 	// panel to view original sized part of the image
 	private ImageNavigationViewerPanel _viewer_panel;
 
@@ -161,11 +161,10 @@ public class ImageNavigationPanel extends ImagePanel {
 	}
 
 	@Override
-	public void setImage(BufferedImage new_img) {
-		super.setImage(new_img);
+	public void setImage(BufferedImage img) {
+		super.setImage(img);
 		_selecting = false;
 
-		BufferedImage img = this.getImage();
 
 		if (img == null) {
 			_display_img = null;

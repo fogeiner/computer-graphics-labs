@@ -160,9 +160,10 @@ public class FltFrame extends MainFrame implements FltFrameService {
 			addToolBarButton("Help/About");
 			addToolBarSeparator();
 			addToolBarButton("File/Exit");
-		} catch (Exception ex) {
-			System.err.println(ex.toString());
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
 		}
+
 		toolBar.setFloatable(false);
 		JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
 		panel.setBorder(new EmptyBorder(FltSettings.PANEL_PADDING, 0,
@@ -300,9 +301,8 @@ public class FltFrame extends MainFrame implements FltFrameService {
 		private static final long serialVersionUID = -5016733013958923881L;
 		protected int threshold;
 		protected int max_threshold;
-		protected JSlider slider = new JSlider(0, max_threshold, threshold);
-		protected JSpinner spinner = new JSpinner(new SpinnerNumberModel(
-				threshold, 0, max_threshold, 5));
+		protected JSlider slider;
+		protected JSpinner spinner;
 		protected JButton ok = new JButton("Apply");
 
 		public void showDialog() {

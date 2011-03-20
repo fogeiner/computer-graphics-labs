@@ -322,11 +322,16 @@ public class Filters {
 	}
 
 	public static int[] generateGradations(int n, int count) {
+		if (count < 0)
+			throw new IllegalArgumentException("count is not negative");
+
 		int a[] = new int[count];
-		if (count == 1) {
+		if (count == 0) {
+			return new int[0];
+		} else if (count == 1) {
 			a[0] = n / 2;
 		} else {
-			double step = n / (count - 1);
+			double step = (double)n / (count - 1);
 			for (int i = 0; i < count; ++i) {
 				// +0.5 is NOT needed
 				a[i] = (int) (i * step);
