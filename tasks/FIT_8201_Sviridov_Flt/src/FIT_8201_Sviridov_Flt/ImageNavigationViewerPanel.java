@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package FIT_8201_Sviridov_Flt;
 
 import java.awt.Color;
@@ -11,7 +7,7 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 
 /**
- * 
+ * Image navigation viewer panel class
  * @author alstein
  */
 public class ImageNavigationViewerPanel extends ImagePanel {

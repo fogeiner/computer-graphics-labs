@@ -5,7 +5,7 @@ import java.awt.image.BufferedImage;
 import java.util.Arrays;
 
 /**
- * Class incapsulates filters
+ * Class encapsulates filters
  * @author alstein
  */
 public class Filters {

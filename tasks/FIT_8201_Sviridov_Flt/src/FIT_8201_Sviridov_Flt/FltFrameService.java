@@ -1,8 +1,8 @@
 package FIT_8201_Sviridov_Flt;
 
 /**
- * Class incapsulates app frame service interface
- * @author admin
+ * Class encapsulates app frame service interface
+ * @author alstein
  */
 public interface FltFrameService {
 

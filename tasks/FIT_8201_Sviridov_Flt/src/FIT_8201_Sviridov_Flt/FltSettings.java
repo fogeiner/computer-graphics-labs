@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 
 /**
- * 
+ * Interface encapsulates app settings
  * @author alstein
  */
 public interface FltSettings {

@@ -11,7 +11,7 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
 /**
- * 
+ * Image navigation panel class
  * @author alstein
  */
 public class ImageNavigationPanel extends ImagePanel {
