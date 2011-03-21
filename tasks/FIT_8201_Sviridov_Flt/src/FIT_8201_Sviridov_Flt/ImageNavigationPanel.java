@@ -18,7 +18,7 @@ public class ImageNavigationPanel extends ImagePanel {
 
     private static final long serialVersionUID = -230617714845237734L;
     // scaled image to be displayed
-    private transient Image _display_img = null;
+    private transient Image _display_img;
     // x coordingate of left upeer corner
     private int _selection_x;
     // y coordinate of left upper corner of selection
@@ -30,7 +30,7 @@ public class ImageNavigationPanel extends ImagePanel {
     // selection height
     private int _selection_height;
     // selecting should be started after click
-    private boolean _selecting_after_pressed = false;
+    private boolean _selecting_after_pressed;
     // selecting region
     private boolean _selecting = false;
     // Stroke for dashed rectangle

@@ -233,7 +233,7 @@ public class FltFrame extends MainFrame implements FltFrameService {
 		private JSpinner r = new JSpinner(new SpinnerNumberModel(8, 1, 255, 1));
 		private JSpinner g = new JSpinner(new SpinnerNumberModel(8, 1, 255, 1));
 		private JSpinner b = new JSpinner(new SpinnerNumberModel(4, 1, 255, 1));
-		private JButton ok = new JButton("Apply");
+		private JButton ok = new JButton("Close");
 
 		/**
 		 * Calls process and makes dialog visible
@@ -351,7 +351,7 @@ public class FltFrame extends MainFrame implements FltFrameService {
 		protected int max_value;
 		protected JSlider slider;
 		protected JSpinner spinner;
-		protected JButton ok = new JButton("Apply");
+		protected JButton ok = new JButton("Close");
 
 		/**
 		 * Calls process and makes dialog visible
