@@ -27,9 +27,9 @@ public class Filters {
                 int rgb = data[h * width + w];
                 int RGB[] = {(rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF};
 
-                double R = RGB[0] / 255.0, G = RGB[1] / 255.0, B = RGB[2] / 255.0;
+                int R = RGB[0], G = RGB[1], B = RGB[2];
 
-                int y = (int) (((double) 0.299 * R + 0.587 * G + 0.114 * B) * 255 + 0.5);
+                int y = (int) ((0.299 * R + 0.587 * G + 0.114 * B) + 0.5);
 
                 n_data[h * width + w] = 256 * (256 * y + y) + y;
             }
