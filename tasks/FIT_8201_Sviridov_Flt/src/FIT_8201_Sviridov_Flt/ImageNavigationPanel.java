@@ -1,14 +1,18 @@
 package FIT_8201_Sviridov_Flt;
 
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Stroke;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import javax.swing.Timer;
 
 /**
  * Image navigation panel class
@@ -35,7 +39,12 @@ public class ImageNavigationPanel extends ImagePanel {
     private boolean _selecting = false;
     // Stroke for dashed rectangle
     private transient Stroke _stroke;
+    // Color for selection rectange
+    private Color _color;
+    // Timer for selection rectange color change
+    private Timer _timer;
     // panel to view original sized part of the image
+
     private ImageNavigationViewerPanel _viewer_panel;
 
     /**
@@ -69,6 +78,24 @@ public class ImageNavigationPanel extends ImagePanel {
         super(title);
         _viewer_panel = viewer_panel;
 
+        _timer = new Timer(200, new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (_color == null) {
+                    _color = Color.gray;
+                    return;
+                }
+
+                if (_color == Color.white) {
+                    _color = Color.gray;
+                } else {
+                    _color = Color.white;
+                }
+
+                repaint();
+            }
+        });
         class MouseHandler extends MouseAdapter {
 
             private void updateSelection(MouseEvent e) {
@@ -135,6 +162,8 @@ public class ImageNavigationPanel extends ImagePanel {
                     return;
                 }
 
+                _timer.start();
+
                 updateSelection(e);
                 _viewer_panel.setImageOffset(
                         (int) (_selection_x * _x_ratio + 0.5),
@@ -151,6 +180,7 @@ public class ImageNavigationPanel extends ImagePanel {
                 _viewer_panel.fixateImage();
                 _frame.setSelectBlocked(false);
 
+                _timer.stop();
                 repaint();
             }
         }
@@ -240,7 +270,9 @@ public class ImageNavigationPanel extends ImagePanel {
                             BasicStroke.JOIN_BEVEL, 10, new float[]{5, 3}, 0);
                 }
                 Stroke old_stroke = g.getStroke();
+                g.setColor(_color);
                 g.setStroke(_stroke);
+
                 g.drawRect(_selection_x, _selection_y, _selection_width - 1,
                         _selection_height - 1);
                 g.setStroke(old_stroke);

@@ -48,20 +48,19 @@ public class ImageNavigationViewerPanel extends ImagePanel {
 		BufferedImage img = getImage();
 		int width = Math.min(getWidth(), img.getWidth(null) - _offset_x);
 		int height = Math.min(getHeight(), img.getHeight(null) - _offset_y);
-		// setImage(getImage().getSubimage(_offset_x, _offset_y, width,
-		// height));
-
+                
 		BufferedImage n = new BufferedImage(FltSettings.PANEL_WIDTH,
 				FltSettings.PANEL_HEIGHT, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = n.createGraphics();
 		g.setColor(Color.white);
-		g.fillRect(0, 0, FltSettings.FRAME_WIDTH, FltSettings.FRAME_HEIGHT);
+		g.fillRect(0, 0, FltSettings.PANEL_WIDTH, FltSettings.PANEL_HEIGHT);
 
 		copySrcIntoDstAt(img.getSubimage(_offset_x, _offset_y, width, height),
 				n, 0, 0);
 		setImage(n);
 
 		_image_chosen = true;
+                _frame.setFromBtoCBlocked(false);
 		_frame.setFiltersBlocked(false);
 	}
 

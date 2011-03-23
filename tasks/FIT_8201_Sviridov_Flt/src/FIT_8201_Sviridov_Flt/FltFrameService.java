@@ -19,6 +19,12 @@ public interface FltFrameService {
     public void setFromCtoBBlocked(boolean value);
 
     /**
+     * Blocks/unblocks B to C menu entry/button
+     * @param value new value
+     */
+    public void setFromBtoCBlocked(boolean value);
+
+    /**
      * Blocks/unblocks save menu entry/button
      * @param value new value
      */
@@ -29,4 +35,14 @@ public interface FltFrameService {
      * @param value new value
      */
     public void setFiltersBlocked(boolean value);
+
+    /**
+     * Method to set/unset modified flag
+     */
+    public void setModified(boolean value);
+
+    /**
+     * Returns true if file needs saving after being modified, false otherwise
+     */
+    public boolean isModified();
 }

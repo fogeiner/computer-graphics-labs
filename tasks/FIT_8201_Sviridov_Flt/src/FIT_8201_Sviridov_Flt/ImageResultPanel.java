@@ -27,6 +27,7 @@ public class ImageResultPanel extends ImagePanel {
         } else {
             _frame.setFromCtoBBlocked(false);
             _frame.setSaveBlocked(false);
+            _frame.setModified(true);
         }
     }
 }
