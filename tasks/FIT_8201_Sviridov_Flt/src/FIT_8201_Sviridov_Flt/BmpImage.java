@@ -44,7 +44,7 @@ public class BmpImage extends BufferedImage {
          *
          * DIB size of header 4b|width 4b|height 4b| num of color planes 2b|num
          * of bits per pixel 2b| compression 4b|image size 4b| hor res 4b| ver
-         * res 4b|num of colors in color palette 4b| num of imp. colors 4b
+         * res 4b|num of colors in color pallete 4b| num of imp. colors 4b
          */
         FileInputStream fis = new FileInputStream(file);
         BufferedInputStream bis = new BufferedInputStream(fis);
