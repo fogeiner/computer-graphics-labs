@@ -39,4 +39,9 @@
         </javac>
     </target>
     <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
+    <target name="FltFrame">
+        <java classname="FIT_8201_Sviridov_Flt.FltFrame" failonerror="true" fork="yes">
+            <classpath refid="FIT_8201_Sviridov_Flt.classpath"/>
+        </java>
+    </target>
 </project>
