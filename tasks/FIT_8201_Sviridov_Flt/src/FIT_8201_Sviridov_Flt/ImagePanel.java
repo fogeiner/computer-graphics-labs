@@ -18,7 +18,7 @@ public class ImagePanel extends JPanel {
     private BufferedImage _img = null;
     // background zone title
     private String _title = null;
-    // x coordingate of left upeer corner
+    // x coordinate of left upper corner
     protected FltFrameService _frame;
 
     /**

@@ -7,6 +7,7 @@ import java.nio.ByteOrder;
 
 /**
  * Wrapper for DataOutputStream converting values to little endian format
+ * 
  * @author alstein
  */
 public class LittleEndianDataOutputStream {

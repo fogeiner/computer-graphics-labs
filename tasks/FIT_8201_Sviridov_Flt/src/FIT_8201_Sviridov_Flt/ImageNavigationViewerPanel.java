@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage;
 
 /**
  * Image navigation viewer panel class
+ * 
  * @author alstein
  */
 public class ImageNavigationViewerPanel extends ImagePanel {
@@ -17,21 +18,27 @@ public class ImageNavigationViewerPanel extends ImagePanel {
 	private int _offset_y;
 	private boolean _image_chosen;
 
-        /**
-         * Constructor with background title
-         * @param title
-         */
+	/**
+	 * Constructor with background title
+	 * 
+	 * @param title
+	 */
 	public ImageNavigationViewerPanel(String title) {
 		super(title);
 	}
 
-        /**
-         * Copies image to another with offset
-         * @param src source image
-         * @param dst destination image
-         * @param dx x offset
-         * @param dy y offset
-         */
+	/**
+	 * Copies image to another with offset
+	 * 
+	 * @param src
+	 *            source image
+	 * @param dst
+	 *            destination image
+	 * @param dx
+	 *            x offset
+	 * @param dy
+	 *            y offset
+	 */
 	private static void copySrcIntoDstAt(final BufferedImage src,
 			final BufferedImage dst, final int dx, final int dy) {
 		for (int x = 0; x < src.getWidth(); x++) {
@@ -41,14 +48,14 @@ public class ImageNavigationViewerPanel extends ImagePanel {
 		}
 	}
 
-        /**
-         * Copies a part of currently viewing image and saves
-         */
+	/**
+	 * Copies a part of currently viewing image and saves
+	 */
 	public void fixateImage() {
 		BufferedImage img = getImage();
 		int width = Math.min(getWidth(), img.getWidth(null) - _offset_x);
 		int height = Math.min(getHeight(), img.getHeight(null) - _offset_y);
-                
+
 		BufferedImage n = new BufferedImage(FltSettings.PANEL_WIDTH,
 				FltSettings.PANEL_HEIGHT, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = n.createGraphics();
@@ -60,7 +67,7 @@ public class ImageNavigationViewerPanel extends ImagePanel {
 		setImage(n);
 
 		_image_chosen = true;
-                _frame.setFromBtoCBlocked(false);
+		_frame.setFromBtoCBlocked(false);
 		_frame.setFiltersBlocked(false);
 	}
 
@@ -72,11 +79,14 @@ public class ImageNavigationViewerPanel extends ImagePanel {
 		}
 	}
 
-        /**
-         * Changes offset of the displayed image
-         * @param x x offset
-         * @param y y offset
-         */
+	/**
+	 * Changes offset of the displayed image
+	 * 
+	 * @param x
+	 *            x offset
+	 * @param y
+	 *            y offset
+	 */
 	public void setImageOffset(int x, int y) {
 		_image_chosen = false;
 		_offset_x = x;
