@@ -26,43 +26,51 @@ public class Vector {
 
     static public final double DEFAULT_DX = 0.3;
     static public final double DEFAULT_DY = 0.15;
-    static public final double DEFAULT_ARROW_THRESHOLD = 5;
-    
-    private double _arrow_threshold = DEFAULT_ARROW_THRESHOLD;
+    static public final double DEFAULT_ARROW_THRESHOLD = 7;
+    private double _length_threshold = DEFAULT_ARROW_THRESHOLD;
     private Point _start;
     private Point _end;
     private double _dx = DEFAULT_DX;
     private double _dy = DEFAULT_DY;
     private Stroke _stroke;
-    private Path2D _path;
+    private Path2D _open_arrow;
+    private Path2D _closed_arrow;
+    private Path2D _line;
     private Color _color;
+    private boolean _filled;
 
     private void computePath() {
-        Point2D vector = new Point2D.Double(
-                _end.getX() - _start.getX(),
-                _end.getY() - _start.getY());
 
-        double length = Math.sqrt(
-                vector.getX() * vector.getX()
-                + vector.getY() * vector.getY());
+        Point vector = new Point(_end.x - _start.x, _end.y - _start.y);
+        Point n = new Point(-vector.y, vector.x);
+        double length = Math.sqrt(vector.x * vector.x + vector.y * vector.y);
 
-        Point2D n = new Point2D.Double(
-                -vector.getY(), vector.getX());
         Point2D p = new Point2D.Double(
-                _end.getX() - _dx * vector.getX(), _end.getY() - _dx * vector.getY());
+                _end.x - _dx * vector.x, _end.y - _dx * vector.y);
 
         Point p1 = new Point(
-                (int) (p.getX() + _dy * n.getX() + 0.5), (int) (p.getY() + _dy * n.getY() + 0.5));
+                (int) (p.getX() + _dy * n.x + 0.5), (int) (p.getY() + _dy * n.y + 0.5));
         Point p2 = new Point(
-                (int) (p.getX() - _dy * n.getX() + 0.5), (int) (p.getY() - _dy * n.getY() + 0.5));
+                (int) (p.getX() - _dy * n.x + 0.5), (int) (p.getY() - _dy * n.y + 0.5));
 
-        _path = new Path2D.Double();
-        _path.moveTo(_start.getX(), _start.getY());
-        _path.lineTo(_end.getX(), _end.getY());
-        if (length > _arrow_threshold) {
-            _path.moveTo(p1.getX(), p1.getY());
-            _path.lineTo(_end.getX(), _end.getY());
-            _path.lineTo(p2.getX(), p2.getY());
+        _open_arrow = new Path2D.Double();
+        _closed_arrow = new Path2D.Double();
+        _line = new Path2D.Double();
+
+
+        _line.moveTo(_start.x, _start.y);
+        _line.lineTo(_end.x, _end.y);
+
+
+        if (length > _length_threshold) {
+            _open_arrow.moveTo(p1.getX(), p1.getY());
+            _open_arrow.lineTo(_end.x, _end.y);
+            _open_arrow.lineTo(p2.getX(), p2.getY());
+
+            _closed_arrow.moveTo(p1.getX(), p1.getY());
+            _closed_arrow.lineTo(_end.x, _end.y);
+            _closed_arrow.lineTo(p2.getX(), p2.getY());
+            _closed_arrow.closePath();
         }
     }
 
@@ -73,12 +81,20 @@ public class Vector {
         computePath();
     }
 
+    public boolean isFilled() {
+        return _filled;
+    }
+
+    public void setFilled(boolean filled) {
+        this._filled = filled;
+    }
+
     public double getArrowThreshold() {
-        return _arrow_threshold;
+        return _length_threshold;
     }
 
     public void setArrowThreshold(double arrow_threshold) {
-        this._arrow_threshold = arrow_threshold;
+        this._length_threshold = arrow_threshold;
         computePath();
     }
 
@@ -128,13 +144,24 @@ public class Vector {
 
     public void draw(Graphics2D g) {
         if (_stroke == null) {
-            _stroke = new BasicStroke(1.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER, 5.0f);
+            _stroke = new BasicStroke(1.0f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_BEVEL, 0.0f);
+
         }
+
+
         Stroke old_stroke = g.getStroke();
-        g.setStroke(_stroke);
         g.setColor(_color);
 
-        g.draw(_path);
+        g.setStroke(_stroke);
+
+        if (_filled) {
+            g.fill(_closed_arrow);
+            g.draw(_closed_arrow);
+            g.draw(_line);
+        } else {
+            g.draw(_line);
+            g.draw(_open_arrow);
+        }
 
         g.setStroke(old_stroke);
     }
@@ -146,6 +173,18 @@ public class Vector {
 
             public Canvas() {
                 setBackground(Color.white);
+
+
+                Vector v = new Vector(new Point(2, 4), new Point(10, 4));
+                v.setColor(Color.red);
+                _vectors.add(v);
+                v = new Vector(new Point(4, 8), new Point(12, 8));
+                v.setColor(Color.blue);
+                _vectors.add(v);
+                v = new Vector(new Point(6, 12), new Point(14, 12));
+                v.setColor(Color.cyan);
+
+                _vectors.add(v);
                 addMouseListener(new MouseAdapter() {
 
                     private Point _start;
@@ -159,7 +198,16 @@ public class Vector {
                     @Override
                     public void mouseReleased(MouseEvent e) {
                         super.mouseReleased(e);
-                        addVector(new Vector(_start, e.getPoint()));
+                        Vector v = new Vector(_start, e.getPoint());
+                        if (e.getButton() == MouseEvent.BUTTON1) {
+                            v.setFilled(false);
+                        } else if (e.getButton() == MouseEvent.BUTTON3) {
+                            v.setFilled(true);
+                        } else {
+                            return;
+                        }
+
+                        addVector(v);
                         repaint();
                     }
                 });
@@ -174,6 +222,8 @@ public class Vector {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g;
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_NORMALIZE);
+                g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
                 for (Vector v : _vectors) {
                     v.draw(g2);
                 }
@@ -186,6 +236,5 @@ public class Vector {
         frame.add(new Canvas(), BorderLayout.CENTER);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
-
     }
 }

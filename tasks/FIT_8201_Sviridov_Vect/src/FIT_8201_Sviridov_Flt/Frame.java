@@ -30,8 +30,8 @@ public class Frame extends MainFrame implements FrameService {
      * @param name
      *            first part of application title
      */
-    private void setDocumentName(String name) {
-        setTitle(name + " - " + Settings.NAME);
+    public void setTitle(String name) {
+        super.setTitle(name + " - " + Settings.NAME);
     }
 
     /**
@@ -56,7 +56,24 @@ public class Frame extends MainFrame implements FrameService {
             addMenuItem("File/Exit", "Exit application", KeyEvent.VK_X,
                     "exit.gif", "onExit");
             addSubMenu("Edit", KeyEvent.VK_E);
+            addMenuItem("Edit/Grid", "Show/hide grid", KeyEvent.VK_G,
+                    "grid.gif", "onGrid");
+            addMenuItem("Edit/Color field mode", "Set field to color mode", KeyEvent.VK_C,
+                    "color_arrows.gif", "onColorField");
+            addMenuItem("Edit/B&W field mode", "Set field to black and white mode", KeyEvent.VK_B,
+                    "bw_arrows.gif", "onBWField");
+            addMenuItem("Edit/Plain arrow mode", "Set arrow to plain mode", KeyEvent.VK_P,
+                    "plain_arrow.gif", "onPlainArrow");
+            addMenuItem("Edit/Filled arrow mode", "Set arrow to filled mode", KeyEvent.VK_F,
+                    "filled_arrow.gif", "onFilledArrow");
+            addMenuItem("Edit/Zoom in", "Zoom in", KeyEvent.VK_I,
+                    "zoom_in.gif", "onZoomIn");
+            addMenuItem("Edit/Zoom out", "Zoom out", KeyEvent.VK_O,
+                    "zoom_out.gif", "onZoomOut");
+            addMenuItem("Edit/Settings", "Show settings dialog", KeyEvent.VK_S,
+                    "settings.gif", "onSettings");
             addSubMenu("Help", KeyEvent.VK_H);
+
             addMenuItem("Help/About",
                     "View application version and author information",
                     KeyEvent.VK_A, "about.gif", "onAbout");
@@ -65,6 +82,18 @@ public class Frame extends MainFrame implements FrameService {
             addToolBarButton("File/Load");
             addToolBarButton("File/Save as...");
             addToolBarSeparator();
+            addToolBarButton("Edit/Grid");
+            addToolBarSeparator();
+            addToolBarButton("Edit/Color field mode");
+            addToolBarButton("Edit/B&W field mode");
+            addToolBarSeparator();
+            addToolBarButton("Edit/Plain arrow mode");
+            addToolBarButton("Edit/Filled arrow mode");
+            addToolBarSeparator();
+            addToolBarButton("Edit/Zoom in");
+            addToolBarButton("Edit/Zoom out");
+            addToolBarSeparator();
+            addToolBarButton("Edit/Settings");
             addToolBarSeparator();
             addToolBarButton("Help/About");
             addToolBarSeparator();
@@ -87,11 +116,35 @@ public class Frame extends MainFrame implements FrameService {
         reset();
     }
 
+    public void onGrid() {
+    }
+
+    public void onColorField() {
+    }
+
+    public void onBWField() {
+    }
+
+    public void onPlainArrow() {
+    }
+
+    public void onFilledArrow() {
+    }
+
+    public void onZoomIn() {
+    }
+
+    public void onZoomOut() {
+    }
+
+    public void onSettings() {
+    }
+
     /**
      * Resets application to state with no images loaded and panels blocked
      */
     public void reset() {
-        setDocumentName(Settings.UNTITLED_DOCUMENT);
+        setTitle(Settings.UNTITLED_DOCUMENT);
         setModified(false);
     }
 
@@ -223,19 +276,19 @@ public class Frame extends MainFrame implements FrameService {
             if (file == null) {
                 return;
             }
-            setDocumentName(file.getName());
+            setTitle(file.getName());
         } catch (IllegalArgumentException ex) {
             System.out.println(ex);
             JOptionPane.showMessageDialog(this,
                     "Document is of unknown format", "Loading document",
                     JOptionPane.ERROR_MESSAGE);
-            setDocumentName(Settings.UNTITLED_DOCUMENT);
+            setTitle(Settings.UNTITLED_DOCUMENT);
         } catch (Exception ex) {
             System.out.println(ex);
             JOptionPane.showMessageDialog(this,
                     "Error loading file: \n" + ex.getLocalizedMessage(),
                     "Loading document", JOptionPane.ERROR_MESSAGE);
-            setDocumentName(Settings.UNTITLED_DOCUMENT);
+            setTitle(Settings.UNTITLED_DOCUMENT);
         }
     }
 
@@ -264,7 +317,7 @@ public class Frame extends MainFrame implements FrameService {
                     return;
                 }
             }
-            setDocumentName(file.getName());
+            setTitle(file.getName());
             setModified(false);
         } catch (Exception e) {
             System.out.println(e);
