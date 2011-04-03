@@ -21,18 +21,20 @@ import javax.swing.JPanel;
  */
 public class GridPanel extends JPanel {
 
-    public static final Color DEFAULT_COLOR = Color.lightGray;
-    private Color _color;
+    public static final Color DEFAULT_GRID_COLOR = Color.lightGray;
+    private Color _color = DEFAULT_GRID_COLOR;
     private Stroke _stroke;
     private int _grid_x;
     private int _grid_y;
 
-    public GridPanel(int w, int h) {
-        _grid_x = w;
-        _grid_y = h;
+    public GridPanel() {
     }
 
-    public void setGrid(int w, int h) {
+    public GridPanel(int w, int h) {
+        setGrid(w, h);
+    }
+
+    final public void setGrid(int w, int h) {
         _grid_x = w;
         _grid_y = h;
     }
@@ -54,22 +56,23 @@ public class GridPanel extends JPanel {
         int width = getWidth();
 
         for (int k = 1; k < _grid_x + 1; ++k) {
-            int x = (int)((double)width / (_grid_x + 1) * k + 0.5);
+            int x = (int) ((double) width / (_grid_x + 1) * k + 0.5);
             g2.drawLine(x, 0, x, height);
         }
 
         for (int k = 1; k < _grid_y + 1; ++k) {
-            int y = (int)((double)height / (_grid_y + 1) * k + 0.5);
+            int y = (int) ((double) height / (_grid_y + 1) * k + 0.5);
             g2.drawLine(0, y, width, y);
         }
 
         g2.setStroke(old_stroke);
     }
 
-       public static void main(String args[]) {
+    public static void main(String args[]) {
         class Canvas extends GridPanel {
-            public Canvas(){
-                super(10,20);
+
+            public Canvas() {
+                super(10, 20);
             }
         }
 

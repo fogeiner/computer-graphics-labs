@@ -1,16 +1,25 @@
 package FIT_8201_Sviridov_Vect;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import javax.swing.BorderFactory;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 import ru.nsu.cg.MainFrame;
 
@@ -22,6 +31,7 @@ import ru.nsu.cg.MainFrame;
 public class Frame extends MainFrame implements FrameService {
 
     private static final long serialVersionUID = 3501543956694236029L;
+    private VectModel vectModel;
     private boolean _modified;
 
     /**
@@ -102,7 +112,63 @@ public class Frame extends MainFrame implements FrameService {
             e.printStackTrace();
         }
 
+        vectModel = new VectModel(new Region(0.0, 10.0, 0.0, 5.0));
+        vectModel.setGrid(new Grid(2, 3));
+        vectModel.setColors(Arrays.asList(new Color[]{Color.red, Color.orange, Color.yellow}));
+        vectModel.setGridColor(Color.gray);
+        vectModel.setLengthMult(0.3);
+
+        vectModel.setNotifyActive(true);
+
+        JPanel mainPanel = new JPanel(new BorderLayout(Settings.PANEL_PADDING, Settings.PANEL_PADDING));
+        JPanel outerFieldPanel = new JPanel(new GridBagLayout());
+
+
+        final VectView vectView = new VectView();
+        Statusbar statusbar = new Statusbar();
+        LegendPanel legendPanel = new LegendPanel();
+
+        vectView.setBorder(BorderFactory.createLineBorder(Settings.BORDER_COLOR));
+        vectView.setBackground(Color.white);
+
+        legendPanel.setBorder(BorderFactory.createLineBorder(Settings.BORDER_COLOR));
+        legendPanel.setBackground(Color.white);
+
+        outerFieldPanel.setBorder(BorderFactory.createLineBorder(Settings.BORDER_COLOR));
+        outerFieldPanel.setBackground(Settings.PANEL_COLOR);
+        outerFieldPanel.setBackground(Color.white);
+
+        outerFieldPanel.add(vectView, new GridBagConstraints());
+
+
+
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(
+                Settings.PANEL_PADDING, Settings.PANEL_PADDING, Settings.PANEL_PADDING, Settings.PANEL_PADDING));
+        mainPanel.setBackground(Color.white);
+        mainPanel.add(outerFieldPanel, BorderLayout.CENTER);
+
+        mainPanel.add(legendPanel, BorderLayout.EAST);
+
+        this.add(mainPanel, BorderLayout.CENTER);
+        this.add(statusbar, BorderLayout.SOUTH);
+
+        outerFieldPanel.addComponentListener(new ComponentAdapter() {
+
+            @Override
+            public void componentResized(ComponentEvent e) {
+                super.componentResized(e);
+                vectView.dispatchEvent(e);
+            }
+        });
+
+        vectView.setVectModel(vectModel);
+        legendPanel.setVectModel(vectModel);
+        vectModel.addVectListener(vectView);
+        vectModel.addVectListener(legendPanel);
+        vectModel.notifyListeners();
+
         toolBar.setFloatable(false);
+
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
 
@@ -272,7 +338,7 @@ public class Frame extends MainFrame implements FrameService {
         }
 
         try {
-            File file = getOpenFileName("bmp", "24-bit color bitmap pictures");
+            File file = getOpenFileName("txt", "plain text file");
             if (file == null) {
                 return;
             }
@@ -299,7 +365,7 @@ public class Frame extends MainFrame implements FrameService {
     public void onSave() {
 
         try {
-            File file = getSaveFileName("bmp", "24-bit color bitmap pictures");
+            File file = getSaveFileName("txt", "plain text file");
             if (file == null) {
                 return;
             }

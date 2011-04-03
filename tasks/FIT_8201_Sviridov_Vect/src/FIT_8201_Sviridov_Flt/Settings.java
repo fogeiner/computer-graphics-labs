@@ -16,4 +16,5 @@ public interface Settings {
 	public static final int FRAME_HEIGHT = 600;
 	public static final Color PANEL_COLOR = Color.white;
 	public static final int PANEL_PADDING = 10;
+        public static final Color BORDER_COLOR = Color.darkGray;
 }
