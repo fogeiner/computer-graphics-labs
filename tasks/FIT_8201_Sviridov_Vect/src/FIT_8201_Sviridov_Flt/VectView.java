@@ -60,6 +60,16 @@ public class VectView extends GridPanel implements VectListener {
         });
     }
 
+    private void translateCoordinates(Point p){
+        // substract left lower point
+        // divide by panel width - 2 x_llp, panel - 2 y_llp
+        // multiply by region width, height
+        // add xs, ys
+    }
+    private void computeVectors(){
+        
+    }
+
     @Override
     protected void paintComponent(Graphics g1) {
         Graphics2D g = (Graphics2D) g1;
@@ -67,7 +77,7 @@ public class VectView extends GridPanel implements VectListener {
         g.scale(1, -1);
         super.paintComponent(g);
 
-        
+
         Point[][] points = getGridPoints();
         if (points != null) {
             for (int w = 0; w < points.length; ++w) {
