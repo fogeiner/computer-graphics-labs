@@ -1,5 +1,7 @@
-package FIT_8201_Sviridov_Vect;
+package FIT_8201_Sviridov_Vect.vect;
 
+import FIT_8201_Sviridov_Vect.utils.Grid;
+import FIT_8201_Sviridov_Vect.utils.Region;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -15,8 +17,7 @@ public class VectModel {
     public static final int COLOR_MODE = 1;
     public static final int PLAIN_MODE = 0;
     public static final int FILLED_MODE = 1;
-    private final Region originalRegion;
-    private Region currentRegion;
+    private Region region;
     private double lengthMult;
     private Grid grid;
     private List<Color> colors;
@@ -29,9 +30,8 @@ public class VectModel {
     private final List<VectListener> listeners;
     private boolean notifyActive;
 
-    public VectModel(final Region originalRegion) {
-        this.originalRegion = originalRegion;
-        currentRegion = new Region(originalRegion);
+    public VectModel(Region region) {
+        this.region = region;
         this.listeners = new LinkedList<VectListener>();
     }
 
@@ -45,13 +45,13 @@ public class VectModel {
         double min = Double.MAX_VALUE;
         double max = Double.MIN_VALUE;
 
-        double width = currentRegion.width();
-        double height = currentRegion.height();
+        double width = region.width();
+        double height = region.height();
 
         for (int w = 1; w < grid.W + 1; ++w) {
-            double x = currentRegion.xs + width / grid.W * w;
+            double x = region.xs + width / grid.W * w;
             for (int h = 1; h < grid.H + 1; ++h) {
-                double y = currentRegion.ys + height / grid.H * h;
+                double y = region.ys + height / grid.H * h;
 
                 double length = vectorLength(x, y);
                 if (length > max) {
@@ -83,18 +83,8 @@ public class VectModel {
     private double vectorLength(double x, double y) {
         double fx = fx(x, y),
                 fy = fy(x, y),
-                r1 = fx - x,
-                r2 = fy - y,
-                res = Math.sqrt(r1 * r1 + r2 * r2);
+                res = Math.sqrt(fx * fx + fy * fy);
         return res;
-    }
-
-    public double getCurrentRegionWidth() {
-        return currentRegion.width();
-    }
-
-    public double getCUrrentRegionHeight() {
-        return currentRegion.height();
     }
 
     public void notifyListeners() {
@@ -107,7 +97,6 @@ public class VectModel {
 
     public void addVectListener(VectListener vectListener) {
         listeners.add(vectListener);
-
     }
 
     public void removeVectListener(VectListener vectListener) {
@@ -136,12 +125,12 @@ public class VectModel {
         }
     }
 
-    public Region getCurrentRegion() {
-        return currentRegion;
+    public Region getRegion() {
+        return region;
     }
 
-    public void setCurrentRegion(Region currentRegion) {
-        this.currentRegion = currentRegion;
+    public void setRegion(Region region) {
+        this.region = region;
         computeValues();
         if (isNotifyActive()) {
             for (VectListener vectListener : listeners) {
@@ -204,7 +193,7 @@ public class VectModel {
     }
 
     public double getRatio() {
-        return (currentRegion.xe - currentRegion.xs) / (currentRegion.ye - currentRegion.ys);
+        return (region.xe - region.xs) / (region.ye - region.ys);
     }
 
     public Color getClosest(double value) {

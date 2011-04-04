@@ -1,5 +1,20 @@
 package FIT_8201_Sviridov_Vect;
 
+import FIT_8201_Sviridov_Vect.FrameService;
+import FIT_8201_Sviridov_Vect.Settings;
+import FIT_8201_Sviridov_Vect.state_history.StateHistoryListener;
+import FIT_8201_Sviridov_Vect.state_history.StateHistoryModel;
+import FIT_8201_Sviridov_Vect.ui.LegendPanel;
+import FIT_8201_Sviridov_Vect.utils.Region;
+import FIT_8201_Sviridov_Vect.utils.Grid;
+import FIT_8201_Sviridov_Vect.ui.Statusbar;
+import FIT_8201_Sviridov_Vect.statusbar.StatusbarModel;
+import FIT_8201_Sviridov_Vect.ui.LegendPanel;
+import FIT_8201_Sviridov_Vect.ui.Statusbar;
+import FIT_8201_Sviridov_Vect.ui.VectView;
+import FIT_8201_Sviridov_Vect.ui.VectView;
+import FIT_8201_Sviridov_Vect.vect.VectListener;
+import FIT_8201_Sviridov_Vect.vect.VectModel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
@@ -28,11 +43,12 @@ import ru.nsu.cg.MainFrame;
  * 
  * @author alstein
  */
-public class Frame extends MainFrame implements FrameService {
+public class Frame extends MainFrame implements FrameService, StateHistoryListener {
 
     private static final long serialVersionUID = 3501543956694236029L;
     private VectModel vectModel;
-    private boolean _modified;
+    private StateHistoryModel<Region> regionsHistoryModel;
+    private boolean modified;
 
     /**
      * Sets application title to "<code>name</code> - App name"
@@ -76,10 +92,10 @@ public class Frame extends MainFrame implements FrameService {
                     "plain_arrow.gif", "onPlainArrow");
             addMenuItem("Edit/Filled arrow mode", "Set arrow to filled mode", KeyEvent.VK_F,
                     "filled_arrow.gif", "onFilledArrow");
-            addMenuItem("Edit/Zoom in", "Zoom in", KeyEvent.VK_I,
-                    "zoom_in.gif", "onZoomIn");
-            addMenuItem("Edit/Zoom out", "Zoom out", KeyEvent.VK_O,
-                    "zoom_out.gif", "onZoomOut");
+            addMenuItem("Edit/Previous zoom level", "Previous zoom state", KeyEvent.VK_O,
+                    "zoom_previous.gif", "onZoomPrevious");
+            addMenuItem("Edit/Next zoom level", "Next zoom state", KeyEvent.VK_I,
+                    "zoom_next.gif", "onZoomNext");
             addMenuItem("Edit/Settings", "Show settings dialog", KeyEvent.VK_S,
                     "settings.gif", "onSettings");
             addSubMenu("Help", KeyEvent.VK_H);
@@ -100,8 +116,8 @@ public class Frame extends MainFrame implements FrameService {
             addToolBarButton("Edit/Plain arrow mode");
             addToolBarButton("Edit/Filled arrow mode");
             addToolBarSeparator();
-            addToolBarButton("Edit/Zoom in");
-            addToolBarButton("Edit/Zoom out");
+            addToolBarButton("Edit/Previous zoom level");
+            addToolBarButton("Edit/Next zoom level");
             addToolBarSeparator();
             addToolBarButton("Edit/Settings");
             addToolBarSeparator();
@@ -112,16 +128,33 @@ public class Frame extends MainFrame implements FrameService {
             e.printStackTrace();
         }
 
-        vectModel = new VectModel(new Region(0.0, 10.0, 0.0, 5.0));
-        vectModel.setGrid(new Grid(2, 3));
+        regionsHistoryModel = new StateHistoryModel<Region>();
+        vectModel = new VectModel(new Region(0.0, 4.0, 0.0, 4.0)) {
+
+            @Override
+            public double fx(double x, double y) {
+                return Math.sin(x + y);
+            }
+
+            @Override
+            public double fy(double x, double y) {
+                return Math.sin(x - y);
+            }
+        };
+        regionsHistoryModel = new StateHistoryModel<Region>();
+        regionsHistoryModel.add(vectModel.getRegion());
+        regionsHistoryModel.addListener(this);
+
+        vectModel.setGrid(new Grid(20, 20));
         vectModel.setColors(Arrays.asList(new Color[]{Color.red, Color.orange, Color.yellow}));
         vectModel.setGridColor(Color.gray);
-        vectModel.setLengthMult(0.3);
+        vectModel.setLengthMult(0.5);
+        
 
         vectModel.setNotifyActive(true);
 
         JPanel mainPanel = new JPanel(new BorderLayout(Settings.PANEL_PADDING, Settings.PANEL_PADDING));
-        JPanel outerFieldPanel = new JPanel(new GridBagLayout());
+        final JPanel outerFieldPanel = new JPanel(new GridBagLayout());
 
 
         final VectView vectView = new VectView();
@@ -139,13 +172,13 @@ public class Frame extends MainFrame implements FrameService {
             public void componentResized(ComponentEvent e) {
                 super.componentResized(e);
                 vectView.dispatchEvent(e);
+                outerFieldPanel.revalidate();
             }
         });
-        
+
         legendPanel.setBorder(BorderFactory.createLineBorder(Settings.BORDER_COLOR));
         legendPanel.setBackground(Color.white);
 
-        outerFieldPanel.setBorder(BorderFactory.createLineBorder(Settings.BORDER_COLOR));
         outerFieldPanel.setBackground(Settings.PANEL_COLOR);
         outerFieldPanel.setBackground(Color.white);
 
@@ -163,19 +196,16 @@ public class Frame extends MainFrame implements FrameService {
         this.add(statusbar, BorderLayout.SOUTH);
 
         vectView.setVectModel(vectModel);
+        vectView.setRegionsHistory(regionsHistoryModel);
         statusbarModel.addStatusbarListener(statusbar);
         statusbar.setStatusbarModel(statusbarModel);
         vectView.setStatusbarModel(statusbarModel);
         legendPanel.setVectModel(vectModel);
 
+
         vectModel.addVectListener(vectView);
         vectModel.addVectListener(legendPanel);
         vectModel.notifyListeners();
-
-        vectModel.setGridDrawn(true);
-        vectModel.setGrid(new Grid(5, 10));
-
-
 
         toolBar.setFloatable(false);
 
@@ -190,6 +220,7 @@ public class Frame extends MainFrame implements FrameService {
 
 
         reset();
+
     }
 
     public void onGrid() {
@@ -205,15 +236,11 @@ public class Frame extends MainFrame implements FrameService {
     }
 
     public void onPlainArrow() {
+        vectModel.setArrowMode(VectModel.PLAIN_MODE);
     }
 
     public void onFilledArrow() {
-    }
-
-    public void onZoomIn() {
-    }
-
-    public void onZoomOut() {
+        vectModel.setArrowMode(VectModel.FILLED_MODE);
     }
 
     public void onSettings() {
@@ -225,6 +252,8 @@ public class Frame extends MainFrame implements FrameService {
     public void reset() {
         setTitle(Settings.UNTITLED_DOCUMENT);
         setModified(false);
+        setZoomNextBlocked(true);
+        setZoomPreviousBlocked(true);
     }
 
     /**
@@ -435,11 +464,43 @@ public class Frame extends MainFrame implements FrameService {
 
     @Override
     public boolean isModified() {
-        return _modified;
+        return modified;
     }
 
     @Override
     public void setModified(boolean value) {
-        _modified = value;
+        modified = value;
+    }
+
+    public void onZoomPrevious() {
+        vectModel.setRegion(regionsHistoryModel.prev());
+        setZoomPreviousBlocked(!regionsHistoryModel.hasPrev());
+        setZoomNextBlocked(!regionsHistoryModel.hasNext());
+    }
+
+    public void onZoomNext() {
+        vectModel.setRegion(regionsHistoryModel.next());
+        setZoomPreviousBlocked(!regionsHistoryModel.hasPrev());
+        setZoomNextBlocked(!regionsHistoryModel.hasNext());
+    }
+
+    public void setZoomPreviousBlocked(boolean blocked) {
+        JMenuBar menu_bar = getJMenuBar();
+        JMenu edit = (JMenu) menu_bar.getComponent(1);
+        edit.getMenuComponent(5).setEnabled(!blocked);
+        toolBar.getComponent(12).setEnabled(!blocked);
+    }
+
+    public void setZoomNextBlocked(boolean blocked) {
+        JMenuBar menu_bar = getJMenuBar();
+        JMenu edit = (JMenu) menu_bar.getComponent(1);
+        edit.getMenuComponent(6).setEnabled(!blocked);
+        toolBar.getComponent(13).setEnabled(!blocked);
+    }
+
+    @Override
+    public void historyStateChanged() {
+        setZoomPreviousBlocked(!regionsHistoryModel.hasPrev());
+        setZoomNextBlocked(!regionsHistoryModel.hasNext());
     }
 }

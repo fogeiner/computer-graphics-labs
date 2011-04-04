@@ -1,4 +1,4 @@
-package FIT_8201_Sviridov_Vect;
+package FIT_8201_Sviridov_Vect.utils;
 
 /**
  *
@@ -31,5 +31,20 @@ public class Region {
 
     public double height() {
         return ye - ys;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(50);
+        sb.append("[");
+        sb.append(Double.toString(xs));
+        sb.append(";");
+        sb.append(Double.toString(xe));
+        sb.append("]x[");
+        sb.append(Double.toString(ys));
+        sb.append(";");
+        sb.append(Double.toString(ye));
+        sb.append("]");
+        return sb.toString();
     }
 }

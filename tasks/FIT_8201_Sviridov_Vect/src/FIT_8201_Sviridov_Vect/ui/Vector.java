@@ -1,4 +1,4 @@
-package FIT_8201_Sviridov_Vect;
+package FIT_8201_Sviridov_Vect.ui;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
@@ -11,6 +11,8 @@ import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.GeneralPath;
+import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.util.LinkedList;
@@ -33,44 +35,59 @@ public class Vector {
     private double dx = DEFAULT_DX;
     private double dy = DEFAULT_DY;
     private Stroke stroke;
-    private Path2D openArrow;
-    private Path2D closedArrow;
-    private Path2D line;
+    private GeneralPath openVector;
+    private GeneralPath closedVector;
     private Color color;
     private boolean filled;
 
     private void computePath() {
+        if (start == null || end == null) {
+            return;
+        }
 
-        Point2D vector = new Point2D.Double(end.getX() - start.getX(), end.getY() - start.getY());
-        Point2D n = new Point2D.Double(-vector.getY(), vector.getX());
-        double length = Math.sqrt(vector.getX() * vector.getX() + vector.getY() * vector.getY());
+        openVector = new GeneralPath();
+        closedVector = new GeneralPath();
+
+        Point2D v = new Point2D.Double(end.getX() - start.getX(), end.getY() - start.getY());
+        Point2D n = new Point2D.Double(-v.getY(), v.getX());
+        double length = Math.sqrt(v.getX() * v.getX() + v.getY() * v.getY());
 
         Point2D p = new Point2D.Double(
-                end.getX() - dx * vector.getX(), end.getY() - dx * vector.getY());
+                end.getX() - dx * v.getX(), end.getY() - dx * v.getY());
 
         Point2D p1 = new Point2D.Double(
-                (int) (p.getX() + dy * n.getX() + 0.5), (int) (p.getY() + dy * n.getY() + 0.5));
+                p.getX() + dy * n.getX(), p.getY() + dy * n.getY());
         Point2D p2 = new Point2D.Double(
-                (int) (p.getX() - dy * n.getX() + 0.5), (int) (p.getY() - dy * n.getY() + 0.5));
+                p.getX() - dy * n.getX(), p.getY() - dy * n.getY());
 
-        openArrow = new Path2D.Double();
-        closedArrow = new Path2D.Double();
-        line = new Path2D.Double();
+        Path2D line = new Path2D.Double(new Line2D.Double(
+                start.getX(), start.getY(),
+                end.getX(), end.getY()));
+
+        Path2D s1 = new Path2D.Double(new Line2D.Double(
+                p1.getX(), p1.getY(),
+                end.getX(), end.getY()));
+
+        Path2D s2 = new Path2D.Double(new Line2D.Double(
+                end.getX(), end.getY(),
+                p2.getX(), p2.getY()));
+
+        Path2D s3 = new Path2D.Double(new Line2D.Double(
+                p2.getX(), p2.getY(),
+                p1.getX(), p1.getY()));
 
 
-        line.moveTo(start.getX(), start.getY());
-        line.lineTo(end.getX(), end.getY());
+        openVector.append(line, true);
 
-
+        closedVector.append(line, true);
         if (length > lengthThreshold) {
-            openArrow.moveTo(p1.getX(), p1.getY());
-            openArrow.lineTo(end.getX(), end.getY());
-            openArrow.lineTo(p2.getX(), p2.getY());
+            openVector.append(s1, false);
+            openVector.append(s2, true);
 
-            closedArrow.moveTo(p1.getX(), p1.getY());
-            closedArrow.lineTo(end.getX(), end.getY());
-            closedArrow.lineTo(p2.getX(), p2.getY());
-            closedArrow.closePath();
+
+            closedVector.append(s2, true);
+            closedVector.append(s3, true);
+            closedVector.append(s1, true);
         }
     }
 
@@ -120,7 +137,7 @@ public class Vector {
         return end;
     }
 
-    public void setEnd(Point end) {
+    public void setEnd(Point2D end) {
         this.end = end;
         computePath();
     }
@@ -129,7 +146,7 @@ public class Vector {
         return start;
     }
 
-    public void setStart(Point start) {
+    public void setStart(Point2D start) {
         this.start = start;
         computePath();
     }
@@ -144,7 +161,7 @@ public class Vector {
 
     public void draw(Graphics2D g) {
         if (stroke == null) {
-            stroke = new BasicStroke(1.0f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_BEVEL, 0.0f);
+            stroke = new BasicStroke(0.5f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_BEVEL, 0.0f);
 
         }
 
@@ -154,12 +171,10 @@ public class Vector {
         g.setStroke(stroke);
 
         if (filled) {
-            g.fill(closedArrow);
-            g.draw(closedArrow);
-            g.draw(line);
+            g.fill(closedVector);
+            g.draw(closedVector);
         } else {
-            g.draw(line);
-            g.draw(openArrow);
+            g.draw(openVector);
         }
 
         g.setStroke(old_stroke);
@@ -173,11 +188,6 @@ public class Vector {
             public Canvas() {
                 setBackground(Color.white);
 
-
-                Vector v = new Vector(new Point(2, 4), new Point(10, 4));
-                v.setColor(Color.black);
-
-                _vectors.add(v);
                 addMouseListener(new MouseAdapter() {
 
                     private Point _start;
@@ -215,8 +225,7 @@ public class Vector {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g;
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_NORMALIZE);
-                g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+
                 for (Vector v : _vectors) {
                     v.draw(g2);
                 }

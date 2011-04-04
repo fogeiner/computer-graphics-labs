@@ -2,8 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package FIT_8201_Sviridov_Vect;
+package FIT_8201_Sviridov_Vect.ui;
 
+import FIT_8201_Sviridov_Vect.utils.Grid;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -11,10 +12,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.RenderingHints;
 import java.awt.Stroke;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -32,19 +30,9 @@ public class GridPanel extends JPanel {
     private Point[][] gridPoints;
 
     public GridPanel() {
-        addComponentListener(new ComponentAdapter() {
-
-            @Override
-            public void componentResized(ComponentEvent e) {
-                super.componentResized(e);
-                if (grid != null) {
-                    computeGridPoints();
-                }
-            }
-        });
     }
 
-    private void computeGridPoints() {
+    public void computeGridPoints() {
         int height = getHeight();
         int width = getWidth();
 
@@ -92,7 +80,6 @@ public class GridPanel extends JPanel {
         this.grid = grid;
 
         gridPoints = new Point[grid.W][grid.H];
-        computeGridPoints();
     }
 
     public Grid getGrid() {
@@ -119,7 +106,6 @@ public class GridPanel extends JPanel {
         }
         Stroke oldStroke = g2.getStroke();
         Color oldColor = g2.getColor();
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         g2.setStroke(stroke);
         g2.setColor(gridColor);

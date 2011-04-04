@@ -1,5 +1,7 @@
-package FIT_8201_Sviridov_Vect;
+package FIT_8201_Sviridov_Vect.ui;
 
+import FIT_8201_Sviridov_Vect.statusbar.StatusbarListener;
+import FIT_8201_Sviridov_Vect.statusbar.StatusbarModel;
 import java.awt.FlowLayout;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -23,7 +25,7 @@ public class Statusbar extends JPanel implements StatusbarListener {
     private DecimalFormat format = DEFAULT_FORMAT;
 
     {
-        format.applyPattern("0.00");
+        format.applyPattern("0.000000");
     }
 
     public Statusbar() {
@@ -33,6 +35,8 @@ public class Statusbar extends JPanel implements StatusbarListener {
         add(cValue);
         add(fValue);
         add(lValue);
+
+        clear();
     }
 
     public StatusbarModel getStatusbarModel() {
@@ -68,9 +72,7 @@ public class Statusbar extends JPanel implements StatusbarListener {
 
         sb = new StringBuilder();
         sb.append("Length: ");
-        double r1 = x - fx;
-        double r2 = y - fy;
-        sb.append(format.format(Math.sqrt(r1 * r1 + r2 * r2)));
+        sb.append(format.format(Math.sqrt(fx*fx + fy*fy)));
         lValue.setText(sb.toString());
     }
 

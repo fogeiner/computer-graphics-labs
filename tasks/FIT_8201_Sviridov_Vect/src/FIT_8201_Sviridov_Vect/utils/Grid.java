@@ -3,15 +3,15 @@
  * and open the template in the editor.
  */
 
-package FIT_8201_Sviridov_Vect;
+package FIT_8201_Sviridov_Vect.utils;
 
 /**
  *
  * @author admin
  */
 public class Grid {
-    final int W;
-    final int H;
+    public final int W;
+    public final int H;
 
 
     public Grid(final int W, final int H){

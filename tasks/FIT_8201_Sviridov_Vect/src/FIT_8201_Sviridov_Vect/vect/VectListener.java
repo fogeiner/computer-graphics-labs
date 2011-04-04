@@ -1,11 +1,10 @@
-package FIT_8201_Sviridov_Vect;
+package FIT_8201_Sviridov_Vect.vect;
 
 /**
  *
  * @author admin
  */
 public interface VectListener {
-
     public void modelChanged();
     public void regionChanged();
     public void lengthMultChanged();

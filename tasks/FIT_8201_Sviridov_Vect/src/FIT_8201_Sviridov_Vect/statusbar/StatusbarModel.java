@@ -1,4 +1,4 @@
-package FIT_8201_Sviridov_Vect;
+package FIT_8201_Sviridov_Vect.statusbar;
 
 import java.util.ArrayList;
 import java.util.List;

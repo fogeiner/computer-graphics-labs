@@ -1,5 +1,8 @@
-package FIT_8201_Sviridov_Vect;
+package FIT_8201_Sviridov_Vect.ui;
 
+import FIT_8201_Sviridov_Vect.Settings;
+import FIT_8201_Sviridov_Vect.vect.VectListener;
+import FIT_8201_Sviridov_Vect.vect.VectModel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -216,4 +219,5 @@ public class LegendPanel extends JPanel implements VectListener {
     @Override
     public void gridDrawnChanged() {
     }
+
 }
