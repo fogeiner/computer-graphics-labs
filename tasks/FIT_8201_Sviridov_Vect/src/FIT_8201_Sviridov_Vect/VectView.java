@@ -9,6 +9,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JPanel;
 
@@ -55,6 +56,7 @@ public class VectView extends GridPanel implements VectListener {
             public void componentResized(ComponentEvent e) {
                 super.componentResized(e);
                 resetSize(e);
+                computeVectors();
                 repaint();
             }
         });
@@ -108,8 +110,8 @@ public class VectView extends GridPanel implements VectListener {
         double px = p.getX(), py = p.getY();
         double x1 = px - pll.getX(),
                 y1 = py - pll.getY();
-        double x2 = x1 / (panelWidth - 2*pll.getX()),
-                y2 = y1 / (panelHeight - 2*pll.getY());
+        double x2 = x1 / (panelWidth - 2 * pll.getX()),
+                y2 = y1 / (panelHeight - 2 * pll.getY());
 
         double x3 = x2 * regionWidth,
                 y3 = y2 * regionHeight;
@@ -121,6 +123,24 @@ public class VectView extends GridPanel implements VectListener {
     }
 
     private void computeVectors() {
+        Grid grid = getGrid();
+        if (vectors != null) {
+            vectors.clear();
+        } else {
+            vectors = new ArrayList<Vector>(grid.W * grid.H);
+        }
+        for (Point[] pp : getGridPoints()) {
+            for (Point2D p : pp) {
+                p = translateCoordinates(p);
+                double xs = p.getX(),
+                        ys = p.getY(),
+                        xe = 0.0,
+                        ye = 0.0;
+                vectors.add(new Vector(
+                        new Point2D.Double(xs, ys),
+                        new Point2D.Double(xe, ye)));
+            }
+        }
     }
 
     @Override
@@ -131,13 +151,9 @@ public class VectView extends GridPanel implements VectListener {
         super.paintComponent(g);
 
 
-        Point[][] points = getGridPoints();
-        if (points != null) {
-            for (int w = 0; w < points.length; ++w) {
-                for (int h = 0; h < points[0].length; ++h) {
-                    g.drawLine(points[w][h].x, points[w][h].y,
-                            points[w][h].x + 5, points[w][h].y + 5);
-                }
+        if (vectors != null) {
+            for (Vector v : vectors) {
+                v.draw(g);
             }
         }
     }

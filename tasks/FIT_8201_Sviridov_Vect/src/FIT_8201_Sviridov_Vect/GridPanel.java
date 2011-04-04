@@ -57,6 +57,21 @@ public class GridPanel extends JPanel {
         }
     }
 
+    public double getGridCellWidth() {
+        return (double) getWidth() / (grid.W + 1);
+    }
+
+    public double getGridCellHeight() {
+        return (double) getHeight() / (grid.H + 1);
+    }
+
+    public double getGridCellDiagonal() {
+        double w = getGridCellWidth();
+        double h = getGridCellHeight();
+        double diagonal = Math.sqrt(w * w + h * h);
+        return diagonal;
+    }
+
     public Point[][] getGridPoints() {
         return gridPoints;
     }
@@ -73,11 +88,15 @@ public class GridPanel extends JPanel {
         setGrid(new Grid(w, h));
     }
 
-    final public void setGrid(Grid grid) {
+    public void setGrid(Grid grid) {
         this.grid = grid;
-        
+
         gridPoints = new Point[grid.W][grid.H];
         computeGridPoints();
+    }
+
+    public Grid getGrid() {
+        return grid;
     }
 
     public boolean isGridDrawn() {
