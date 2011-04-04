@@ -89,6 +89,14 @@ public class VectModel {
         return res;
     }
 
+    public double getCurrentRegionWidth() {
+        return currentRegion.width();
+    }
+
+    public double getCUrrentRegionHeight() {
+        return currentRegion.height();
+    }
+
     public void notifyListeners() {
         if (isNotifyActive()) {
             for (VectListener vectListener : listeners) {

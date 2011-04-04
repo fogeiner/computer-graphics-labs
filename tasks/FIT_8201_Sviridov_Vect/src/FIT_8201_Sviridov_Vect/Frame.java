@@ -125,7 +125,9 @@ public class Frame extends MainFrame implements FrameService {
 
 
         final VectView vectView = new VectView();
+        StatusbarModel statusbarModel = new StatusbarModel();
         Statusbar statusbar = new Statusbar();
+
         LegendPanel legendPanel = new LegendPanel();
 
         vectView.setBorder(BorderFactory.createLineBorder(Settings.BORDER_COLOR));
@@ -161,13 +163,19 @@ public class Frame extends MainFrame implements FrameService {
         this.add(statusbar, BorderLayout.SOUTH);
 
         vectView.setVectModel(vectModel);
+        statusbarModel.addStatusbarListener(statusbar);
+        statusbar.setStatusbarModel(statusbarModel);
+        vectView.setStatusbarModel(statusbarModel);
         legendPanel.setVectModel(vectModel);
+
         vectModel.addVectListener(vectView);
         vectModel.addVectListener(legendPanel);
         vectModel.notifyListeners();
 
         vectModel.setGridDrawn(true);
         vectModel.setGrid(new Grid(5, 10));
+
+
 
         toolBar.setFloatable(false);
 

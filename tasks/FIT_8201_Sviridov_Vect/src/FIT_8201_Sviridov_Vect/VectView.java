@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package FIT_8201_Sviridov_Vect;
 
 import java.awt.Dimension;
@@ -10,6 +6,9 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 import java.util.List;
 import javax.swing.JPanel;
 
@@ -20,6 +19,7 @@ import javax.swing.JPanel;
 public class VectView extends GridPanel implements VectListener {
 
     private VectModel vectModel;
+    private StatusbarModel statusbarModel;
     private List<Vector> vectors;
 
     public VectView() {
@@ -58,16 +58,69 @@ public class VectView extends GridPanel implements VectListener {
                 repaint();
             }
         });
+        addMouseMotionListener(new MouseAdapter() {
+
+            @Override
+            public void mouseEntered(MouseEvent me) {
+                super.mouseEntered(me);
+                statusbarModel.setState(StatusbarModel.IN_REGION);
+            }
+
+            @Override
+            public void mouseMoved(MouseEvent me) {
+                super.mouseMoved(me);
+                Point2D mPoint = me.getPoint();
+                mPoint.setLocation(mPoint.getX(), getHeight() - mPoint.getY());
+                mPoint = translateCoordinates(mPoint);
+                double x = mPoint.getX(),
+                        y = mPoint.getY(),
+                        fx = vectModel.fx(x, y),
+                        fy = vectModel.fy(x, y);
+                statusbarModel.setData(x, y, fx, fy);
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent me) {
+                super.mouseExited(me);
+                statusbarModel.setState(StatusbarModel.OUT_REGION);
+            }
+        });
     }
 
-    private void translateCoordinates(Point p){
-        // substract left lower point
-        // divide by panel width - 2 x_llp, panel - 2 y_llp
-        // multiply by region width, height
-        // add xs, ys
+    private Point2D translateCoordinates(Point2D p) {
+        // 1. substract left lower point
+        // 2. divide by panel width - 2 x_llp, panel - 2 y_llp
+        // 3. multiply by region width, height
+        // 4. add xs, ys
+        Point pll = getGridPoints()[0][0];
+        Region currentRegion = vectModel.getCurrentRegion();
+        double xs = currentRegion.xs,
+                xe = currentRegion.xe,
+                ys = currentRegion.ys,
+                ye = currentRegion.ye;
+        double regionWidth = xe - xs,
+                regionHeight = ye - ys;
+
+        double panelWidth = getWidth(),
+                panelHeight = getHeight();
+
+        double px = p.getX(), py = p.getY();
+        double x1 = px - pll.getX(),
+                y1 = py - pll.getY();
+        double x2 = x1 / (panelWidth - 2*pll.getX()),
+                y2 = y1 / (panelHeight - 2*pll.getY());
+
+        double x3 = x2 * regionWidth,
+                y3 = y2 * regionHeight;
+
+        double x = x3 + xs,
+                y = y3 + ys;
+
+        return new Point2D.Double(x, y);
     }
-    private void computeVectors(){
-        
+
+    private void computeVectors() {
     }
 
     @Override
@@ -87,6 +140,14 @@ public class VectView extends GridPanel implements VectListener {
                 }
             }
         }
+    }
+
+    public StatusbarModel getStatusbarModel() {
+        return statusbarModel;
+    }
+
+    public void setStatusbarModel(StatusbarModel statusbarModel) {
+        this.statusbarModel = statusbarModel;
     }
 
     @Override

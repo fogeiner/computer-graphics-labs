@@ -40,7 +40,7 @@ public class LegendPanel extends JPanel implements VectListener {
     private VectModel vectModel;
 
     {
-        format.applyPattern("0.00");
+        format.applyPattern("0.0000");
     }
 
     public LegendPanel() {
