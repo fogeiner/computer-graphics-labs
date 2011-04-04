@@ -131,6 +131,15 @@ public class Frame extends MainFrame implements FrameService {
         vectView.setBorder(BorderFactory.createLineBorder(Settings.BORDER_COLOR));
         vectView.setBackground(Color.white);
 
+        outerFieldPanel.addComponentListener(new ComponentAdapter() {
+
+            @Override
+            public void componentResized(ComponentEvent e) {
+                super.componentResized(e);
+                vectView.dispatchEvent(e);
+            }
+        });
+        
         legendPanel.setBorder(BorderFactory.createLineBorder(Settings.BORDER_COLOR));
         legendPanel.setBackground(Color.white);
 
@@ -140,10 +149,9 @@ public class Frame extends MainFrame implements FrameService {
 
         outerFieldPanel.add(vectView, new GridBagConstraints());
 
-
-
         mainPanel.setBorder(BorderFactory.createEmptyBorder(
-                Settings.PANEL_PADDING, Settings.PANEL_PADDING, Settings.PANEL_PADDING, Settings.PANEL_PADDING));
+                Settings.PANEL_PADDING, Settings.PANEL_PADDING,
+                Settings.PANEL_PADDING, Settings.PANEL_PADDING));
         mainPanel.setBackground(Color.white);
         mainPanel.add(outerFieldPanel, BorderLayout.CENTER);
 
@@ -152,20 +160,14 @@ public class Frame extends MainFrame implements FrameService {
         this.add(mainPanel, BorderLayout.CENTER);
         this.add(statusbar, BorderLayout.SOUTH);
 
-        outerFieldPanel.addComponentListener(new ComponentAdapter() {
-
-            @Override
-            public void componentResized(ComponentEvent e) {
-                super.componentResized(e);
-                vectView.dispatchEvent(e);
-            }
-        });
-
         vectView.setVectModel(vectModel);
         legendPanel.setVectModel(vectModel);
         vectModel.addVectListener(vectView);
         vectModel.addVectListener(legendPanel);
         vectModel.notifyListeners();
+
+        vectModel.setGridDrawn(true);
+        vectModel.setGrid(new Grid(5, 10));
 
         toolBar.setFloatable(false);
 
@@ -178,11 +180,14 @@ public class Frame extends MainFrame implements FrameService {
             }
         });
 
-        pack();
+
         reset();
     }
 
     public void onGrid() {
+        if (vectModel != null) {
+            vectModel.setGridDrawn(!vectModel.isGridDrawn());
+        }
     }
 
     public void onColorField() {
@@ -407,6 +412,7 @@ public class Frame extends MainFrame implements FrameService {
                 Frame frame = new Frame(Settings.FRAME_WIDTH,
                         Settings.FRAME_HEIGHT);
                 frame.setVisible(true);
+                frame.setSize(800, 600);
             }
         });
     }

@@ -12,5 +12,7 @@ public interface VectListener {
     public void gridChanged();
     public void gridColorChanged();
     public void colorsChanged();
-    
+    public void fieldModeChanged();
+    public void gridDrawnChanged();
+    public void arrowModeChanged();
 }

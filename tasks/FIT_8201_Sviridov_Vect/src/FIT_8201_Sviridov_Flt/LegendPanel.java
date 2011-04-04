@@ -197,6 +197,23 @@ public class LegendPanel extends JPanel implements VectListener {
     @Override
     public void colorsChanged() {
         setModel(vectModel.getValues(), vectModel.getColors());
+    }
 
+    @Override
+    public void arrowModeChanged() {
+    }
+
+    @Override
+    public void fieldModeChanged() {
+        if (vectModel.getFieldMode() == VectModel.BW_MODE) {
+            this.setVisible(false);
+        }
+        if (vectModel.getFieldMode() == VectModel.COLOR_MODE) {
+            this.setVisible(true);
+        }
+    }
+
+    @Override
+    public void gridDrawnChanged() {
     }
 }

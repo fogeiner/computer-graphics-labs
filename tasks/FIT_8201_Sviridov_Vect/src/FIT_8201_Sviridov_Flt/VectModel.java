@@ -11,6 +11,10 @@ import java.util.List;
  */
 public class VectModel {
 
+    public static final int BW_MODE = 0;
+    public static final int COLOR_MODE = 1;
+    public static final int PLAIN_MODE = 0;
+    public static final int FILLED_MODE = 1;
     private final Region originalRegion;
     private Region currentRegion;
     private double lengthMult;
@@ -18,6 +22,10 @@ public class VectModel {
     private List<Color> colors;
     private List<Double> values;
     private Color gridColor;
+    private int fieldMode;
+    private double maxVectorLength;
+    private boolean gridDrawn;
+    private int arrowMode;
     private final List<VectListener> listeners;
     private boolean notifyActive;
 
@@ -31,7 +39,9 @@ public class VectModel {
         // iterate through all cells and compute
         // vector length; find min and max and 
         // make a list of uniform values
-        if(grid == null || colors == null) return;
+        if (grid == null || colors == null) {
+            return;
+        }
         double min = Double.MAX_VALUE;
         double max = Double.MIN_VALUE;
 
@@ -52,6 +62,8 @@ public class VectModel {
                 }
             }
         }
+
+        maxVectorLength = max;
 
         int colorsCount = colors.size();
         double range = max - min;
@@ -185,5 +197,58 @@ public class VectModel {
 
     public double getRatio() {
         return (currentRegion.xe - currentRegion.xs) / (currentRegion.ye - currentRegion.ys);
+    }
+
+    public Color getClosest(double value) {
+        int valuesSize = values.size();
+        for (int i = 0; i < valuesSize; ++i) {
+            if (values.get(i) < value) {
+                return colors.get(i);
+            }
+        }
+        return colors.get(valuesSize);
+    }
+
+    public int getFieldMode() {
+        return fieldMode;
+    }
+
+    public void setFieldMode(int fieldMode) {
+        this.fieldMode = fieldMode;
+        if (isNotifyActive()) {
+            for (VectListener vectListener : listeners) {
+                vectListener.fieldModeChanged();
+            }
+        }
+    }
+
+    public boolean isGridDrawn() {
+        return gridDrawn;
+    }
+
+    public void setGridDrawn(boolean gridDrawn) {
+        this.gridDrawn = gridDrawn;
+        if (isNotifyActive()) {
+            for (VectListener vectListener : listeners) {
+                vectListener.gridDrawnChanged();
+            }
+        }
+    }
+
+    public double getMaxVectorLength() {
+        return maxVectorLength;
+    }
+
+    public int getArrowMode() {
+        return arrowMode;
+    }
+
+    public void setArrowMode(int arrowMode) {
+        this.arrowMode = arrowMode;
+        if (isNotifyActive()) {
+            for (VectListener vectListener : listeners) {
+                vectListener.arrowModeChanged();
+            }
+        }
     }
 }

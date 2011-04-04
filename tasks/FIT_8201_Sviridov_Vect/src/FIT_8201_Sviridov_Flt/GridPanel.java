@@ -10,8 +10,11 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -22,50 +25,101 @@ import javax.swing.JPanel;
 public class GridPanel extends JPanel {
 
     public static final Color DEFAULT_GRID_COLOR = Color.lightGray;
-    private Color _color = DEFAULT_GRID_COLOR;
-    private Stroke _stroke;
-    private int _grid_x;
-    private int _grid_y;
+    private Color gridColor = DEFAULT_GRID_COLOR;
+    private Stroke stroke;
+    private Grid grid;
+    private boolean gridDrawn;
+    private Point[][] gridPoints;
 
     public GridPanel() {
+        addComponentListener(new ComponentAdapter() {
+
+            @Override
+            public void componentResized(ComponentEvent e) {
+                super.componentResized(e);
+                if (grid != null) {
+                    computeGridPoints();
+                }
+            }
+        });
+    }
+
+    private void computeGridPoints() {
+        int height = getHeight();
+        int width = getWidth();
+
+        for (int w = 1; w < grid.W + 1; ++w) {
+            int x = (int) ((double) width / (grid.W + 1) * w + 0.5);
+            for (int h = 1; h < grid.H + 1; ++h) {
+                int y = (int) ((double) height / (grid.H + 1) * h + 0.5);
+                gridPoints[w - 1][h - 1] = new Point(x, y);
+            }
+        }
+    }
+
+    public Point[][] getGridPoints() {
+        return gridPoints;
+    }
+
+    public Color getGridColor() {
+        return gridColor;
+    }
+
+    public void setGridColor(Color gridColor) {
+        this.gridColor = gridColor;
     }
 
     public GridPanel(int w, int h) {
-        setGrid(w, h);
+        setGrid(new Grid(w, h));
     }
 
-    final public void setGrid(int w, int h) {
-        _grid_x = w;
-        _grid_y = h;
+    final public void setGrid(Grid grid) {
+        this.grid = grid;
+        
+        gridPoints = new Point[grid.W][grid.H];
+        computeGridPoints();
+    }
+
+    public boolean isGridDrawn() {
+        return gridDrawn;
+    }
+
+    public void setGridDrawn(boolean gridDrawn) {
+        this.gridDrawn = gridDrawn;
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        Graphics2D g2 = (Graphics2D) g;
-        if (_stroke == null) {
-            _stroke = new BasicStroke(1.0f, BasicStroke.CAP_ROUND, BasicStroke.CAP_ROUND, 5.0f, new float[]{5.0f, 5.0f}, 0.0f);
+        if (grid == null || gridDrawn == false) {
+            return;
         }
-        Stroke old_stroke = g2.getStroke();
-
+        Graphics2D g2 = (Graphics2D) g;
+        if (stroke == null) {
+            stroke = new BasicStroke(1.0f, BasicStroke.CAP_ROUND, BasicStroke.CAP_ROUND, 5.0f, new float[]{5.0f, 5.0f}, 0.0f);
+        }
+        Stroke oldStroke = g2.getStroke();
+        Color oldColor = g2.getColor();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setStroke(_stroke);
-        g2.setColor(_color);
+
+        g2.setStroke(stroke);
+        g2.setColor(gridColor);
 
         int height = getHeight();
         int width = getWidth();
 
-        for (int k = 1; k < _grid_x + 1; ++k) {
-            int x = (int) ((double) width / (_grid_x + 1) * k + 0.5);
+        for (int k = 1; k < grid.W + 1; ++k) {
+            int x = (int) ((double) width / (grid.W + 1) * k + 0.5);
             g2.drawLine(x, 0, x, height);
         }
 
-        for (int k = 1; k < _grid_y + 1; ++k) {
-            int y = (int) ((double) height / (_grid_y + 1) * k + 0.5);
+        for (int k = 1; k < grid.H + 1; ++k) {
+            int y = (int) ((double) height / (grid.H + 1) * k + 0.5);
             g2.drawLine(0, y, width, y);
         }
 
-        g2.setStroke(old_stroke);
+        g2.setColor(oldColor);
+        g2.setStroke(oldStroke);
     }
 
     public static void main(String args[]) {
