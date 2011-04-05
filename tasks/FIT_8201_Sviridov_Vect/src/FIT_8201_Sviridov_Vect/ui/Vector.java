@@ -27,7 +27,7 @@ import javax.swing.JPanel;
 public class Vector {
 
     static public final double DEFAULT_DX = 0.3;
-    static public final double DEFAULT_DY = 0.15;
+    static public final double DEFAULT_DY = 0.2;
     static public final double DEFAULT_ARROW_THRESHOLD = 7;
     private double lengthThreshold = DEFAULT_ARROW_THRESHOLD;
     private Point2D start;
@@ -50,7 +50,7 @@ public class Vector {
 
         Point2D v = new Point2D.Double(end.getX() - start.getX(), end.getY() - start.getY());
         Point2D n = new Point2D.Double(-v.getY(), v.getX());
-        double length = Math.sqrt(v.getX() * v.getX() + v.getY() * v.getY());
+        double length = Math.hypot(v.getX(), v.getY());
 
         Point2D p = new Point2D.Double(
                 end.getX() - dx * v.getX(), end.getY() - dx * v.getY());
@@ -161,7 +161,7 @@ public class Vector {
 
     public void draw(Graphics2D g) {
         if (stroke == null) {
-            stroke = new BasicStroke(0.5f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_BEVEL, 0.0f);
+            stroke = new BasicStroke(1f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0.0f);
 
         }
 

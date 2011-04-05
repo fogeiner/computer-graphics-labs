@@ -74,6 +74,7 @@ public class VectView extends GridPanel implements VectListener {
                 super.mouseExited(me);
                 statusbarModel.setInRegion(false);
                 mouseCurrentPoint = null;
+                repaint();
             }
         });
         addMouseListener(new MouseAdapter() {
@@ -81,9 +82,11 @@ public class VectView extends GridPanel implements VectListener {
             @Override
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e);
-                selectionRectActive = true;
                 Point p = e.getPoint();
                 selectionRectStart = new Point(p.x, getHeight() - p.y);
+                selectionRectCurrent = new Point(p.x, getHeight() - p.y);
+                selectionRectActive = true;
+                mouseCurrentPoint = null;
             }
 
             @Override
@@ -160,7 +163,7 @@ public class VectView extends GridPanel implements VectListener {
         // 1. substract left lower point
         // 2. divide by panel width - 2 x_llp, panel - 2 y_llp
         // 3. multiply by region width, height
-        // 4. add xs, ys
+        // 4. add xs, ys (region starts anywhere)
         Point pll = getGridPoints()[0][0];
         Region currentRegion = vectModel.getRegion();
         double xs = currentRegion.xs,
@@ -259,8 +262,8 @@ public class VectView extends GridPanel implements VectListener {
         Graphics2D g = (Graphics2D) g1;
         g.translate(0, this.getHeight() - 1);
         g.scale(1, -1);
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        //g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+        // g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
         super.paintComponent(g);
 
 
@@ -330,7 +333,6 @@ public class VectView extends GridPanel implements VectListener {
 
     @Override
     public void colorsChanged() {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public VectModel getVectModel() {

@@ -104,6 +104,20 @@ public class VectModel {
 
     public void addVectListener(VectListener vectListener) {
         listeners.add(vectListener);
+
+                vectListener.gridChanged();
+        vectListener.regionChanged();
+        vectListener.colorsChanged();
+
+        vectListener.arrowModeChanged();
+        vectListener.chessModeChanged();
+        
+        vectListener.fieldModeChanged();
+
+        vectListener.gridColorChanged();
+        vectListener.gridDrawnChanged();
+        vectListener.lengthMultChanged();
+        vectListener.modelChanged();
     }
 
     public void removeVectListener(VectListener vectListener) {

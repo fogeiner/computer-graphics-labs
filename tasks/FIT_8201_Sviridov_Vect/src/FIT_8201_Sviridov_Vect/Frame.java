@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -44,6 +45,7 @@ public class Frame extends MainFrame implements FrameService, StateHistoryListen
     private VectModel vectModel;
     private StateHistoryModel<Region> regionsHistoryModel;
     private boolean modified;
+    private Color toggleColor = Color.lightGray;
 
     /**
      * Sets application title to "<code>name</code> - App name"
@@ -81,13 +83,9 @@ public class Frame extends MainFrame implements FrameService, StateHistoryListen
                     "grid.gif", "onGrid");
             addMenuItem("Edit/Chess mode", "Switch vectors chess order", KeyEvent.VK_K,
                     "checker.gif", "onChess");
-            addMenuItem("Edit/Color field mode", "Set field to color mode", KeyEvent.VK_C,
-                    "color_arrows.gif", "onColorField");
-            addMenuItem("Edit/B&W field mode", "Set field to black and white mode", KeyEvent.VK_B,
+            addMenuItem("Edit/Switch field mode", "Invert field mode (B&W vs color)", KeyEvent.VK_B,
                     "bw_arrows.gif", "onBWField");
-            addMenuItem("Edit/Plain arrow mode", "Set arrow to plain mode", KeyEvent.VK_P,
-                    "plain_arrow.gif", "onPlainArrow");
-            addMenuItem("Edit/Filled arrow mode", "Set arrow to filled mode", KeyEvent.VK_F,
+            addMenuItem("Edit/Switch arrow mode", "Invert arrow mode (plain vs filled)", KeyEvent.VK_F,
                     "filled_arrow.gif", "onFilledArrow");
             addMenuItem("Edit/Previous zoom level", "Previous zoom state", KeyEvent.VK_O,
                     "zoom_previous.gif", "onZoomPrevious");
@@ -108,11 +106,10 @@ public class Frame extends MainFrame implements FrameService, StateHistoryListen
             addToolBarButton("Edit/Grid");
             addToolBarButton("Edit/Chess mode");
             addToolBarSeparator();
-            addToolBarButton("Edit/Color field mode");
-            addToolBarButton("Edit/B&W field mode");
+            addToolBarButton("Edit/Switch field mode");
+
             addToolBarSeparator();
-            addToolBarButton("Edit/Plain arrow mode");
-            addToolBarButton("Edit/Filled arrow mode");
+            addToolBarButton("Edit/Switch arrow mode");
             addToolBarSeparator();
             addToolBarButton("Edit/Previous zoom level");
             addToolBarButton("Edit/Next zoom level");
@@ -227,20 +224,12 @@ public class Frame extends MainFrame implements FrameService, StateHistoryListen
 
     }
 
-    public void onColorField() {
-        vectModel.setFieldColor(true);
-    }
-
     public void onBWField() {
-        vectModel.setFieldColor(false);
-    }
-
-    public void onPlainArrow() {
-        vectModel.setArrowPlain(true);
+        vectModel.setFieldColor(!vectModel.isFieldColor());
     }
 
     public void onFilledArrow() {
-        vectModel.setArrowPlain(false);
+        vectModel.setArrowPlain(!vectModel.isArrowPlain());
     }
 
     public void onSettings() {
@@ -487,18 +476,20 @@ public class Frame extends MainFrame implements FrameService, StateHistoryListen
     public void setZoomPreviousBlocked(boolean blocked) {
         JMenuBar menu_bar = getJMenuBar();
         JMenu edit = (JMenu) menu_bar.getComponent(1);
-        edit.getMenuComponent(6).setEnabled(!blocked);
-        toolBar.getComponent(13).setEnabled(!blocked);
+        edit.getMenuComponent(4).setEnabled(!blocked);
+        toolBar.getComponent(11).setEnabled(!blocked);
     }
 
     public void setZoomNextBlocked(boolean blocked) {
         JMenuBar menu_bar = getJMenuBar();
         JMenu edit = (JMenu) menu_bar.getComponent(1);
-        edit.getMenuComponent(7).setEnabled(!blocked);
-        toolBar.getComponent(14).setEnabled(!blocked);
+        edit.getMenuComponent(5).setEnabled(!blocked);
+        toolBar.getComponent(12).setEnabled(!blocked);
     }
 
-
+    public void setVectModel(VectModel vectModel){
+        this.vectModel = vectModel;
+    }
 
     @Override
     public void historyStateChanged() {
@@ -508,49 +499,62 @@ public class Frame extends MainFrame implements FrameService, StateHistoryListen
 
     @Override
     public void modelChanged() {
-
     }
 
     @Override
     public void regionChanged() {
-
     }
 
     @Override
     public void lengthMultChanged() {
-
     }
 
     @Override
     public void gridChanged() {
-
     }
 
     @Override
     public void gridColorChanged() {
-
     }
 
     @Override
     public void colorsChanged() {
-
     }
 
     @Override
     public void fieldModeChanged() {
-
+        Color c = null;
+        if (!vectModel.isFieldColor()) {
+            c = toggleColor;
+        }
+        toolBar.getComponent(7).setBackground(c);
     }
 
     @Override
     public void gridDrawnChanged() {
-
+        Color c = null;
+        if (vectModel.isGridDrawn()) {
+            c = toggleColor;
+        }
+        toolBar.getComponent(4).setBackground(c);
     }
 
     @Override
     public void arrowModeChanged() {
+
+        Color c = null;
+        if (!vectModel.isArrowPlain()) {
+            c = toggleColor;
+        }
+        toolBar.getComponent(9).setBackground(c);
     }
 
     @Override
     public void chessModeChanged() {
+        Color c = null;
+        if (vectModel.isChessMode()) {
+            c = toggleColor;
+        }
+        toolBar.getComponent(5).setBackground(c);
     }
 }
