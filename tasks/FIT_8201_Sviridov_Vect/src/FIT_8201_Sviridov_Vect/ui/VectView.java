@@ -1,12 +1,12 @@
 package FIT_8201_Sviridov_Vect.ui;
 
-import FIT_8201_Sviridov_Vect.state_history.StateHistoryListener;
 import FIT_8201_Sviridov_Vect.state_history.StateHistoryModel;
 import FIT_8201_Sviridov_Vect.utils.Grid;
 import FIT_8201_Sviridov_Vect.utils.Region;
 import FIT_8201_Sviridov_Vect.statusbar.StatusbarModel;
 import FIT_8201_Sviridov_Vect.vect.VectListener;
 import FIT_8201_Sviridov_Vect.vect.VectModel;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -34,7 +34,6 @@ public class VectView extends GridPanel implements VectListener {
     private boolean selectionRectActive;
     private Point selectionRectStart;
     private Point selectionRectCurrent;
-    private boolean filledArrows;
 
     public VectView() {
         addComponentListener(new ComponentAdapter() {
@@ -48,6 +47,7 @@ public class VectView extends GridPanel implements VectListener {
                 updateSize();
                 computeGridPoints();
                 computeVectors();
+                revalidate();
             }
         });
         addMouseMotionListener(new MouseAdapter() {
@@ -63,13 +63,13 @@ public class VectView extends GridPanel implements VectListener {
             @Override
             public void mouseEntered(MouseEvent me) {
                 super.mouseEntered(me);
-                statusbarModel.setState(StatusbarModel.IN_REGION);
+                statusbarModel.setInRegion(true);
             }
 
             @Override
             public void mouseExited(MouseEvent me) {
                 super.mouseExited(me);
-                statusbarModel.setState(StatusbarModel.OUT_REGION);
+                statusbarModel.setInRegion(false);
             }
         });
         addMouseListener(new MouseAdapter() {
@@ -192,23 +192,47 @@ public class VectView extends GridPanel implements VectListener {
             vectors = new ArrayList<Vector>(grid.W * grid.H);
         }
 
+        double lCoeff = getGridCellDiagonal() * vectModel.getLengthMult();
+        double maxLength = vectModel.getMaxVectorLength();
         for (Point[] pp : getGridPoints()) {
             for (Point p : pp) {
                 Point2D modelPoint = translateCoordinates(p);
                 double x = modelPoint.getX(),
                         y = modelPoint.getY();
-                double fx = vectModel.fx(x, y);
-                double fy = vectModel.fy(x, y);
-                double maxLength = vectModel.getMaxVectorLength();
 
-                double xOffset = fx / maxLength;
-                double yOffset = fy / maxLength;
+                double fx = vectModel.fx(x, y),
+                        fy = vectModel.fy(x, y);
 
-                double xe = p.getX() + xOffset * getGridCellDiagonal() * vectModel.getLengthMult();
-                double ye = p.getY() + yOffset * getGridCellDiagonal() * vectModel.getLengthMult();
-                vectors.add(new Vector(
-                        new Point2D.Double(p.getX(), p.getY()),
-                        new Point2D.Double(xe, ye)));
+
+                double xs = p.getX(),
+                        ys = p.getY();
+
+                double xCoeff, yCoeff, xe, ye;
+
+                Color vectColor;
+                if (vectModel.isFieldColor()) {
+                    double length = Math.hypot(fx, fy);
+                    vectColor = vectModel.getClosest(length);
+
+                    xCoeff = fx / length;
+                    yCoeff = fy / length;
+
+                    xe = xs + xCoeff * lCoeff;
+                    ye = ys + yCoeff * lCoeff;
+                } else {
+                    vectColor = Color.black;
+
+                    xCoeff = fx / maxLength;
+                    yCoeff = fy / maxLength;
+
+                    xe = xs + xCoeff * lCoeff;
+                    ye = ys + yCoeff * lCoeff;
+                }
+                Vector v = new Vector(
+                        new Point2D.Double(xs, ys),
+                        new Point2D.Double(xe, ye));
+                v.setColor(vectColor);
+                vectors.add(v);
             }
         }
     }
@@ -225,7 +249,7 @@ public class VectView extends GridPanel implements VectListener {
 
         if (vectors != null) {
             for (Vector v : vectors) {
-                v.setFilled(filledArrows);
+                v.setFilled(!vectModel.isArrowPlain());
                 v.draw(g);
             }
         }
@@ -246,6 +270,7 @@ public class VectView extends GridPanel implements VectListener {
 
     public void setStatusbarModel(StatusbarModel statusbarModel) {
         this.statusbarModel = statusbarModel;
+        setGridDrawn(vectModel.isGridDrawn());
     }
 
     @Override
@@ -265,7 +290,6 @@ public class VectView extends GridPanel implements VectListener {
 
     @Override
     public void lengthMultChanged() {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
@@ -276,7 +300,8 @@ public class VectView extends GridPanel implements VectListener {
 
     @Override
     public void gridColorChanged() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        setGridColor(vectModel.getGridColor());
+        repaint();
     }
 
     @Override
@@ -294,20 +319,14 @@ public class VectView extends GridPanel implements VectListener {
 
     @Override
     public void arrowModeChanged() {
-        int mode = vectModel.getArrowMode();
-        if (mode == VectModel.FILLED_MODE) {
-            filledArrows = true;
-        } else if (mode == VectModel.PLAIN_MODE) {
-            filledArrows = false;
-        } else {
-            throw new RuntimeException("Invalid or unknown arrow type value");
-        }
+        computeVectors();
         repaint();
     }
 
     @Override
     public void fieldModeChanged() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        computeVectors();
+        repaint();
     }
 
     @Override

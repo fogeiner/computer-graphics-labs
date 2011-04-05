@@ -14,8 +14,9 @@ final public class StateHistoryModel<T> {
     private int index;
     private List<StateHistoryListener> listeners = new ArrayList<StateHistoryListener>();
 
-    public StateHistoryModel() {
+    public StateHistoryModel(T initial) {
         clear();
+        add(initial);
     }
 
     public void addListener(StateHistoryListener l) {
@@ -93,8 +94,7 @@ final public class StateHistoryModel<T> {
     }
 
     public static void main(String args[]) {
-        StateHistoryModel<Region> states = new StateHistoryModel<Region>();
-        states.add(new Region(0, 0, 0, 0));
+        StateHistoryModel<Region> states = new StateHistoryModel<Region>(new Region(0, 0, 0, 0));
         states.add(new Region(1, 1, 1, 1));
         states.add(new Region(2, 2, 2, 2));
         states.add(new Region(3, 3, 3, 3));

@@ -9,25 +9,24 @@ import java.util.List;
  */
 public class StatusbarModel {
 
-    public static final int IN_REGION = 0;
-    public static final int OUT_REGION = 1;
     private List<StatusbarListener> listeners;
-    private int state;
+    private boolean inRegion;
     private double x;
     private double y;
     private double fx;
     private double fy;
 
-    public StatusbarModel() {
+    public StatusbarModel(boolean inRegion) {
+        this.inRegion = inRegion;
         listeners = new ArrayList<StatusbarListener>(1);
     }
 
-    public int getState() {
-        return state;
+    public boolean isInRegion() {
+        return inRegion;
     }
 
-    public void setState(int state) {
-        this.state = state;
+    public void setInRegion(boolean inRegion) {
+        this.inRegion = inRegion;
         for (StatusbarListener l : listeners) {
             l.stateChanged();
         }

@@ -1,19 +1,13 @@
 package FIT_8201_Sviridov_Vect;
 
-import FIT_8201_Sviridov_Vect.FrameService;
-import FIT_8201_Sviridov_Vect.Settings;
 import FIT_8201_Sviridov_Vect.state_history.StateHistoryListener;
 import FIT_8201_Sviridov_Vect.state_history.StateHistoryModel;
-import FIT_8201_Sviridov_Vect.ui.LegendPanel;
 import FIT_8201_Sviridov_Vect.utils.Region;
 import FIT_8201_Sviridov_Vect.utils.Grid;
-import FIT_8201_Sviridov_Vect.ui.Statusbar;
 import FIT_8201_Sviridov_Vect.statusbar.StatusbarModel;
 import FIT_8201_Sviridov_Vect.ui.LegendPanel;
 import FIT_8201_Sviridov_Vect.ui.Statusbar;
 import FIT_8201_Sviridov_Vect.ui.VectView;
-import FIT_8201_Sviridov_Vect.ui.VectView;
-import FIT_8201_Sviridov_Vect.vect.VectListener;
 import FIT_8201_Sviridov_Vect.vect.VectModel;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -128,11 +122,11 @@ public class Frame extends MainFrame implements FrameService, StateHistoryListen
             e.printStackTrace();
         }
 
-        regionsHistoryModel = new StateHistoryModel<Region>();
-        vectModel = new VectModel(new Region(0.0, 4.0, 0.0, 4.0)) {
+        vectModel = new VectModel(new Region(-2.0, 2.0, -2.0, 2.0), 0.5, new Grid(20, 20), Arrays.asList(new Color[]{Color.red, Color.green, Color.blue}), Color.gray, true, true, true) {
 
             @Override
-            public double fx(double x, double y) {
+            public double fx(
+                    double x, double y) {
                 return Math.sin(x + y);
             }
 
@@ -141,24 +135,18 @@ public class Frame extends MainFrame implements FrameService, StateHistoryListen
                 return Math.sin(x - y);
             }
         };
-        regionsHistoryModel = new StateHistoryModel<Region>();
-        regionsHistoryModel.add(vectModel.getRegion());
+
+        regionsHistoryModel = new StateHistoryModel<Region>(vectModel.getRegion());
         regionsHistoryModel.addListener(this);
 
-        vectModel.setGrid(new Grid(20, 20));
-        vectModel.setColors(Arrays.asList(new Color[]{Color.red, Color.orange, Color.yellow}));
-        vectModel.setGridColor(Color.gray);
-        vectModel.setLengthMult(0.5);
-        
 
-        vectModel.setNotifyActive(true);
 
         JPanel mainPanel = new JPanel(new BorderLayout(Settings.PANEL_PADDING, Settings.PANEL_PADDING));
         final JPanel outerFieldPanel = new JPanel(new GridBagLayout());
 
 
         final VectView vectView = new VectView();
-        StatusbarModel statusbarModel = new StatusbarModel();
+        StatusbarModel statusbarModel = new StatusbarModel(false);
         Statusbar statusbar = new Statusbar();
 
         LegendPanel legendPanel = new LegendPanel();
@@ -230,17 +218,19 @@ public class Frame extends MainFrame implements FrameService, StateHistoryListen
     }
 
     public void onColorField() {
+        vectModel.setFieldColor(true);
     }
 
     public void onBWField() {
+        vectModel.setFieldColor(false);
     }
 
     public void onPlainArrow() {
-        vectModel.setArrowMode(VectModel.PLAIN_MODE);
+        vectModel.setArrowPlain(true);
     }
 
     public void onFilledArrow() {
-        vectModel.setArrowMode(VectModel.FILLED_MODE);
+        vectModel.setArrowPlain(false);
     }
 
     public void onSettings() {

@@ -165,9 +165,9 @@ public class Vector {
 
         }
 
-        Stroke old_stroke = g.getStroke();
+        Stroke oldStroke = g.getStroke();
+        Color oldColor = g.getColor();
         g.setColor(color);
-
         g.setStroke(stroke);
 
         if (filled) {
@@ -177,7 +177,8 @@ public class Vector {
             g.draw(openVector);
         }
 
-        g.setStroke(old_stroke);
+        g.setColor(oldColor);
+        g.setStroke(oldStroke);
     }
 
     public static void main(String args[]) {

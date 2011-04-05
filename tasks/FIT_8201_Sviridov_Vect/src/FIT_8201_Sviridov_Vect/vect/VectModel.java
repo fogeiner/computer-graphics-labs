@@ -13,26 +13,32 @@ import java.util.List;
  */
 public class VectModel {
 
-    public static final int BW_MODE = 0;
-    public static final int COLOR_MODE = 1;
-    public static final int PLAIN_MODE = 0;
-    public static final int FILLED_MODE = 1;
     private Region region;
     private double lengthMult;
     private Grid grid;
     private List<Color> colors;
     private List<Double> values;
     private Color gridColor;
-    private int fieldMode;
+    private boolean fieldColor;
     private double maxVectorLength;
     private boolean gridDrawn;
-    private int arrowMode;
+    private boolean arrowPlain;
     private final List<VectListener> listeners;
-    private boolean notifyActive;
 
-    public VectModel(Region region) {
-        this.region = region;
+    public VectModel(Region region, double lengthMult,
+            Grid grid, List<Color> colors, Color gridColor,
+            boolean fieldColor, boolean gridDrawn, boolean arrowPlain) {
         this.listeners = new LinkedList<VectListener>();
+        this.region = region;
+        this.lengthMult = lengthMult;
+        this.grid = grid;
+        this.colors = colors;
+        this.gridColor = gridColor;
+        this.fieldColor = fieldColor;
+        this.gridDrawn = gridDrawn;
+        this.arrowPlain = arrowPlain;
+
+        computeValues();
     }
 
     private void computeValues() {
@@ -88,10 +94,9 @@ public class VectModel {
     }
 
     public void notifyListeners() {
-        if (isNotifyActive()) {
-            for (VectListener vectListener : listeners) {
-                vectListener.modelChanged();
-            }
+
+        for (VectListener vectListener : listeners) {
+            vectListener.modelChanged();
         }
     }
 
@@ -118,10 +123,10 @@ public class VectModel {
     public void setColors(List<Color> colors) {
         this.colors = colors;
         computeValues();
-        if (isNotifyActive()) {
-            for (VectListener vectListener : listeners) {
-                vectListener.colorsChanged();
-            }
+
+        for (VectListener vectListener : listeners) {
+            vectListener.colorsChanged();
+
         }
     }
 
@@ -131,11 +136,10 @@ public class VectModel {
 
     public void setRegion(Region region) {
         this.region = region;
-        computeValues();
-        if (isNotifyActive()) {
-            for (VectListener vectListener : listeners) {
-                vectListener.regionChanged();
-            }
+        // place to recompute values!
+
+        for (VectListener vectListener : listeners) {
+            vectListener.regionChanged();
         }
     }
 
@@ -145,10 +149,10 @@ public class VectModel {
 
     public void setGridColor(Color gridColor) {
         this.gridColor = gridColor;
-        if (isNotifyActive()) {
-            for (VectListener vectListener : listeners) {
-                vectListener.gridColorChanged();
-            }
+
+        for (VectListener vectListener : listeners) {
+            vectListener.gridColorChanged();
+
         }
     }
 
@@ -158,19 +162,11 @@ public class VectModel {
 
     public void setLengthMult(double lengthMult) {
         this.lengthMult = lengthMult;
-        if (isNotifyActive()) {
-            for (VectListener vectListener : listeners) {
-                vectListener.lengthMultChanged();
-            }
+
+        for (VectListener vectListener : listeners) {
+            vectListener.lengthMultChanged();
+
         }
-    }
-
-    public boolean isNotifyActive() {
-        return notifyActive;
-    }
-
-    public void setNotifyActive(boolean notifyActive) {
-        this.notifyActive = notifyActive;
     }
 
     public Grid getGrid() {
@@ -180,10 +176,10 @@ public class VectModel {
     public void setGrid(Grid grid) {
         this.grid = grid;
         computeValues();
-        if (isNotifyActive()) {
-            for (VectListener vectListener : listeners) {
-                vectListener.gridChanged();
-            }
+
+        for (VectListener vectListener : listeners) {
+            vectListener.gridChanged();
+
         }
 
     }
@@ -206,16 +202,16 @@ public class VectModel {
         return colors.get(valuesSize);
     }
 
-    public int getFieldMode() {
-        return fieldMode;
+    public boolean isFieldColor() {
+        return fieldColor;
     }
 
-    public void setFieldMode(int fieldMode) {
-        this.fieldMode = fieldMode;
-        if (isNotifyActive()) {
-            for (VectListener vectListener : listeners) {
-                vectListener.fieldModeChanged();
-            }
+    public void setFieldColor(boolean fieldColor) {
+        this.fieldColor = fieldColor;
+
+        for (VectListener vectListener : listeners) {
+            vectListener.fieldModeChanged();
+
         }
     }
 
@@ -225,10 +221,10 @@ public class VectModel {
 
     public void setGridDrawn(boolean gridDrawn) {
         this.gridDrawn = gridDrawn;
-        if (isNotifyActive()) {
-            for (VectListener vectListener : listeners) {
-                vectListener.gridDrawnChanged();
-            }
+
+        for (VectListener vectListener : listeners) {
+            vectListener.gridDrawnChanged();
+
         }
     }
 
@@ -236,16 +232,16 @@ public class VectModel {
         return maxVectorLength;
     }
 
-    public int getArrowMode() {
-        return arrowMode;
+    public boolean isArrowPlain() {
+        return arrowPlain;
     }
 
-    public void setArrowMode(int arrowMode) {
-        this.arrowMode = arrowMode;
-        if (isNotifyActive()) {
-            for (VectListener vectListener : listeners) {
-                vectListener.arrowModeChanged();
-            }
+    public void setArrowPlain(boolean arrowPlain) {
+        this.arrowPlain = arrowPlain;
+
+        for (VectListener vectListener : listeners) {
+            vectListener.arrowModeChanged();
         }
+
     }
 }

@@ -72,20 +72,20 @@ public class Statusbar extends JPanel implements StatusbarListener {
 
         sb = new StringBuilder();
         sb.append("Length: ");
-        sb.append(format.format(Math.sqrt(fx*fx + fy*fy)));
+        sb.append(format.format(Math.hypot(fx, fy)));
         lValue.setText(sb.toString());
     }
 
     @Override
     public void dataChanged() {
-        if (statusbarModel.getState() == StatusbarModel.IN_REGION) {
+        if (statusbarModel.isInRegion()) {
             setValues(statusbarModel.getX(), statusbarModel.getY(), statusbarModel.getFx(), statusbarModel.getFy());
         }
     }
 
     @Override
     public void stateChanged() {
-        if (statusbarModel.getState() == StatusbarModel.OUT_REGION) {
+        if (statusbarModel.isInRegion() == false) {
             clear();
         }
     }
