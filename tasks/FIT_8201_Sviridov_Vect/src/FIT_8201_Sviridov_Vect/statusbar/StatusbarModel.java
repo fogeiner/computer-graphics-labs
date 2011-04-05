@@ -16,8 +16,8 @@ public class StatusbarModel {
     private double fx;
     private double fy;
 
-    public StatusbarModel(boolean inRegion) {
-        this.inRegion = inRegion;
+    public StatusbarModel() {
+        this.inRegion = false;
         listeners = new ArrayList<StatusbarListener>(1);
     }
 
@@ -66,5 +66,9 @@ public class StatusbarModel {
 
     public void removeStatusbarListener(StatusbarListener l) {
         listeners.remove(l);
+    }
+
+    public void clearListeners(){
+        listeners.clear();
     }
 }

@@ -55,6 +55,10 @@ public class LegendPanel extends JPanel implements VectListener {
 
     public void setVectModel(VectModel vectModel) {
         this.vectModel = vectModel;
+        if (vectModel != null) {
+            setModel(vectModel.getValues(), vectModel.getColors());
+        }
+        repaint();
     }
 
     private void setModel(List<Double> values, List<Color> colors) {
@@ -64,8 +68,6 @@ public class LegendPanel extends JPanel implements VectListener {
 
         this.values = new ArrayList<Double>(values);
 
-        Collections.sort(values);
-        Collections.reverse(values);
         this.colors = colors;
         updateSize();
     }
@@ -100,7 +102,7 @@ public class LegendPanel extends JPanel implements VectListener {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        if (colors == null || values == null) {
+        if (colors == null || values == null || vectModel == null) {
             return;
         }
 
@@ -177,11 +179,13 @@ public class LegendPanel extends JPanel implements VectListener {
     @Override
     public void modelChanged() {
         setModel(vectModel.getValues(), vectModel.getColors());
+        repaint();
     }
 
     @Override
     public void regionChanged() {
         setModel(vectModel.getValues(), vectModel.getColors());
+        repaint();
     }
 
     @Override
@@ -191,6 +195,7 @@ public class LegendPanel extends JPanel implements VectListener {
     @Override
     public void gridChanged() {
         setModel(vectModel.getValues(), vectModel.getColors());
+        repaint();
     }
 
     @Override
@@ -200,6 +205,7 @@ public class LegendPanel extends JPanel implements VectListener {
     @Override
     public void colorsChanged() {
         setModel(vectModel.getValues(), vectModel.getColors());
+        repaint();
     }
 
     @Override

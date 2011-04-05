@@ -4,6 +4,7 @@ import FIT_8201_Sviridov_Vect.utils.Grid;
 import FIT_8201_Sviridov_Vect.utils.Region;
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -86,12 +87,13 @@ public class VectModel {
         for (int k = 1; k < colorsCount; ++k) {
             values.add(new Double(min + step * k));
         }
+        Collections.reverse(values);
     }
 
     private double vectorLength(double x, double y) {
         double fx = fx(x, y),
                 fy = fy(x, y),
-                res = Math.sqrt(fx * fx + fy * fy);
+                res = Math.hypot(fx, fy);
         return res;
     }
 
@@ -104,20 +106,6 @@ public class VectModel {
 
     public void addVectListener(VectListener vectListener) {
         listeners.add(vectListener);
-
-                vectListener.gridChanged();
-        vectListener.regionChanged();
-        vectListener.colorsChanged();
-
-        vectListener.arrowModeChanged();
-        vectListener.chessModeChanged();
-        
-        vectListener.fieldModeChanged();
-
-        vectListener.gridColorChanged();
-        vectListener.gridDrawnChanged();
-        vectListener.lengthMultChanged();
-        vectListener.modelChanged();
     }
 
     public void removeVectListener(VectListener vectListener) {
@@ -125,11 +113,11 @@ public class VectModel {
     }
 
     public double fx(double x, double y) {
-        return 0.0;
+        return Math.sin(x + y);
     }
 
     public double fy(double x, double y) {
-        return 0.0;
+        return Math.sin(x - y);
     }
 
     public List<Color> getColors() {
@@ -138,11 +126,9 @@ public class VectModel {
 
     public void setColors(List<Color> colors) {
         this.colors = colors;
-        computeValues();
 
         for (VectListener vectListener : listeners) {
             vectListener.colorsChanged();
-
         }
     }
 
@@ -191,11 +177,9 @@ public class VectModel {
 
     public void setGrid(Grid grid) {
         this.grid = grid;
-        computeValues();
 
         for (VectListener vectListener : listeners) {
             vectListener.gridChanged();
-
         }
 
     }
@@ -210,6 +194,7 @@ public class VectModel {
 
     public Color getClosest(double value) {
         int valuesSize = values.size();
+
         for (int i = 0; i < valuesSize; ++i) {
             if (values.get(i) < value) {
                 return colors.get(i);
@@ -240,7 +225,6 @@ public class VectModel {
 
         for (VectListener vectListener : listeners) {
             vectListener.gridDrawnChanged();
-
         }
     }
 
@@ -269,5 +253,9 @@ public class VectModel {
         for (VectListener vectListener : listeners) {
             vectListener.chessModeChanged();
         }
+    }
+
+    public void clearListeners() {
+        listeners.clear();
     }
 }

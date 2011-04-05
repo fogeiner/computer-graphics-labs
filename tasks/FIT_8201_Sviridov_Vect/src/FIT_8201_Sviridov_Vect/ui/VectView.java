@@ -42,6 +42,9 @@ public class VectView extends GridPanel implements VectListener {
             @Override
             public void componentResized(ComponentEvent e) {
                 super.componentResized(e);
+                if (vectModel == null || statusbarModel == null) {
+                    return;
+                }
                 if (e.getSource() == VectView.this) {
                     return;
                 }
@@ -56,6 +59,9 @@ public class VectView extends GridPanel implements VectListener {
             @Override
             public void mouseMoved(MouseEvent e) {
                 super.mouseMoved(e);
+                if (vectModel == null || statusbarModel == null) {
+                    return;
+                }
                 updateStatusbar(new Point(e.getPoint()));
                 mouseCurrentPoint = new Point(e.getPoint());
                 repaint();
@@ -66,12 +72,18 @@ public class VectView extends GridPanel implements VectListener {
             @Override
             public void mouseEntered(MouseEvent me) {
                 super.mouseEntered(me);
+                if (vectModel == null || statusbarModel == null) {
+                    return;
+                }
                 statusbarModel.setInRegion(true);
             }
 
             @Override
             public void mouseExited(MouseEvent me) {
                 super.mouseExited(me);
+                if (vectModel == null || statusbarModel == null) {
+                    return;
+                }
                 statusbarModel.setInRegion(false);
                 mouseCurrentPoint = null;
                 repaint();
@@ -82,6 +94,9 @@ public class VectView extends GridPanel implements VectListener {
             @Override
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e);
+                if (vectModel == null || statusbarModel == null) {
+                    return;
+                }
                 Point p = e.getPoint();
                 selectionRectStart = new Point(p.x, getHeight() - p.y);
                 selectionRectCurrent = new Point(p.x, getHeight() - p.y);
@@ -92,6 +107,9 @@ public class VectView extends GridPanel implements VectListener {
             @Override
             public void mouseReleased(MouseEvent e) {
                 super.mouseReleased(e);
+                if (vectModel == null || statusbarModel == null) {
+                    return;
+                }
                 selectionRectActive = false;
                 Point p = e.getPoint();
 
@@ -112,6 +130,9 @@ public class VectView extends GridPanel implements VectListener {
             @Override
             public void mouseDragged(MouseEvent e) {
                 super.mouseDragged(e);
+                if (vectModel == null || statusbarModel == null) {
+                    return;
+                }
                 Point p = e.getPoint();
                 updateStatusbar(new Point2D.Double(p.getX(), p.getY()));
 
@@ -134,6 +155,7 @@ public class VectView extends GridPanel implements VectListener {
     }
 
     private void updateSize() {
+
         Dimension maxSize = ((JPanel) getParent()).getSize();
 
         double mRatio = vectModel.getRatio();
@@ -153,6 +175,7 @@ public class VectView extends GridPanel implements VectListener {
         VectView.this.setSize(newSize);
         VectView.this.setPreferredSize(newSize);
         VectView.this.setMinimumSize(newSize);
+        VectView.this.setMaximumSize(newSize);
     }
 
     public void setRegionsHistory(StateHistoryModel<Region> regionsHistory) {
@@ -188,11 +211,16 @@ public class VectView extends GridPanel implements VectListener {
         double x = x3 + xs,
                 y = y3 + ys;
 
-        return new Point2D.Double(x, y);
+        Point2D result = new Point2D.Double(x, y);
+
+        return result;
     }
 
     private void computeVectors() {
         Grid grid = getGrid();
+        if (grid == null) {
+            return;
+        }
         if (vectors != null) {
             vectors.clear();
         } else {
@@ -233,6 +261,7 @@ public class VectView extends GridPanel implements VectListener {
         Color vectColor;
         if (vectModel.isFieldColor()) {
             double length = Math.hypot(fx, fy);
+            
             vectColor = vectModel.getClosest(length);
 
             xCoeff = fx / length;
@@ -259,15 +288,22 @@ public class VectView extends GridPanel implements VectListener {
 
     @Override
     protected void paintComponent(Graphics g1) {
+
         Graphics2D g = (Graphics2D) g1;
+        if (vectModel == null) {
+            setGridDrawn(false);
+        }
+
+        super.paintComponent(g);
+
         g.translate(0, this.getHeight() - 1);
         g.scale(1, -1);
         // g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
-        super.paintComponent(g);
 
+        
 
-        if (vectors != null) {
+        if (vectors != null && vectModel != null) {
             for (Vector v : vectors) {
                 v.setFilled(!vectModel.isArrowPlain());
                 v.draw(g);
@@ -297,14 +333,10 @@ public class VectView extends GridPanel implements VectListener {
 
     public void setStatusbarModel(StatusbarModel statusbarModel) {
         this.statusbarModel = statusbarModel;
-        setGridDrawn(vectModel.isGridDrawn());
     }
 
     @Override
     public void modelChanged() {
-
-        setGrid(vectModel.getGrid());
-        repaint();
     }
 
     @Override
@@ -317,11 +349,16 @@ public class VectView extends GridPanel implements VectListener {
 
     @Override
     public void lengthMultChanged() {
+        computeVectors();
+        repaint();
     }
 
     @Override
     public void gridChanged() {
         setGrid(vectModel.getGrid());
+        updateSize();
+        computeGridPoints();
+        computeVectors();
         repaint();
     }
 
@@ -341,6 +378,17 @@ public class VectView extends GridPanel implements VectListener {
 
     public void setVectModel(VectModel vectModel) {
         this.vectModel = vectModel;
+        if (vectModel != null) {
+            setGrid(vectModel.getGrid());
+            setGridColor(vectModel.getGridColor());
+            setGridDrawn(vectModel.isGridDrawn());
+
+            updateSize();
+            computeGridPoints();
+            computeVectors();
+        }
+        revalidate();
+        repaint();
     }
 
     @Override

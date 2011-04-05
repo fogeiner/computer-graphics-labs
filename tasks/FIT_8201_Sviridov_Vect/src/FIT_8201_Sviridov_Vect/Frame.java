@@ -3,13 +3,13 @@ package FIT_8201_Sviridov_Vect;
 import FIT_8201_Sviridov_Vect.state_history.StateHistoryListener;
 import FIT_8201_Sviridov_Vect.state_history.StateHistoryModel;
 import FIT_8201_Sviridov_Vect.utils.Region;
-import FIT_8201_Sviridov_Vect.utils.Grid;
 import FIT_8201_Sviridov_Vect.statusbar.StatusbarModel;
 import FIT_8201_Sviridov_Vect.ui.LegendPanel;
 import FIT_8201_Sviridov_Vect.ui.Statusbar;
 import FIT_8201_Sviridov_Vect.ui.VectView;
 import FIT_8201_Sviridov_Vect.vect.VectListener;
 import FIT_8201_Sviridov_Vect.vect.VectModel;
+import FIT_8201_Sviridov_Vect.vect.VectPersistence;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
@@ -21,10 +21,11 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -39,13 +40,17 @@ import ru.nsu.cg.MainFrame;
  * 
  * @author alstein
  */
-public class Frame extends MainFrame implements FrameService, StateHistoryListener, VectListener {
+public final class Frame extends MainFrame implements FrameService, StateHistoryListener, VectListener {
 
     private static final long serialVersionUID = 3501543956694236029L;
-    private VectModel vectModel;
-    private StateHistoryModel<Region> regionsHistoryModel;
-    private boolean modified;
     private Color toggleColor = Color.lightGray;
+    private StateHistoryModel<Region> regionsHistoryModel = new StateHistoryModel<Region>();
+    private StatusbarModel statusbarModel = new StatusbarModel();
+    private Statusbar statusbar = new Statusbar();
+    private LegendPanel legendPanel = new LegendPanel();
+    private VectView vectView = new VectView();
+    private VectModel vectModel;
+    private boolean modified;
 
     /**
      * Sets application title to "<code>name</code> - App name"
@@ -123,39 +128,8 @@ public class Frame extends MainFrame implements FrameService, StateHistoryListen
             e.printStackTrace();
         }
 
-        vectModel = new VectModel(new Region(-2.0, 2.0, -2.0, 2.0), 0.5, new Grid(20, 20),
-                Arrays.asList(new Color[]{Color.red, Color.green, Color.blue}), Color.gray, true, true, true, true) {
-
-            @Override
-            public double fx(
-                    double x, double y) {
-                return Math.sin(x + y);
-            }
-
-            @Override
-            public double fy(double x, double y) {
-                return Math.sin(x - y);
-            }
-        };
-
-        regionsHistoryModel = new StateHistoryModel<Region>(vectModel.getRegion());
-        regionsHistoryModel.addListener(this);
-
-
-
         JPanel mainPanel = new JPanel(new BorderLayout(Settings.PANEL_PADDING, Settings.PANEL_PADDING));
         final JPanel outerFieldPanel = new JPanel(new GridBagLayout());
-
-
-        final VectView vectView = new VectView();
-        StatusbarModel statusbarModel = new StatusbarModel(false);
-        Statusbar statusbar = new Statusbar();
-
-        LegendPanel legendPanel = new LegendPanel();
-
-        vectView.setBorder(BorderFactory.createLineBorder(Settings.BORDER_COLOR));
-        vectView.setBackground(Color.white);
-
         outerFieldPanel.addComponentListener(new ComponentAdapter() {
 
             @Override
@@ -166,10 +140,9 @@ public class Frame extends MainFrame implements FrameService, StateHistoryListen
             }
         });
 
-        legendPanel.setBorder(BorderFactory.createLineBorder(Settings.BORDER_COLOR));
+        mainPanel.setBackground(Color.white);
+        vectView.setBackground(Color.white);
         legendPanel.setBackground(Color.white);
-
-        outerFieldPanel.setBackground(Settings.PANEL_COLOR);
         outerFieldPanel.setBackground(Color.white);
 
         outerFieldPanel.add(vectView, new GridBagConstraints());
@@ -179,24 +152,11 @@ public class Frame extends MainFrame implements FrameService, StateHistoryListen
                 Settings.PANEL_PADDING, Settings.PANEL_PADDING));
         mainPanel.setBackground(Color.white);
         mainPanel.add(outerFieldPanel, BorderLayout.CENTER);
-
         mainPanel.add(legendPanel, BorderLayout.EAST);
+
 
         this.add(mainPanel, BorderLayout.CENTER);
         this.add(statusbar, BorderLayout.SOUTH);
-
-        vectView.setVectModel(vectModel);
-        vectView.setRegionsHistory(regionsHistoryModel);
-        statusbarModel.addStatusbarListener(statusbar);
-        statusbar.setStatusbarModel(statusbarModel);
-        vectView.setStatusbarModel(statusbarModel);
-        legendPanel.setVectModel(vectModel);
-
-
-        vectModel.addVectListener(vectView);
-        vectModel.addVectListener(legendPanel);
-        vectModel.addVectListener(this);
-        vectModel.notifyListeners();
 
 
         toolBar.setFloatable(false);
@@ -213,6 +173,73 @@ public class Frame extends MainFrame implements FrameService, StateHistoryListen
 
         reset();
 
+    }
+
+    /**
+     * Method called when user chooses "Load" in menu or on toolbar. Asks user
+     * to save current document (if needed), shows dialog to choose file and
+     * loads document from it
+     */
+    public void onLoad() {
+
+        if (isModified() == true) {
+            switch (showSaveMessage()) {
+                case JOptionPane.OK_OPTION:
+                    onSave();
+
+                    // still not saved
+                    if (isModified()) {
+                        return;
+                    }
+                    break;
+                case JOptionPane.CLOSED_OPTION:
+                case JOptionPane.CANCEL_OPTION:
+                    return;
+                case JOptionPane.NO_OPTION:
+            }
+        }
+
+        try {
+            File file = getOpenFileName("txt", "plain text file");
+            if (file == null) {
+                return;
+            }
+
+            vectModel = VectPersistence.loadFromFile(file);
+            regionsHistoryModel.add(vectModel.getRegion());
+
+            statusbar.setStatusbarModel(statusbarModel);
+            vectView.setStatusbarModel(statusbarModel);
+            vectView.setVectModel(vectModel);
+            vectView.setRegionsHistory(regionsHistoryModel);
+            
+            legendPanel.setVectModel(vectModel);
+
+            vectModel.addVectListener(vectView);
+            vectModel.addVectListener(legendPanel);
+            statusbarModel.addStatusbarListener(statusbar);
+            regionsHistoryModel.addListener(this);
+
+            setBlockedAll(false);
+            setZoomNextBlocked(true);
+            setZoomPreviousBlocked(true);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Frame.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Frame.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalArgumentException ex) {
+            System.out.println(ex);
+            JOptionPane.showMessageDialog(this,
+                    "Document is of unknown format", "Loading document",
+                    JOptionPane.ERROR_MESSAGE);
+            setTitle(Settings.UNTITLED_DOCUMENT);
+        } /*catch (Exception ex) {
+        System.out.println(ex);
+        JOptionPane.showMessageDialog(this,
+        "Error loading file: \n" + ex.getLocalizedMessage(),
+        "Loading document", JOptionPane.ERROR_MESSAGE);
+        setTitle(Settings.UNTITLED_DOCUMENT);
+        }*/
     }
 
     public void onChess() {
@@ -240,9 +267,20 @@ public class Frame extends MainFrame implements FrameService, StateHistoryListen
      */
     public void reset() {
         setTitle(Settings.UNTITLED_DOCUMENT);
-        setModified(false);
-        setZoomNextBlocked(true);
-        setZoomPreviousBlocked(true);
+
+        if (vectModel != null) {
+            vectModel.clearListeners();
+        }
+        statusbarModel.clearListeners();
+        regionsHistoryModel.clearListeners();
+
+        vectView.setVectModel(null);
+        vectView.setStatusbarModel(null);
+        vectView.setRegionsHistory(null);
+        statusbar.setStatusbarModel(null);
+        legendPanel.setVectModel(null);
+
+        setBlockedAll(true);
     }
 
     /**
@@ -345,51 +383,6 @@ public class Frame extends MainFrame implements FrameService, StateHistoryListen
     }
 
     /**
-     * Method called when user chooses "Load" in menu or on toolbar. Asks user
-     * to save current document (if needed), shows dialog to choose file and
-     * loads document from it
-     */
-    public void onLoad() {
-
-        if (isModified() == true) {
-            switch (showSaveMessage()) {
-                case JOptionPane.OK_OPTION:
-                    onSave();
-
-                    // still not saved
-                    if (isModified()) {
-                        return;
-                    }
-                    break;
-                case JOptionPane.CLOSED_OPTION:
-                case JOptionPane.CANCEL_OPTION:
-                    return;
-                case JOptionPane.NO_OPTION:
-            }
-        }
-
-        try {
-            File file = getOpenFileName("txt", "plain text file");
-            if (file == null) {
-                return;
-            }
-            setTitle(file.getName());
-        } catch (IllegalArgumentException ex) {
-            System.out.println(ex);
-            JOptionPane.showMessageDialog(this,
-                    "Document is of unknown format", "Loading document",
-                    JOptionPane.ERROR_MESSAGE);
-            setTitle(Settings.UNTITLED_DOCUMENT);
-        } catch (Exception ex) {
-            System.out.println(ex);
-            JOptionPane.showMessageDialog(this,
-                    "Error loading file: \n" + ex.getLocalizedMessage(),
-                    "Loading document", JOptionPane.ERROR_MESSAGE);
-            setTitle(Settings.UNTITLED_DOCUMENT);
-        }
-    }
-
-    /**
      * Method called when user chooses "Save" in menu or on toolbar. Shows
      * dialog to choose/create file and saves document to it
      */
@@ -414,6 +407,7 @@ public class Frame extends MainFrame implements FrameService, StateHistoryListen
                     return;
                 }
             }
+            VectPersistence.saveToFile(vectModel, file);
             setTitle(file.getName());
             setModified(false);
         } catch (Exception e) {
@@ -461,6 +455,21 @@ public class Frame extends MainFrame implements FrameService, StateHistoryListen
         modified = value;
     }
 
+    public void setBlockedAll(boolean blocked) {
+        JMenuBar menu_bar = getJMenuBar();
+        JMenu file = (JMenu) menu_bar.getComponent(0);
+        JMenu edit = (JMenu) menu_bar.getComponent(1);
+        file.getMenuComponent(2).setEnabled(!blocked);
+        for (int i = 0; i < 7; ++i) {
+            edit.getMenuComponent(i).setEnabled(!blocked);
+        }
+        for (int i = 2; i < 15; ++i) {
+            if (i != 3 && i != 6 && i != 8 && i != 10 && i != 13) {
+                toolBar.getComponent(i).setEnabled(!blocked);
+            }
+        }
+    }
+
     public void onZoomPrevious() {
         vectModel.setRegion(regionsHistoryModel.prev());
         setZoomPreviousBlocked(!regionsHistoryModel.hasPrev());
@@ -487,7 +496,7 @@ public class Frame extends MainFrame implements FrameService, StateHistoryListen
         toolBar.getComponent(12).setEnabled(!blocked);
     }
 
-    public void setVectModel(VectModel vectModel){
+    public void setVectModel(VectModel vectModel) {
         this.vectModel = vectModel;
     }
 

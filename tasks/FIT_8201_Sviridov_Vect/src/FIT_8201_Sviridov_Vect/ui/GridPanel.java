@@ -33,6 +33,9 @@ public class GridPanel extends JPanel {
     }
 
     public void computeGridPoints() {
+        if (grid == null) {
+            return;
+        }
         int height = getHeight();
         int width = getWidth();
 
@@ -56,7 +59,7 @@ public class GridPanel extends JPanel {
     public double getGridCellDiagonal() {
         double w = getGridCellWidth();
         double h = getGridCellHeight();
-        double diagonal = Math.sqrt(w * w + h * h);
+        double diagonal = Math.hypot(w, h);
         return diagonal;
     }
 
@@ -78,7 +81,6 @@ public class GridPanel extends JPanel {
 
     public void setGrid(Grid grid) {
         this.grid = grid;
-
         gridPoints = new Point[grid.W][grid.H];
     }
 
