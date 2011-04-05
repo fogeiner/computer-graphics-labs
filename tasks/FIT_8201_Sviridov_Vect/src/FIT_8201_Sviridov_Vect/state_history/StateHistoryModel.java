@@ -1,6 +1,5 @@
 package FIT_8201_Sviridov_Vect.state_history;
 
-import FIT_8201_Sviridov_Vect.utils.Region;
 import java.util.ArrayList;
 import java.util.List;
 

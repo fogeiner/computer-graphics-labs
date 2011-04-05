@@ -6,14 +6,11 @@ package FIT_8201_Sviridov_Vect.ui;
 
 import FIT_8201_Sviridov_Vect.utils.Grid;
 import java.awt.BasicStroke;
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Stroke;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 /**
@@ -22,7 +19,9 @@ import javax.swing.JPanel;
  */
 public class GridPanel extends JPanel {
 
-    public static final Color DEFAULT_GRID_COLOR = Color.lightGray;
+
+	private static final long serialVersionUID = -1038991547314803513L;
+	public static final Color DEFAULT_GRID_COLOR = Color.lightGray;
     private Color gridColor = DEFAULT_GRID_COLOR;
     private Stroke stroke;
     private Grid grid;
@@ -129,20 +128,4 @@ public class GridPanel extends JPanel {
         g2.setStroke(oldStroke);
     }
 
-    public static void main(String args[]) {
-        class Canvas extends GridPanel {
-
-            public Canvas() {
-                super(10, 20);
-            }
-        }
-
-        JFrame frame = new JFrame();
-        frame.setSize(new Dimension(600, 400));
-        frame.setLayout(new BorderLayout());
-        frame.add(new Canvas(), BorderLayout.CENTER);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);
-
-    }
 }

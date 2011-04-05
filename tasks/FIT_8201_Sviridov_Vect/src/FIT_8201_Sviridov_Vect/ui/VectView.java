@@ -27,7 +27,8 @@ import javax.swing.JPanel;
  */
 public class VectView extends GridPanel implements VectListener {
 
-    private VectModel vectModel;
+	private static final long serialVersionUID = 1810339757295266082L;
+	private VectModel vectModel;
     private StatusbarModel statusbarModel;
     private StateHistoryModel<Region> regionsHistoryModel;
     private List<Vector> vectors;

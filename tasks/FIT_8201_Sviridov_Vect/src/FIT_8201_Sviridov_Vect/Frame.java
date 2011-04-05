@@ -217,6 +217,7 @@ public final class Frame extends MainFrame implements FrameService, StateHistory
 
             vectModel.addVectListener(vectView);
             vectModel.addVectListener(legendPanel);
+            vectModel.addVectListener(this);
             statusbarModel.addStatusbarListener(statusbar);
             regionsHistoryModel.addListener(this);
 

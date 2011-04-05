@@ -17,7 +17,8 @@ import javax.swing.border.BevelBorder;
  */
 public class Statusbar extends JPanel implements StatusbarListener {
 
-    public static final DecimalFormat DEFAULT_FORMAT = (DecimalFormat) NumberFormat.getInstance(Locale.ENGLISH);
+	private static final long serialVersionUID = -6700823080898324182L;
+	public static final DecimalFormat DEFAULT_FORMAT = (DecimalFormat) NumberFormat.getInstance(Locale.ENGLISH);
     private final JLabel cValue = new JLabel();
     private final JLabel fValue = new JLabel();
     private final JLabel lValue = new JLabel();

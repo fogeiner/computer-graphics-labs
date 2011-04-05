@@ -1,24 +1,13 @@
 package FIT_8201_Sviridov_Vect.ui;
 
 import java.awt.BasicStroke;
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.RenderingHints;
 import java.awt.Stroke;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
-import java.util.LinkedList;
-import java.util.List;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 /**
  *
@@ -181,63 +170,4 @@ public class Vector {
         g.setStroke(oldStroke);
     }
 
-    public static void main(String args[]) {
-        class Canvas extends JPanel {
-
-            private List<Vector> _vectors = new LinkedList<Vector>();
-
-            public Canvas() {
-                setBackground(Color.white);
-
-                addMouseListener(new MouseAdapter() {
-
-                    private Point _start;
-
-                    @Override
-                    public void mousePressed(MouseEvent e) {
-                        super.mousePressed(e);
-                        _start = e.getPoint();
-                    }
-
-                    @Override
-                    public void mouseReleased(MouseEvent e) {
-                        super.mouseReleased(e);
-                        Vector v = new Vector(_start, e.getPoint());
-                        if (e.getButton() == MouseEvent.BUTTON1) {
-                            v.setFilled(false);
-                        } else if (e.getButton() == MouseEvent.BUTTON3) {
-                            v.setFilled(true);
-                        } else {
-                            return;
-                        }
-
-                        addVector(v);
-                        repaint();
-                    }
-                });
-            }
-
-            private void addVector(Vector v) {
-                _vectors.add(v);
-            }
-
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2 = (Graphics2D) g;
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-                for (Vector v : _vectors) {
-                    v.draw(g2);
-                }
-            }
-        }
-
-        JFrame frame = new JFrame();
-        frame.setSize(new Dimension(600, 400));
-        frame.setLayout(new BorderLayout());
-        frame.add(new Canvas(), BorderLayout.CENTER);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);
-    }
 }

@@ -19,7 +19,9 @@ import javax.swing.JPanel;
  */
 public class SettingsDialog extends JDialog {
 
-    public SettingsDialog(Frame owner) {
+	private static final long serialVersionUID = -903939050607469239L;
+
+	public SettingsDialog(Frame owner) {
         super(owner, "Color set chooser dialog");
         JPanel leftPanel = new JPanel(new GridLayout(0, 1, 5, 5));
         JPanel rightPanel = new JPanel();

@@ -16,7 +16,6 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import javax.swing.BorderFactory;
@@ -30,6 +29,7 @@ import javax.swing.border.BevelBorder;
  */
 public class LegendPanel extends JPanel implements VectListener {
 
+    private static final long serialVersionUID = -8211800501181030587L;
     public static final int DEFAULT_COLOR_SAMPLE_WIDTH = 40;
     public static final int DEFAULT_LEGEND_PADDING = Settings.PANEL_PADDING;
     public static final Font DEFAULT_FONT = new Font("Monospaced", Font.BOLD, 14);
@@ -57,7 +57,13 @@ public class LegendPanel extends JPanel implements VectListener {
         this.vectModel = vectModel;
         if (vectModel != null) {
             setModel(vectModel.getValues(), vectModel.getColors());
+            if (vectModel.isFieldColor()) {
+                setVisible(true);
+            } else {
+                setVisible(false);
+            }
         }
+
         repaint();
     }
 
@@ -136,9 +142,14 @@ public class LegendPanel extends JPanel implements VectListener {
             int height = (int) (step + 0.5);
             g2.fillRect(x, y, width, height);
             g2.setColor(Color.black);
-            g2.drawRect(x, y, width, height);
+            if (k != size - 1) {
+                g2.drawRect(x, y, width, height);
+            } else {
+                g2.drawRect(x, y, width, getHeight() - y - 1);
+            }
             g2.setColor(old_color);
         }
+
     }
 
     public static void main(String args[]) {
