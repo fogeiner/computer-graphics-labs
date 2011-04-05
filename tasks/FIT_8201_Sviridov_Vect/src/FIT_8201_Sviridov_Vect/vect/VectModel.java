@@ -23,11 +23,12 @@ public class VectModel {
     private double maxVectorLength;
     private boolean gridDrawn;
     private boolean arrowPlain;
+    private boolean chessMode;
     private final List<VectListener> listeners;
 
     public VectModel(Region region, double lengthMult,
             Grid grid, List<Color> colors, Color gridColor,
-            boolean fieldColor, boolean gridDrawn, boolean arrowPlain) {
+            boolean fieldColor, boolean gridDrawn, boolean arrowPlain, boolean chessMode) {
         this.listeners = new LinkedList<VectListener>();
         this.region = region;
         this.lengthMult = lengthMult;
@@ -37,6 +38,7 @@ public class VectModel {
         this.fieldColor = fieldColor;
         this.gridDrawn = gridDrawn;
         this.arrowPlain = arrowPlain;
+        this.chessMode = chessMode;
 
         computeValues();
     }
@@ -242,6 +244,16 @@ public class VectModel {
         for (VectListener vectListener : listeners) {
             vectListener.arrowModeChanged();
         }
+    }
 
+    public boolean isChessMode() {
+        return chessMode;
+    }
+
+    public void setChessMode(boolean chessMode) {
+        this.chessMode = chessMode;
+        for (VectListener vectListener : listeners) {
+            vectListener.chessModeChanged();
+        }
     }
 }

@@ -34,6 +34,7 @@ public class VectView extends GridPanel implements VectListener {
     private boolean selectionRectActive;
     private Point selectionRectStart;
     private Point selectionRectCurrent;
+    private Point mouseCurrentPoint;
 
     public VectView() {
         addComponentListener(new ComponentAdapter() {
@@ -55,7 +56,9 @@ public class VectView extends GridPanel implements VectListener {
             @Override
             public void mouseMoved(MouseEvent e) {
                 super.mouseMoved(e);
-                updateStatusbar(e.getPoint());
+                updateStatusbar(new Point(e.getPoint()));
+                mouseCurrentPoint = new Point(e.getPoint());
+                repaint();
             }
         });
         addMouseListener(new MouseAdapter() {
@@ -70,6 +73,7 @@ public class VectView extends GridPanel implements VectListener {
             public void mouseExited(MouseEvent me) {
                 super.mouseExited(me);
                 statusbarModel.setInRegion(false);
+                mouseCurrentPoint = null;
             }
         });
         addMouseListener(new MouseAdapter() {
@@ -192,49 +196,62 @@ public class VectView extends GridPanel implements VectListener {
             vectors = new ArrayList<Vector>(grid.W * grid.H);
         }
 
-        double lCoeff = getGridCellDiagonal() * vectModel.getLengthMult();
-        double maxLength = vectModel.getMaxVectorLength();
-        for (Point[] pp : getGridPoints()) {
-            for (Point p : pp) {
-                Point2D modelPoint = translateCoordinates(p);
-                double x = modelPoint.getX(),
-                        y = modelPoint.getY();
 
-                double fx = vectModel.fx(x, y),
-                        fy = vectModel.fy(x, y);
-
-
-                double xs = p.getX(),
-                        ys = p.getY();
-
-                double xCoeff, yCoeff, xe, ye;
-
-                Color vectColor;
-                if (vectModel.isFieldColor()) {
-                    double length = Math.hypot(fx, fy);
-                    vectColor = vectModel.getClosest(length);
-
-                    xCoeff = fx / length;
-                    yCoeff = fy / length;
-
-                    xe = xs + xCoeff * lCoeff;
-                    ye = ys + yCoeff * lCoeff;
-                } else {
-                    vectColor = Color.black;
-
-                    xCoeff = fx / maxLength;
-                    yCoeff = fy / maxLength;
-
-                    xe = xs + xCoeff * lCoeff;
-                    ye = ys + yCoeff * lCoeff;
+        Point[][] points = getGridPoints();
+        for (int w = 0; w < points.length; ++w) {
+            for (int h = 0; h < points[w].length; ++h) {
+                if (vectModel.isChessMode() && ((w + h) % 2 == 0)) {
+                    continue;
                 }
-                Vector v = new Vector(
-                        new Point2D.Double(xs, ys),
-                        new Point2D.Double(xe, ye));
-                v.setColor(vectColor);
+                Point p = points[w][h];
+                Vector v = computeVector(p);
                 vectors.add(v);
             }
         }
+    }
+
+    private Vector computeVector(Point p) {
+        double lCoeff = getGridCellDiagonal() * vectModel.getLengthMult();
+        double maxLength = vectModel.getMaxVectorLength();
+
+        Point2D modelPoint = translateCoordinates(p);
+        double x = modelPoint.getX(),
+                y = modelPoint.getY();
+
+        double fx = vectModel.fx(x, y),
+                fy = vectModel.fy(x, y);
+
+
+        double xs = p.getX(),
+                ys = p.getY();
+
+        double xCoeff, yCoeff, xe, ye;
+
+        Color vectColor;
+        if (vectModel.isFieldColor()) {
+            double length = Math.hypot(fx, fy);
+            vectColor = vectModel.getClosest(length);
+
+            xCoeff = fx / length;
+            yCoeff = fy / length;
+
+            xe = xs + xCoeff * lCoeff;
+            ye = ys + yCoeff * lCoeff;
+        } else {
+            vectColor = Color.black;
+
+            xCoeff = fx / maxLength;
+            yCoeff = fy / maxLength;
+
+            xe = xs + xCoeff * lCoeff;
+            ye = ys + yCoeff * lCoeff;
+        }
+        Vector v = new Vector(
+                new Point2D.Double(xs, ys),
+                new Point2D.Double(xe, ye));
+        v.setColor(vectColor);
+
+        return v;
     }
 
     @Override
@@ -243,7 +260,7 @@ public class VectView extends GridPanel implements VectListener {
         g.translate(0, this.getHeight() - 1);
         g.scale(1, -1);
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
+        //g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
         super.paintComponent(g);
 
 
@@ -261,6 +278,13 @@ public class VectView extends GridPanel implements VectListener {
                     height = Math.abs(selectionRectCurrent.y - selectionRectStart.y);
 
             g.drawRect(x, y, width, height);
+        }
+
+        if (mouseCurrentPoint != null) {
+            Point p = new Point(mouseCurrentPoint.x, getHeight() - mouseCurrentPoint.y);
+            Vector v = computeVector(p);
+            v.setFilled(!vectModel.isArrowPlain());
+            v.draw(g);
         }
     }
 
@@ -319,7 +343,6 @@ public class VectView extends GridPanel implements VectListener {
 
     @Override
     public void arrowModeChanged() {
-        computeVectors();
         repaint();
     }
 
@@ -332,6 +355,12 @@ public class VectView extends GridPanel implements VectListener {
     @Override
     public void gridDrawnChanged() {
         this.setGridDrawn(vectModel.isGridDrawn());
+        repaint();
+    }
+
+    @Override
+    public void chessModeChanged() {
+        computeVectors();
         repaint();
     }
 }

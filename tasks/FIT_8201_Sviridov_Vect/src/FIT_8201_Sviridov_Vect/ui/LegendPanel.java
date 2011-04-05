@@ -216,6 +216,10 @@ public class LegendPanel extends JPanel implements VectListener {
     }
 
     @Override
+    public void chessModeChanged() {
+    }
+
+    @Override
     public void gridDrawnChanged() {
     }
 }

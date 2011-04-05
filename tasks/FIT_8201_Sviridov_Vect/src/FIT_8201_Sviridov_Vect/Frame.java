@@ -8,6 +8,7 @@ import FIT_8201_Sviridov_Vect.statusbar.StatusbarModel;
 import FIT_8201_Sviridov_Vect.ui.LegendPanel;
 import FIT_8201_Sviridov_Vect.ui.Statusbar;
 import FIT_8201_Sviridov_Vect.ui.VectView;
+import FIT_8201_Sviridov_Vect.vect.VectListener;
 import FIT_8201_Sviridov_Vect.vect.VectModel;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -37,7 +38,7 @@ import ru.nsu.cg.MainFrame;
  * 
  * @author alstein
  */
-public class Frame extends MainFrame implements FrameService, StateHistoryListener {
+public class Frame extends MainFrame implements FrameService, StateHistoryListener, VectListener {
 
     private static final long serialVersionUID = 3501543956694236029L;
     private VectModel vectModel;
@@ -78,6 +79,8 @@ public class Frame extends MainFrame implements FrameService, StateHistoryListen
             addSubMenu("Edit", KeyEvent.VK_E);
             addMenuItem("Edit/Grid", "Show/hide grid", KeyEvent.VK_G,
                     "grid.gif", "onGrid");
+            addMenuItem("Edit/Chess mode", "Switch vectors chess order", KeyEvent.VK_K,
+                    "checker.gif", "onChess");
             addMenuItem("Edit/Color field mode", "Set field to color mode", KeyEvent.VK_C,
                     "color_arrows.gif", "onColorField");
             addMenuItem("Edit/B&W field mode", "Set field to black and white mode", KeyEvent.VK_B,
@@ -103,6 +106,7 @@ public class Frame extends MainFrame implements FrameService, StateHistoryListen
             addToolBarButton("File/Save as...");
             addToolBarSeparator();
             addToolBarButton("Edit/Grid");
+            addToolBarButton("Edit/Chess mode");
             addToolBarSeparator();
             addToolBarButton("Edit/Color field mode");
             addToolBarButton("Edit/B&W field mode");
@@ -122,7 +126,8 @@ public class Frame extends MainFrame implements FrameService, StateHistoryListen
             e.printStackTrace();
         }
 
-        vectModel = new VectModel(new Region(-2.0, 2.0, -2.0, 2.0), 0.5, new Grid(20, 20), Arrays.asList(new Color[]{Color.red, Color.green, Color.blue}), Color.gray, true, true, true) {
+        vectModel = new VectModel(new Region(-2.0, 2.0, -2.0, 2.0), 0.5, new Grid(20, 20),
+                Arrays.asList(new Color[]{Color.red, Color.green, Color.blue}), Color.gray, true, true, true, true) {
 
             @Override
             public double fx(
@@ -193,7 +198,9 @@ public class Frame extends MainFrame implements FrameService, StateHistoryListen
 
         vectModel.addVectListener(vectView);
         vectModel.addVectListener(legendPanel);
+        vectModel.addVectListener(this);
         vectModel.notifyListeners();
+
 
         toolBar.setFloatable(false);
 
@@ -211,10 +218,13 @@ public class Frame extends MainFrame implements FrameService, StateHistoryListen
 
     }
 
+    public void onChess() {
+        vectModel.setChessMode(!vectModel.isChessMode());
+    }
+
     public void onGrid() {
-        if (vectModel != null) {
-            vectModel.setGridDrawn(!vectModel.isGridDrawn());
-        }
+        vectModel.setGridDrawn(!vectModel.isGridDrawn());
+
     }
 
     public void onColorField() {
@@ -477,20 +487,70 @@ public class Frame extends MainFrame implements FrameService, StateHistoryListen
     public void setZoomPreviousBlocked(boolean blocked) {
         JMenuBar menu_bar = getJMenuBar();
         JMenu edit = (JMenu) menu_bar.getComponent(1);
-        edit.getMenuComponent(5).setEnabled(!blocked);
-        toolBar.getComponent(12).setEnabled(!blocked);
+        edit.getMenuComponent(6).setEnabled(!blocked);
+        toolBar.getComponent(13).setEnabled(!blocked);
     }
 
     public void setZoomNextBlocked(boolean blocked) {
         JMenuBar menu_bar = getJMenuBar();
         JMenu edit = (JMenu) menu_bar.getComponent(1);
-        edit.getMenuComponent(6).setEnabled(!blocked);
-        toolBar.getComponent(13).setEnabled(!blocked);
+        edit.getMenuComponent(7).setEnabled(!blocked);
+        toolBar.getComponent(14).setEnabled(!blocked);
     }
+
+
 
     @Override
     public void historyStateChanged() {
         setZoomPreviousBlocked(!regionsHistoryModel.hasPrev());
         setZoomNextBlocked(!regionsHistoryModel.hasNext());
+    }
+
+    @Override
+    public void modelChanged() {
+
+    }
+
+    @Override
+    public void regionChanged() {
+
+    }
+
+    @Override
+    public void lengthMultChanged() {
+
+    }
+
+    @Override
+    public void gridChanged() {
+
+    }
+
+    @Override
+    public void gridColorChanged() {
+
+    }
+
+    @Override
+    public void colorsChanged() {
+
+    }
+
+    @Override
+    public void fieldModeChanged() {
+
+    }
+
+    @Override
+    public void gridDrawnChanged() {
+
+    }
+
+    @Override
+    public void arrowModeChanged() {
+    }
+
+    @Override
+    public void chessModeChanged() {
     }
 }

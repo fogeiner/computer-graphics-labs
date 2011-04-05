@@ -14,4 +14,5 @@ public interface VectListener {
     public void fieldModeChanged();
     public void gridDrawnChanged();
     public void arrowModeChanged();
+    public void chessModeChanged();
 }
