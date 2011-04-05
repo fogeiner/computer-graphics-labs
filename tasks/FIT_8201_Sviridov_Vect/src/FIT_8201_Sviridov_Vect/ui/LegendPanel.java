@@ -152,40 +152,6 @@ public class LegendPanel extends JPanel implements VectListener {
 
     }
 
-    public static void main(String args[]) {
-
-        JFrame frame = new JFrame();
-        frame.setSize(new Dimension(600, 400));
-
-        JPanel main_panel = new JPanel();
-        main_panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-        main_panel.setLayout(new BorderLayout(5, 5));
-
-        JPanel p_left = new GridPanel(10, 20);
-        p_left.setBorder(BorderFactory.createLineBorder(Color.black));
-
-        List<Color> colors = Arrays.asList(new Color[]{Color.red,
-                    Color.orange, Color.yellow, Color.green, Color.blue, Color.cyan, Color.pink});
-        List<Double> values = Arrays.asList(new Double[]{50.0, 400.0, 3000.0, 2.0, 1.0, 0.0});
-
-        LegendPanel p_right = new LegendPanel();
-        p_right.setModel(values, colors);
-        p_right.setBorder(BorderFactory.createLineBorder(Color.black));
-
-        Statusbar p_lower = new Statusbar();
-        p_lower.setValues(1.033, 0.420, 100.0545, 10009.0);
-        p_lower.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-
-        main_panel.add(p_left, BorderLayout.CENTER);
-        main_panel.add(p_right, BorderLayout.EAST);
-        main_panel.add(p_lower, BorderLayout.SOUTH);
-
-        frame.add(main_panel);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);
-
-    }
 
     @Override
     public void modelChanged() {
