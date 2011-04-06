@@ -70,10 +70,22 @@ public class ColorsChoiceDialog extends JDialog {
 
     public ColorsChoiceDialog(Frame owner, String title) {
         super(owner, title, true);
+        int cols = 4,
+                rows = 5;
         setLayout(new BorderLayout());
-        JPanel colorsPanel = new JPanel(new GridLayout(5, 4));
-        for (int i = 0; i < N; ++i) {
-            colorsPanel.add(makeLabelCheckBoxPanel(new JLabel("Color " + (i + 1)), new JCheckBox()));
+        JPanel colorsPanel = new JPanel(new GridLayout(rows, cols));
+
+        int index = 0;
+        for (int i = 1; i < N + 1; ++i) {
+            labels[index] = new JLabel("Color " + (index + 1));
+            checkBoxes[index] = new JCheckBox();
+
+            colorsPanel.add(makeLabelCheckBoxPanel(labels[index], checkBoxes[index]));
+
+            index = i * rows % (N - 1);
+            if (index == 0) {
+                index = (N - 1);
+            }
         }
         add(colorsPanel, BorderLayout.NORTH);
         add(makeButtonsPanel(), BorderLayout.SOUTH);
