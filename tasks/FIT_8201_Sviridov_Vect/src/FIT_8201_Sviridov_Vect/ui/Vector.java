@@ -4,9 +4,6 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
-import java.awt.geom.GeneralPath;
-import java.awt.geom.Line2D;
-import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 
 /**
@@ -15,7 +12,7 @@ import java.awt.geom.Point2D;
  */
 public class Vector {
 
-    static public final double DEFAULT_DX = 0.3;
+    static public final double DEFAULT_DX = 0.4;
     static public final double DEFAULT_DY = 0.2;
     static public final double DEFAULT_ARROW_THRESHOLD = 7;
     private double lengthThreshold = DEFAULT_ARROW_THRESHOLD;
@@ -24,60 +21,43 @@ public class Vector {
     private double dx = DEFAULT_DX;
     private double dy = DEFAULT_DY;
     private Stroke stroke;
-    private GeneralPath openVector;
-    private GeneralPath closedVector;
     private Color color;
     private boolean filled;
+    int lineX[] = new int[2];
+    int lineY[] = new int[2];
+    int arrowX[] = new int[3];
+    int arrowY[] = new int[3];
+    double length;
 
     private void computePath() {
         if (start == null || end == null) {
             return;
         }
+        double ex = end.getX(), ey = end.getY(),
+                sx = start.getX(), sy = start.getY(),
+                vx = ex - sx, vy = ey - sy,
+                nx = -vy, ny = vx;
 
-        openVector = new GeneralPath();
-        closedVector = new GeneralPath();
+        length = Math.hypot(vx, vy);
 
-        Point2D v = new Point2D.Double(end.getX() - start.getX(), end.getY() - start.getY());
-        Point2D n = new Point2D.Double(-v.getY(), v.getX());
-        double length = Math.hypot(v.getX(), v.getY());
+        double px = ex - dx * vx, py = ey - dx * vy,
+                p1x = px + dy * nx, p1y = py + dy * ny,
+                p2x = px - dy * nx, p2y = py - dy * ny;
 
-        Point2D p = new Point2D.Double(
-                end.getX() - dx * v.getX(), end.getY() - dx * v.getY());
+        lineX[0] = (int) (sx + 0.5);
+        lineY[0] = (int) (sy + 0.5);
 
-        Point2D p1 = new Point2D.Double(
-                p.getX() + dy * n.getX(), p.getY() + dy * n.getY());
-        Point2D p2 = new Point2D.Double(
-                p.getX() - dy * n.getX(), p.getY() - dy * n.getY());
+        lineX[1] = (int) (ex + 0.5);
+        lineY[1] = (int) (ey + 0.5);
 
-        Path2D line = new Path2D.Double(new Line2D.Double(
-                start.getX(), start.getY(),
-                end.getX(), end.getY()));
+        arrowX[0] = (int) (p1x + 0.5);
+        arrowY[0] = (int) (p1y + 0.5);
 
-        Path2D s1 = new Path2D.Double(new Line2D.Double(
-                p1.getX(), p1.getY(),
-                end.getX(), end.getY()));
+        arrowX[1] = lineX[1];
+        arrowY[1] = lineY[1];
 
-        Path2D s2 = new Path2D.Double(new Line2D.Double(
-                end.getX(), end.getY(),
-                p2.getX(), p2.getY()));
-
-        Path2D s3 = new Path2D.Double(new Line2D.Double(
-                p2.getX(), p2.getY(),
-                p1.getX(), p1.getY()));
-
-
-        openVector.append(line, true);
-
-        closedVector.append(line, true);
-        if (length > lengthThreshold) {
-            openVector.append(s1, false);
-            openVector.append(s2, true);
-
-
-            closedVector.append(s2, true);
-            closedVector.append(s3, true);
-            closedVector.append(s1, true);
-        }
+        arrowX[2] = (int) (p2x + 0.5);
+        arrowY[2] = (int) (p2y + 0.5);
     }
 
     public Vector(Point2D start, Point2D end) {
@@ -151,7 +131,6 @@ public class Vector {
     public void draw(Graphics2D g) {
         if (stroke == null) {
             stroke = new BasicStroke(1f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0.0f);
-
         }
 
         Stroke oldStroke = g.getStroke();
@@ -159,15 +138,16 @@ public class Vector {
         g.setColor(color);
         g.setStroke(stroke);
 
-        if (filled) {
-            g.fill(closedVector);
-            g.draw(closedVector);
-        } else {
-            g.draw(openVector);
+        g.drawPolygon(lineX, lineY, 2);
+        if (length > lengthThreshold) {
+            if (filled) {
+                g.fillPolygon(arrowX, arrowY, 3);
+            } else {
+                g.drawPolyline(arrowX, arrowY, 3);
+            }
         }
 
         g.setColor(oldColor);
         g.setStroke(oldStroke);
     }
-
 }

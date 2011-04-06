@@ -11,6 +11,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Stroke;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import javax.swing.JPanel;
 
 /**
@@ -19,9 +21,8 @@ import javax.swing.JPanel;
  */
 public class GridPanel extends JPanel {
 
-
-	private static final long serialVersionUID = -1038991547314803513L;
-	public static final Color DEFAULT_GRID_COLOR = Color.lightGray;
+    private static final long serialVersionUID = -1038991547314803513L;
+    public static final Color DEFAULT_GRID_COLOR = Color.lightGray;
     private Color gridColor = DEFAULT_GRID_COLOR;
     private Stroke stroke;
     private Grid grid;
@@ -29,6 +30,19 @@ public class GridPanel extends JPanel {
     private Point[][] gridPoints;
 
     public GridPanel() {
+        
+    }
+
+    public Point getLeftLowerGridPoint() {
+        return gridPoints[0][0];
+    }
+
+    public Point getRightUpperGridPoint() {
+        return gridPoints[grid.W - 1][grid.H - 1];
+    }
+
+    public Point[][] getGridPoints() {
+        return gridPoints;
     }
 
     public void computeGridPoints() {
@@ -37,7 +51,6 @@ public class GridPanel extends JPanel {
         }
         int height = getHeight();
         int width = getWidth();
-
         for (int w = 1; w < grid.W + 1; ++w) {
             int x = (int) ((double) width / (grid.W + 1) * w + 0.5);
             for (int h = 1; h < grid.H + 1; ++h) {
@@ -62,10 +75,6 @@ public class GridPanel extends JPanel {
         return diagonal;
     }
 
-    public Point[][] getGridPoints() {
-        return gridPoints;
-    }
-
     public Color getGridColor() {
         return gridColor;
     }
@@ -75,12 +84,18 @@ public class GridPanel extends JPanel {
     }
 
     public GridPanel(int w, int h) {
+        init(w, h);
+    }
+
+    private void init(int w, int h) {
         setGrid(new Grid(w, h));
     }
 
     public void setGrid(Grid grid) {
         this.grid = grid;
         gridPoints = new Point[grid.W][grid.H];
+        computeGridPoints();
+        repaint();
     }
 
     public Grid getGrid() {
@@ -127,5 +142,4 @@ public class GridPanel extends JPanel {
         g2.setColor(oldColor);
         g2.setStroke(oldStroke);
     }
-
 }

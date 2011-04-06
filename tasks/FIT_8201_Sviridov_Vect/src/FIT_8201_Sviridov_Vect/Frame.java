@@ -128,7 +128,7 @@ public final class Frame extends MainFrame implements FrameService, StateHistory
             e.printStackTrace();
         }
 
-        JPanel mainPanel = new JPanel(new BorderLayout(Settings.PANEL_PADDING, Settings.PANEL_PADDING));
+        final JPanel mainPanel = new JPanel(new BorderLayout(Settings.PANEL_PADDING, Settings.PANEL_PADDING));
         final JPanel outerFieldPanel = new JPanel(new GridBagLayout());
         outerFieldPanel.addComponentListener(new ComponentAdapter() {
 
@@ -136,7 +136,6 @@ public final class Frame extends MainFrame implements FrameService, StateHistory
             public void componentResized(ComponentEvent e) {
                 super.componentResized(e);
                 vectView.dispatchEvent(e);
-                outerFieldPanel.revalidate();
             }
         });
 
@@ -212,7 +211,7 @@ public final class Frame extends MainFrame implements FrameService, StateHistory
             vectView.setStatusbarModel(statusbarModel);
             vectView.setVectModel(vectModel);
             vectView.setRegionsHistory(regionsHistoryModel);
-            
+
             legendPanel.setVectModel(vectModel);
 
             vectModel.addVectListener(vectView);

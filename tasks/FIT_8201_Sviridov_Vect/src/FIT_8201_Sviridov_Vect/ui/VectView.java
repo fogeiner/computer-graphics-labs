@@ -12,10 +12,11 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
-import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.MouseAdapter;
+import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,131 +28,222 @@ import javax.swing.JPanel;
  */
 public class VectView extends GridPanel implements VectListener {
 
-	private static final long serialVersionUID = 1810339757295266082L;
-	private VectModel vectModel;
+    private static final long serialVersionUID = 1810339757295266082L;
+    private VectModel vectModel;
     private StatusbarModel statusbarModel;
     private StateHistoryModel<Region> regionsHistoryModel;
     private List<Vector> vectors;
-    private boolean selectionRectActive;
     private Point selectionRectStart;
     private Point selectionRectCurrent;
     private Point mouseCurrentPoint;
+    private EventHandlers handlers = new EventHandlers();
+    private VectModelHandler vectModelHandler = new VectModelHandler();
 
-    public VectView() {
-        addComponentListener(new ComponentAdapter() {
-
-            @Override
-            public void componentResized(ComponentEvent e) {
-                super.componentResized(e);
-                if (vectModel == null || statusbarModel == null) {
-                    return;
-                }
-                if (e.getSource() == VectView.this) {
-                    return;
-                }
-                updateSize();
-                computeGridPoints();
-                computeVectors();
-                revalidate();
-            }
-        });
-        addMouseMotionListener(new MouseAdapter() {
-
-            @Override
-            public void mouseMoved(MouseEvent e) {
-                super.mouseMoved(e);
-                if (vectModel == null || statusbarModel == null) {
-                    return;
-                }
-                updateStatusbar(new Point(e.getPoint()));
-                mouseCurrentPoint = new Point(e.getPoint());
-                repaint();
-            }
-        });
-        addMouseListener(new MouseAdapter() {
-
-            @Override
-            public void mouseEntered(MouseEvent me) {
-                super.mouseEntered(me);
-                if (vectModel == null || statusbarModel == null) {
-                    return;
-                }
-                statusbarModel.setInRegion(true);
-            }
-
-            @Override
-            public void mouseExited(MouseEvent me) {
-                super.mouseExited(me);
-                if (vectModel == null || statusbarModel == null) {
-                    return;
-                }
-                statusbarModel.setInRegion(false);
-                mouseCurrentPoint = null;
-                repaint();
-            }
-        });
-        addMouseListener(new MouseAdapter() {
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                super.mousePressed(e);
-                if (vectModel == null || statusbarModel == null) {
-                    return;
-                }
-                Point p = e.getPoint();
-                selectionRectStart = new Point(p.x, getHeight() - p.y);
-                selectionRectCurrent = new Point(p.x, getHeight() - p.y);
-                selectionRectActive = true;
-                mouseCurrentPoint = null;
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                super.mouseReleased(e);
-                if (vectModel == null || statusbarModel == null) {
-                    return;
-                }
-                selectionRectActive = false;
-                Point p = e.getPoint();
-
-                Point2D p1 = translateCoordinates(selectionRectStart);
-                Point2D p2 = translateCoordinates(new Point2D.Double(p.x, getHeight() - p.y));
-
-                Region newRegion = new Region(p1.getX(), p2.getX(), p1.getY(), p2.getY());
-
-
-                // change region of the model
-                vectModel.setRegion(newRegion);
-                regionsHistoryModel.add(newRegion);
-                repaint();
-            }
-        });
-        addMouseMotionListener(new MouseAdapter() {
-
-            @Override
-            public void mouseDragged(MouseEvent e) {
-                super.mouseDragged(e);
-                if (vectModel == null || statusbarModel == null) {
-                    return;
-                }
-                Point p = e.getPoint();
-                updateStatusbar(new Point2D.Double(p.getX(), p.getY()));
-
-                int x = Math.max(0, Math.min(getWidth(), p.x));
-                int y = Math.max(0, Math.min(getHeight(), p.y));
-                selectionRectCurrent = new Point(x, getHeight() - y);
-                repaint();
-            }
-        });
+    private void removeHandlers() {
+        removeComponentListener(handlers);
+        removeMouseListener(handlers);
+        removeMouseMotionListener(handlers);
     }
 
-    private void updateStatusbar(Point2D mPoint) {
-        mPoint.setLocation(mPoint.getX(), getHeight() - mPoint.getY());
-        mPoint = translateCoordinates(mPoint);
-        double x = mPoint.getX(),
-                y = mPoint.getY(),
+    private void addHandlers() {
+        addComponentListener(handlers);
+        addMouseListener(handlers);
+        addMouseMotionListener(handlers);
+    }
+
+    class VectModelHandler implements VectListener {
+
+        @Override
+        public void arrowModeChanged() {
+            repaint();
+        }
+
+        @Override
+        public void fieldModeChanged() {
+            updateSize();
+            computeVectors();
+            revalidate();
+        }
+
+        @Override
+        public void gridDrawnChanged() {
+            setGridDrawn(vectModel.isGridDrawn());
+            repaint();
+        }
+
+        @Override
+        public void chessModeChanged() {
+            computeVectors();
+            repaint();
+        }
+
+        @Override
+        public void modelChanged() {
+        }
+
+        @Override
+        public void regionChanged() {
+            updateSize(); // needed!
+            computeVectors();
+            repaint();
+        }
+
+        @Override
+        public void lengthMultChanged() {
+            computeVectors();
+            repaint();
+        }
+
+        @Override
+        public void gridChanged() {
+            setGrid(vectModel.getGrid());
+            computeVectors();
+            repaint();
+        }
+
+        @Override
+        public void gridColorChanged() {
+            setGridColor(vectModel.getGridColor());
+            repaint();
+        }
+
+        @Override
+        public void colorsChanged() {
+        }
+    }
+
+    class EventHandlers implements MouseListener, MouseMotionListener, ComponentListener {
+
+        @Override
+        public void mouseEntered(MouseEvent e) {
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e) {
+        }
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+        }
+
+        @Override
+        public void componentMoved(ComponentEvent e) {
+        }
+
+        @Override
+        public void componentShown(ComponentEvent e) {
+        }
+
+        @Override
+        public void componentHidden(ComponentEvent e) {
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+            Point p = e.getPoint();
+            if (!isInsideRegion(p)) {
+                return;
+            }
+            pointToCart(p);
+            selectionRectStart = p;
+            selectionRectCurrent = p;
+
+            mouseCurrentPoint = null;
+            repaint();
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            Point p = e.getPoint();
+
+
+            pointToCart(p);
+
+            double p1coord[] = translateCoordinates(selectionRectStart.x, selectionRectStart.y);
+            double p2coord[] = translateCoordinates(p.x, p.y);
+
+            selectionRectCurrent = null;
+            selectionRectStart = null;
+
+
+            Region newRegion = new Region(p1coord[0], p2coord[0], p1coord[1], p2coord[1]);
+
+            // change region of the model
+            vectModel.setRegion(newRegion);
+            regionsHistoryModel.add(newRegion);
+            repaint();
+        }
+
+        @Override
+        public void mouseDragged(MouseEvent e) {
+            Point p = e.getPoint();
+            Point llp = getLeftLowerGridPoint();
+            Point rup = getRightUpperGridPoint();
+            pointToCart(p);
+            updateStatusbar(p);
+
+            int x = Math.max(llp.x, Math.min(rup.x, p.x));
+            int y = Math.max(llp.y, Math.min(rup.y, p.y));
+
+            selectionRectCurrent = new Point(x, y);
+
+            repaint();
+        }
+
+        @Override
+        public void mouseMoved(MouseEvent e) {
+            Point p = e.getPoint();
+
+            pointToCart(p);
+            updateStatusbar(p);
+
+            if (isInsideRegion(p)) {
+                mouseCurrentPoint = p;
+                repaint();
+            } else {
+                // repaint only once
+                if (mouseCurrentPoint != null) {
+                    mouseCurrentPoint = null;
+                    repaint();
+                }
+            }
+        }
+
+        @Override
+        public void componentResized(ComponentEvent e) {
+            if (e.getSource() == VectView.this) {
+                return;
+            }
+            updateSize();
+            computeVectors();
+            repaint();
+        }
+    }
+
+    public VectView() {
+    }
+
+    private boolean isInsideRegion(Point p) {
+        Point llp = getLeftLowerGridPoint();
+        Point rup = getRightUpperGridPoint();
+        return (p.x >= llp.x && p.x <= rup.x && p.y >= llp.y && p.y <= rup.y);
+    }
+
+    private void updateStatusbar(Point mPoint) {
+        if (isInsideRegion(mPoint)) {
+            statusbarModel.setInRegion(true);
+        } else {
+            statusbarModel.setInRegion(false);
+            return;
+        }
+
+        double coord[] = translateCoordinates(
+                mPoint.getX(), mPoint.getY());
+        double x = coord[0],
+                y = coord[1],
                 fx = vectModel.fx(x, y),
                 fy = vectModel.fy(x, y);
+
         statusbarModel.setData(x, y, fx, fy);
     }
 
@@ -177,44 +269,54 @@ public class VectView extends GridPanel implements VectListener {
         VectView.this.setPreferredSize(newSize);
         VectView.this.setMinimumSize(newSize);
         VectView.this.setMaximumSize(newSize);
+
+        revalidate();
+        computeGridPoints();
     }
 
     public void setRegionsHistory(StateHistoryModel<Region> regionsHistory) {
         this.regionsHistoryModel = regionsHistory;
     }
 
-    private Point2D translateCoordinates(Point2D p) {
+    private void pointToCart(Point p) {
+        p.setLocation(p.x, getHeight() - p.y);
+    }
+
+    private double[] translateCoordinates(double fromX, double fromY) {
+        double res[] = new double[2];
+
         // 1. substract left lower point
         // 2. divide by panel width - 2 x_llp, panel - 2 y_llp
         // 3. multiply by region width, height
         // 4. add xs, ys (region starts anywhere)
-        Point pll = getGridPoints()[0][0];
+        Point pll = this.getLeftLowerGridPoint();
         Region currentRegion = vectModel.getRegion();
-        double xs = currentRegion.xs,
+        double pllx = pll.x,
+                plly = pll.y,
+                xs = currentRegion.xs,
                 xe = currentRegion.xe,
                 ys = currentRegion.ys,
-                ye = currentRegion.ye;
-        double regionWidth = xe - xs,
-                regionHeight = ye - ys;
+                ye = currentRegion.ye,
+                regionWidth = xe - xs,
+                regionHeight = ye - ys,
+                panelWidth = getWidth(),
+                panelHeight = getHeight(),
+                px = fromX, py = fromY,
+                x1 = px - pllx,
+                y1 = py - plly;
 
-        double panelWidth = getWidth(),
-                panelHeight = getHeight();
-
-        double px = p.getX(), py = p.getY();
-        double x1 = px - pll.getX(),
-                y1 = py - pll.getY();
-        double x2 = x1 / (panelWidth - 2 * pll.getX()),
-                y2 = y1 / (panelHeight - 2 * pll.getY());
-
-        double x3 = x2 * regionWidth,
-                y3 = y2 * regionHeight;
-
-        double x = x3 + xs,
+        double x2 = x1 / (panelWidth - 2 * pllx),
+                y2 = y1 / (panelHeight - 2 * plly),
+                x3 = x2 * regionWidth,
+                y3 = y2 * regionHeight,
+                x = x3 + xs,
                 y = y3 + ys;
 
-        Point2D result = new Point2D.Double(x, y);
 
-        return result;
+        res[0] = x;
+        res[1] = y;
+
+        return res;
     }
 
     private void computeVectors() {
@@ -246,9 +348,10 @@ public class VectView extends GridPanel implements VectListener {
         double lCoeff = getGridCellDiagonal() * vectModel.getLengthMult();
         double maxLength = vectModel.getMaxVectorLength();
 
-        Point2D modelPoint = translateCoordinates(p);
-        double x = modelPoint.getX(),
-                y = modelPoint.getY();
+        double coord[] = translateCoordinates(p.getX(), p.getY());
+
+        double x = coord[0],
+                y = coord[1];
 
         double fx = vectModel.fx(x, y),
                 fy = vectModel.fy(x, y);
@@ -262,7 +365,7 @@ public class VectView extends GridPanel implements VectListener {
         Color vectColor;
         if (vectModel.isFieldColor()) {
             double length = Math.hypot(fx, fy);
-            
+
             vectColor = vectModel.getClosest(length);
 
             xCoeff = fx / length;
@@ -289,20 +392,14 @@ public class VectView extends GridPanel implements VectListener {
 
     @Override
     protected void paintComponent(Graphics g1) {
-
         Graphics2D g = (Graphics2D) g1;
-        if (vectModel == null) {
-            setGridDrawn(false);
-        }
 
         super.paintComponent(g);
 
-        g.translate(0, this.getHeight() - 1);
+        g.translate(0, this.getHeight());
         g.scale(1, -1);
-        // g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
-
-        
 
         if (vectors != null && vectModel != null) {
             for (Vector v : vectors) {
@@ -311,7 +408,7 @@ public class VectView extends GridPanel implements VectListener {
             }
         }
 
-        if (selectionRectActive) {
+        if (selectionRectStart != null && selectionRectCurrent != null) {
             int x = Math.min(selectionRectCurrent.x, selectionRectStart.x),
                     y = Math.min(selectionRectCurrent.y, selectionRectStart.y);
             int width = Math.abs(selectionRectCurrent.x - selectionRectStart.x),
@@ -321,8 +418,7 @@ public class VectView extends GridPanel implements VectListener {
         }
 
         if (mouseCurrentPoint != null) {
-            Point p = new Point(mouseCurrentPoint.x, getHeight() - mouseCurrentPoint.y);
-            Vector v = computeVector(p);
+            Vector v = computeVector(mouseCurrentPoint);
             v.setFilled(!vectModel.isArrowPlain());
             v.draw(g);
         }
@@ -332,49 +428,18 @@ public class VectView extends GridPanel implements VectListener {
         return statusbarModel;
     }
 
-    public void setStatusbarModel(StatusbarModel statusbarModel) {
-        this.statusbarModel = statusbarModel;
-    }
-
-    @Override
-    public void modelChanged() {
-    }
-
-    @Override
-    public void regionChanged() {
-        updateSize();
-        computeGridPoints();
-        computeVectors();
-        revalidate();
-    }
-
-    @Override
-    public void lengthMultChanged() {
-        computeVectors();
-        repaint();
-    }
-
-    @Override
-    public void gridChanged() {
-        setGrid(vectModel.getGrid());
-        updateSize();
-        computeGridPoints();
-        computeVectors();
-        repaint();
-    }
-
-    @Override
-    public void gridColorChanged() {
-        setGridColor(vectModel.getGridColor());
-        repaint();
-    }
-
-    @Override
-    public void colorsChanged() {
-    }
-
     public VectModel getVectModel() {
         return vectModel;
+    }
+
+    public void setStatusbarModel(StatusbarModel statusbarModel) {
+        this.statusbarModel = statusbarModel;
+
+        if (statusbarModel == null) {
+            removeHandlers();
+        } else if (vectModel != null) {
+            addHandlers();
+        }
     }
 
     public void setVectModel(VectModel vectModel) {
@@ -385,33 +450,65 @@ public class VectView extends GridPanel implements VectListener {
             setGridDrawn(vectModel.isGridDrawn());
 
             updateSize();
-            computeGridPoints();
             computeVectors();
+
+            if (statusbarModel != null) {
+                addHandlers();
+            }
+        } else {
+            setGridDrawn(false);
+            removeHandlers();
         }
-        revalidate();
         repaint();
     }
 
     @Override
-    public void arrowModeChanged() {
-        repaint();
+    public void regionChanged() {
+        vectModelHandler.regionChanged();
     }
 
     @Override
-    public void fieldModeChanged() {
-        computeVectors();
-        repaint();
+    public void modelChanged() {
+        vectModelHandler.modelChanged();
+    }
+
+    @Override
+    public void lengthMultChanged() {
+        vectModelHandler.lengthMultChanged();
     }
 
     @Override
     public void gridDrawnChanged() {
-        this.setGridDrawn(vectModel.isGridDrawn());
-        repaint();
+        vectModelHandler.gridDrawnChanged();
+    }
+
+    @Override
+    public void gridColorChanged() {
+        vectModelHandler.gridColorChanged();
+    }
+
+    @Override
+    public void gridChanged() {
+        vectModelHandler.gridChanged();
+    }
+
+    @Override
+    public void fieldModeChanged() {
+        vectModelHandler.fieldModeChanged();
+    }
+
+    @Override
+    public void colorsChanged() {
+        vectModelHandler.colorsChanged();
     }
 
     @Override
     public void chessModeChanged() {
-        computeVectors();
-        repaint();
+        vectModelHandler.chessModeChanged();
+    }
+
+    @Override
+    public void arrowModeChanged() {
+        vectModelHandler.arrowModeChanged();
     }
 }
