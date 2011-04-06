@@ -120,6 +120,10 @@ public class VectView extends GridPanel implements VectListener {
 
         @Override
         public void mouseExited(MouseEvent e) {
+            if (mouseCurrentPoint != null) {
+                mouseCurrentPoint = null;
+                repaint();
+            }
         }
 
         @Override
@@ -141,9 +145,12 @@ public class VectView extends GridPanel implements VectListener {
         @Override
         public void mousePressed(MouseEvent e) {
             Point p = e.getPoint();
-            if (!isInsideRegion(p)) {
-                return;
-            }
+            Point llp = getLeftLowerGridPoint();
+            Point rup = getRightUpperGridPoint();
+            int x = Math.max(llp.x, Math.min(rup.x, p.x));
+            int y = Math.max(llp.y, Math.min(rup.y, p.y));
+
+            p.setLocation(x, y);
             pointToCart(p);
             selectionRectStart = p;
             selectionRectCurrent = p;
@@ -155,8 +162,11 @@ public class VectView extends GridPanel implements VectListener {
         @Override
         public void mouseReleased(MouseEvent e) {
             Point p = e.getPoint();
-
-
+            Point llp = getLeftLowerGridPoint();
+            Point rup = getRightUpperGridPoint();
+            int x = Math.max(llp.x, Math.min(rup.x, p.x));
+            int y = Math.max(llp.y, Math.min(rup.y, p.y));
+            p.setLocation(x, y);
             pointToCart(p);
 
             double p1coord[] = translateCoordinates(selectionRectStart.x, selectionRectStart.y);
@@ -164,7 +174,6 @@ public class VectView extends GridPanel implements VectListener {
 
             selectionRectCurrent = null;
             selectionRectStart = null;
-
 
             Region newRegion = new Region(p1coord[0], p2coord[0], p1coord[1], p2coord[1]);
 
