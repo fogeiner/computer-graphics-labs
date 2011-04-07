@@ -6,6 +6,7 @@ import FIT_8201_Sviridov_Vect.utils.Region;
 import FIT_8201_Sviridov_Vect.statusbar.StatusbarModel;
 import FIT_8201_Sviridov_Vect.vect.VectListener;
 import FIT_8201_Sviridov_Vect.vect.VectModel;
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -30,7 +31,7 @@ import javax.swing.JPanel;
 public class VectView extends GridPanel implements VectListener {
 
     private static final long serialVersionUID = 1810339757295266082L;
-    private BufferedImage imgBuffer = new BufferedImage(3000, 2000, BufferedImage.TYPE_INT_RGB);
+    private BufferedImage imgBuffer = new BufferedImage(3000, 2000, BufferedImage.TYPE_INT_ARGB);
     private VectModel vectModel;
     private StatusbarModel statusbarModel;
     private StateHistoryModel<Region> regionsHistoryModel;
@@ -40,7 +41,6 @@ public class VectView extends GridPanel implements VectListener {
     private Point mouseCurrentPoint;
     private EventHandlers handlers = new EventHandlers();
     private VectModelHandler vectModelHandler = new VectModelHandler();
-
 
     private void removeHandlers() {
         removeComponentListener(handlers);
@@ -58,6 +58,7 @@ public class VectView extends GridPanel implements VectListener {
 
         @Override
         public void arrowModeChanged() {
+            paintBuffer();
             repaint();
         }
 
@@ -167,7 +168,9 @@ public class VectView extends GridPanel implements VectListener {
         @Override
         public void mouseReleased(MouseEvent e) {
             // bug happens if non-modal dialog is open
-            if(selectionRectStart == null) return;
+            if (selectionRectStart == null) {
+                return;
+            }
             Point p = e.getPoint();
             Point llp = getLeftLowerGridPoint();
             Point rup = getRightUpperGridPoint();
@@ -358,6 +361,8 @@ public class VectView extends GridPanel implements VectListener {
                 vectors.add(v);
             }
         }
+
+        paintBuffer();
     }
 
     private Vector computeVector(Point p) {
@@ -406,14 +411,14 @@ public class VectView extends GridPanel implements VectListener {
         return v;
     }
 
-    @Override
-    protected void paintComponent(Graphics g1) {
-        Graphics2D g = (Graphics2D) g1;
+    private void paintBuffer() {
+        Graphics2D g = imgBuffer.createGraphics();
+        g.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR,
+                0.0f));
+        g.fillRect(0, 0, imgBuffer.getWidth(), imgBuffer.getHeight());
+        g.dispose();
 
-        super.paintComponent(g);
-
-        g.translate(0, this.getHeight());
-        g.scale(1, -1);
+        g = imgBuffer.createGraphics();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
 
@@ -423,6 +428,22 @@ public class VectView extends GridPanel implements VectListener {
                 v.draw(g);
             }
         }
+        g.dispose();
+    }
+
+    @Override
+    protected void paintComponent(Graphics g1) {
+        Graphics2D g = (Graphics2D) g1;
+
+        super.paintComponent(g);
+
+        g.translate(0, this.getHeight());
+        g.scale(1, -1);
+
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+
+        g.drawImage(imgBuffer, 0, 0, null);
 
         if (selectionRectStart != null && selectionRectCurrent != null) {
             int x = Math.min(selectionRectCurrent.x, selectionRectStart.x),
