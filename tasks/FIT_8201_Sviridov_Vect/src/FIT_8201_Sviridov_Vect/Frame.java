@@ -472,6 +472,7 @@ public final class Frame extends MainFrame implements FrameService, StateHistory
         }
         for (int i = 2; i < 16; ++i) {
             if (i != 3 && i != 6 && i != 8 && i != 10 && i != 13) {
+                toolBar.getComponent(i).setBackground(null);
                 toolBar.getComponent(i).setEnabled(!blocked);
             }
         }

@@ -127,7 +127,7 @@ public class VectPersistence {
             throw new IllegalArgumentException("n must be in {4, ..., 20}");
         }
 
-        for (int i = 0; i < n; ++i) {
+        for (int i = 0; i < n + 1; ++i) {
             string = LineParseUtils.nextNormalizedLine(br);
             colors.add(stringToColor(string));
         }

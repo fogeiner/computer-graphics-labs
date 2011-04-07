@@ -94,21 +94,6 @@ public class ColorsChoiceDialog extends JDialog {
 
     public void showDialog() {
 
-        for (ColorChoiceLabel l : labels) {
-            l.setChosen(false);
-            l.setBackground(null);
-        }
-
-        for (JCheckBox cb : checkboxes) {
-            cb.setSelected(false);
-        }
-
-        List<Color> vectModelColors = vectModel.getColors();
-        for (int i = 0; i < vectModelColors.size() && i < MAX_COLORS; ++i) {
-            labels[i].setBackground(vectModelColors.get(i));
-            labels[i].setChosen(true);
-        }
-
         setVisible(true);
     }
 
@@ -210,6 +195,23 @@ public class ColorsChoiceDialog extends JDialog {
 
     public void setVectModel(VectModel vectModel) {
         this.vectModel = vectModel;
+
+        if(vectModel == null) return;
+        
+        for (ColorChoiceLabel l : labels) {
+            l.setChosen(false);
+            l.setBackground(null);
+        }
+
+        for (JCheckBox cb : checkboxes) {
+            cb.setSelected(false);
+        }
+
+        List<Color> vectModelColors = vectModel.getColors();
+        for (int i = 0; i < vectModelColors.size() && i < MAX_COLORS; ++i) {
+            labels[i].setBackground(vectModelColors.get(i));
+            labels[i].setChosen(true);
+        }
 
     }
 
