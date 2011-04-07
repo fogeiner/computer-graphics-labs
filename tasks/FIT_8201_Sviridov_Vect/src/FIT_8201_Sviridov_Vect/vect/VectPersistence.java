@@ -53,10 +53,12 @@ public class VectPersistence {
         sb.append("\r\n");
         sb.append(Integer.toString(n - 1));
         sb.append("\r\n");
+        Collections.reverse(colors);
         for (Color color : colors) {
             sb.append(colorToString(color));
             sb.append("\r\n");
         }
+        Collections.reverse(colors);
         sb.append(Integer.toString(grid.W));
         sb.append(" ");
         sb.append(Integer.toString(grid.H));
@@ -102,23 +104,43 @@ public class VectPersistence {
         strs = LineParseUtils.nextNormalizedLine(br).split(" ");
         a = Double.parseDouble(strs[0]);
         b = Double.parseDouble(strs[1]);
+        if (a >= b) {
+            throw new IllegalArgumentException("x start (a) must be less than x end (b)");
+        }
         c = Double.parseDouble(strs[2]);
         d = Double.parseDouble(strs[3]);
+        if (c >= d) {
+            throw new IllegalArgumentException("y start (c) must be less than y end (d)");
+        }
 
         string = LineParseUtils.nextNormalizedLine(br);
         c0 = Double.parseDouble(string);
 
+        if (c0 < 0.5 || c0 > 3.0) {
+            throw new IllegalArgumentException("Vector mult coeff (C0) must be in [0.3, 3.0]");
+        }
+
         string = LineParseUtils.nextNormalizedLine(br);
         n = Integer.parseInt(string);
+
+        if (n < 4 || n > 20) {
+            throw new IllegalArgumentException("n must be in {4, ..., 20}");
+        }
 
         for (int i = 0; i < n; ++i) {
             string = LineParseUtils.nextNormalizedLine(br);
             colors.add(stringToColor(string));
         }
+
         Collections.reverse(colors);
         strs = LineParseUtils.nextNormalizedLine(br).split(" ");
         M = Integer.parseInt(strs[0]);
         N = Integer.parseInt(strs[1]);
+
+        if (M < 4 || N < 4 || M > 50 || N > 50) {
+            throw new IllegalArgumentException("M and N must be in {4, ..., 50}");
+        }
+
         string = LineParseUtils.nextNormalizedLine(br);
         gridColor = stringToColor(string);
 

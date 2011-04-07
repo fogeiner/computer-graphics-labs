@@ -12,7 +12,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -57,12 +56,14 @@ public class ColorsChoiceDialog extends JDialog {
         @Override
         public void actionPerformed(ActionEvent e) {
             JCheckBox cb = (JCheckBox) e.getSource();
-            if (cb.isSelected() && !l.isChosen()) {
-                l.showChooseColorDialog();
-            }
+            if (cb.isSelected()) {
+                if (!l.isChosen()) {
+                    l.showChooseColorDialog();
 
-            if (l.isChosen() == false) {
-                cb.setSelected(false);
+                    if (l.isChosen() == false) {
+                        cb.setSelected(false);
+                    }
+                }
             }
         }
     }
@@ -115,7 +116,7 @@ public class ColorsChoiceDialog extends JDialog {
         List<Color> newColors = new ArrayList<Color>(MAX_COLORS);
 
         for (int i = 0; i < MAX_COLORS; ++i) {
-            if (labels[i].isChosen()) {
+            if (checkboxes[i].isSelected()) {
                 newColors.add(labels[i].getBackground());
             }
         }

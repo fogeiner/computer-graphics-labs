@@ -109,6 +109,8 @@ public class VectView extends GridPanel implements VectListener {
 
         @Override
         public void colorsChanged() {
+            computeVectors();
+            repaint();
         }
     }
 

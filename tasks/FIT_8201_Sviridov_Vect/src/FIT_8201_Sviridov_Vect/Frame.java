@@ -4,6 +4,7 @@ import FIT_8201_Sviridov_Vect.state_history.StateHistoryListener;
 import FIT_8201_Sviridov_Vect.state_history.StateHistoryModel;
 import FIT_8201_Sviridov_Vect.utils.Region;
 import FIT_8201_Sviridov_Vect.statusbar.StatusbarModel;
+import FIT_8201_Sviridov_Vect.ui.ColorsChoiceDialog;
 import FIT_8201_Sviridov_Vect.ui.LegendPanel;
 import FIT_8201_Sviridov_Vect.ui.Statusbar;
 import FIT_8201_Sviridov_Vect.ui.VectView;
@@ -21,10 +22,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 
 import javax.swing.JFrame;
@@ -49,6 +47,7 @@ public final class Frame extends MainFrame implements FrameService, StateHistory
     private Statusbar statusbar = new Statusbar();
     private LegendPanel legendPanel = new LegendPanel();
     private VectView vectView = new VectView();
+    private ColorsChoiceDialog colorsChoiceDialog = new ColorsChoiceDialog(this, "Palette dialog");
     private VectModel vectModel;
     private boolean modified;
 
@@ -98,6 +97,9 @@ public final class Frame extends MainFrame implements FrameService, StateHistory
                     "zoom_next.gif", "onZoomNext");
             addMenuItem("Edit/Settings", "Show settings dialog", KeyEvent.VK_S,
                     "settings.gif", "onSettings");
+            addMenuItem("Edit/Palette", "Show pallete dialog", KeyEvent.VK_P,
+                    "palette.gif", "onPalette");
+
             addSubMenu("Help", KeyEvent.VK_H);
 
             addMenuItem("Help/About",
@@ -120,6 +122,7 @@ public final class Frame extends MainFrame implements FrameService, StateHistory
             addToolBarButton("Edit/Next zoom level");
             addToolBarSeparator();
             addToolBarButton("Edit/Settings");
+            addToolBarButton("Edit/Palette");
             addToolBarSeparator();
             addToolBarButton("Help/About");
             addToolBarSeparator();
@@ -214,6 +217,8 @@ public final class Frame extends MainFrame implements FrameService, StateHistory
 
             legendPanel.setVectModel(vectModel);
 
+            colorsChoiceDialog.setVectModel(vectModel);
+
             vectModel.addVectListener(vectView);
             vectModel.addVectListener(legendPanel);
             vectModel.addVectListener(this);
@@ -223,23 +228,19 @@ public final class Frame extends MainFrame implements FrameService, StateHistory
             setBlockedAll(false);
             setZoomNextBlocked(true);
             setZoomPreviousBlocked(true);
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(Frame.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(Frame.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IllegalArgumentException ex) {
             System.out.println(ex);
             JOptionPane.showMessageDialog(this,
-                    "Document is of unknown format", "Loading document",
+                    "Document error: " + ex.getMessage(), "Loading document",
                     JOptionPane.ERROR_MESSAGE);
             setTitle(Settings.UNTITLED_DOCUMENT);
-        } /*catch (Exception ex) {
-        System.out.println(ex);
-        JOptionPane.showMessageDialog(this,
-        "Error loading file: \n" + ex.getLocalizedMessage(),
-        "Loading document", JOptionPane.ERROR_MESSAGE);
-        setTitle(Settings.UNTITLED_DOCUMENT);
-        }*/
+        } catch (Exception ex) {
+            System.out.println(ex);
+            JOptionPane.showMessageDialog(this,
+                    "Error loading file: \n" + ex.getLocalizedMessage(),
+                    "Loading document", JOptionPane.ERROR_MESSAGE);
+            setTitle(Settings.UNTITLED_DOCUMENT);
+        }
     }
 
     public void onChess() {
@@ -259,9 +260,15 @@ public final class Frame extends MainFrame implements FrameService, StateHistory
         vectModel.setArrowPlain(!vectModel.isArrowPlain());
     }
 
+
+
     public void onSettings() {
     }
 
+    public void onPalette(){
+        colorsChoiceDialog.showDialog();
+    }
+    
     /**
      * Resets application to state with no images loaded and panels blocked
      */
@@ -279,7 +286,7 @@ public final class Frame extends MainFrame implements FrameService, StateHistory
         vectView.setRegionsHistory(null);
         statusbar.setStatusbarModel(null);
         legendPanel.setVectModel(null);
-
+        colorsChoiceDialog.setVectModel(null);
         setBlockedAll(true);
     }
 
@@ -463,7 +470,7 @@ public final class Frame extends MainFrame implements FrameService, StateHistory
         for (int i = 0; i < 7; ++i) {
             edit.getMenuComponent(i).setEnabled(!blocked);
         }
-        for (int i = 2; i < 15; ++i) {
+        for (int i = 2; i < 16; ++i) {
             if (i != 3 && i != 6 && i != 8 && i != 10 && i != 13) {
                 toolBar.getComponent(i).setEnabled(!blocked);
             }
