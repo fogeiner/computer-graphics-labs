@@ -12,6 +12,8 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GridLayout;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import javax.swing.BorderFactory;
@@ -145,6 +147,21 @@ public class SettingsDialog extends JDialog {
 
     private void init() {
 
+        PropertyChangeListener pcl = new PropertyChangeListener() {
+
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+               getVectModel().setRegion(
+                       new Region(
+                       (Double)xs.getValue(),
+                       (Double)xe.getValue(),
+                       (Double)ys.getValue(),
+                       (Double)ye.getValue()
+                       ));
+
+            }
+        };
+
         NumberFormatter nf = new NumberFormatter();
         nf.setMinimum(originalRegion.xs);
         nf.setMaximum(originalRegion.xe);
@@ -158,15 +175,20 @@ public class SettingsDialog extends JDialog {
         nf.setMinimum(originalRegion.ys);
         nf.setMaximum(originalRegion.ye);
         nf.setCommitsOnValidEdit(true);
-        nf.setFormat(new DecimalFormat("#.000"));
+        nf.setFormat(new DecimalFormat("0.000"));
 
         ys = new JFormattedTextField(nf);
         ye = new JFormattedTextField(nf);
 
         for (JFormattedTextField f : new JFormattedTextField[]{xs, xe, ys, ye}) {
             f.setColumns(10);
+            f.addPropertyChangeListener("value", pcl);
         }
 
+    }
+
+    public VectModel getVectModel(){
+        return vectModel;
     }
 
     public SettingsDialog(Frame owner, VectModel vectModel) {
