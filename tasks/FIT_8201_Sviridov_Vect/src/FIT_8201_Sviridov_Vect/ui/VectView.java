@@ -18,6 +18,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JPanel;
@@ -29,6 +30,7 @@ import javax.swing.JPanel;
 public class VectView extends GridPanel implements VectListener {
 
     private static final long serialVersionUID = 1810339757295266082L;
+    private BufferedImage imgBuffer = new BufferedImage(3000, 2000, BufferedImage.TYPE_INT_RGB);
     private VectModel vectModel;
     private StatusbarModel statusbarModel;
     private StateHistoryModel<Region> regionsHistoryModel;
@@ -38,6 +40,7 @@ public class VectView extends GridPanel implements VectListener {
     private Point mouseCurrentPoint;
     private EventHandlers handlers = new EventHandlers();
     private VectModelHandler vectModelHandler = new VectModelHandler();
+
 
     private void removeHandlers() {
         removeComponentListener(handlers);

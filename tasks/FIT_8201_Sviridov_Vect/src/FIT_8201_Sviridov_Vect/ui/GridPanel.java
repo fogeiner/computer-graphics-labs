@@ -13,6 +13,7 @@ import java.awt.Point;
 import java.awt.Stroke;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 
 /**
@@ -21,6 +22,7 @@ import javax.swing.JPanel;
  */
 public class GridPanel extends JPanel {
 
+    private BufferedImage imgBuffer = new BufferedImage(3000, 2000, BufferedImage.TYPE_INT_RGB);
     private static final long serialVersionUID = -1038991547314803513L;
     public static final Color DEFAULT_GRID_COLOR = Color.lightGray;
     private Color gridColor = DEFAULT_GRID_COLOR;
@@ -30,7 +32,6 @@ public class GridPanel extends JPanel {
     private Point[][] gridPoints;
 
     public GridPanel() {
-        
     }
 
     public Point getLeftLowerGridPoint() {
@@ -58,6 +59,7 @@ public class GridPanel extends JPanel {
                 gridPoints[w - 1][h - 1] = new Point(x, y);
             }
         }
+        paintBuffer();
     }
 
     public double getGridCellWidth() {
@@ -81,6 +83,7 @@ public class GridPanel extends JPanel {
 
     public void setGridColor(Color gridColor) {
         this.gridColor = gridColor;
+        paintBuffer();
     }
 
     public GridPanel(int w, int h) {
@@ -95,6 +98,7 @@ public class GridPanel extends JPanel {
         this.grid = grid;
         gridPoints = new Point[grid.W][grid.H];
         computeGridPoints();
+
         repaint();
     }
 
@@ -108,26 +112,24 @@ public class GridPanel extends JPanel {
 
     public void setGridDrawn(boolean gridDrawn) {
         this.gridDrawn = gridDrawn;
+        paintBuffer();
     }
 
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        if (grid == null || gridDrawn == false) {
+    private void paintBuffer() {
+        if (grid == null) {
             return;
         }
-        Graphics2D g2 = (Graphics2D) g;
+        int width = getWidth(),
+                height = getHeight();
+        Graphics2D g2 = (Graphics2D) imgBuffer.createGraphics();
+        g2.setColor(getBackground());
+        g2.fillRect(0, 0, imgBuffer.getWidth(), imgBuffer.getHeight());
         if (stroke == null) {
             stroke = new BasicStroke(1.0f, BasicStroke.CAP_ROUND, BasicStroke.CAP_ROUND, 5.0f, new float[]{5.0f, 5.0f}, 0.0f);
         }
-        Stroke oldStroke = g2.getStroke();
-        Color oldColor = g2.getColor();
 
         g2.setStroke(stroke);
         g2.setColor(gridColor);
-
-        int height = getHeight();
-        int width = getWidth();
 
         for (int k = 1; k < grid.W + 1; ++k) {
             int x = (int) ((double) width / (grid.W + 1) * k + 0.5);
@@ -138,8 +140,16 @@ public class GridPanel extends JPanel {
             int y = (int) ((double) height / (grid.H + 1) * k + 0.5);
             g2.drawLine(0, y, width, y);
         }
+        g2.dispose();
+    }
 
-        g2.setColor(oldColor);
-        g2.setStroke(oldStroke);
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (grid == null || gridDrawn == false) {
+            return;
+        }
+
+        g.drawImage(imgBuffer, 0, 0, null);
     }
 }

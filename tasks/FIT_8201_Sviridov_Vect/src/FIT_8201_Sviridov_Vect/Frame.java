@@ -14,6 +14,7 @@ import FIT_8201_Sviridov_Vect.vect.VectModel;
 import FIT_8201_Sviridov_Vect.vect.VectPersistence;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -265,16 +266,14 @@ public final class Frame extends MainFrame implements FrameService, StateHistory
         vectModel.setArrowPlain(!vectModel.isArrowPlain());
     }
 
-
-
     public void onSettings() {
         settingsDialog.showDialog();
     }
 
-    public void onPalette(){
+    public void onPalette() {
         colorsChoiceDialog.showDialog();
     }
-    
+
     /**
      * Resets application to state with no images loaded and panels blocked
      */
@@ -296,6 +295,7 @@ public final class Frame extends MainFrame implements FrameService, StateHistory
         colorsChoiceDialog.setVectModel(null);
         settingsDialog.setVectModel(null);
         setBlockedAll(true);
+        setModified(false);
     }
 
     /**
@@ -444,10 +444,10 @@ public final class Frame extends MainFrame implements FrameService, StateHistory
 
             @Override
             public void run() {
-                Frame frame = new Frame(Settings.FRAME_WIDTH,
-                        Settings.FRAME_HEIGHT);
+                Frame frame = new Frame(32*16, 32*16);
+                frame.setMinimumSize(new Dimension(32 * 16, 32 * 16));
+                frame.setSize(new Dimension(32 * 16, 32 * 16));
                 frame.setVisible(true);
-                frame.setSize(800, 600);
             }
         });
     }
@@ -524,26 +524,32 @@ public final class Frame extends MainFrame implements FrameService, StateHistory
 
     @Override
     public void modelChanged() {
+        setModified(true);
     }
 
     @Override
     public void regionChanged() {
+        setModified(true);
     }
 
     @Override
     public void lengthMultChanged() {
+        setModified(true);
     }
 
     @Override
     public void gridChanged() {
+        setModified(true);
     }
 
     @Override
     public void gridColorChanged() {
+        setModified(true);
     }
 
     @Override
     public void colorsChanged() {
+        setModified(true);
     }
 
     @Override

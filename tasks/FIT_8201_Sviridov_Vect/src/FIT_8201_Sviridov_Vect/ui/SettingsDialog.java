@@ -9,7 +9,6 @@ import FIT_8201_Sviridov_Vect.utils.Grid;
 import FIT_8201_Sviridov_Vect.utils.Region;
 import FIT_8201_Sviridov_Vect.vect.VectListener;
 import FIT_8201_Sviridov_Vect.vect.VectModel;
-import java.awt.AWTEventMulticaster;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
@@ -17,12 +16,15 @@ import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JColorChooser;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFormattedTextField;
@@ -31,10 +33,10 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.NumberFormatter;
-import sun.java2d.pipe.RegionSpanIterator;
 
 /**
  *
@@ -55,11 +57,13 @@ public class SettingsDialog extends JDialog implements VectListener {
     private JSlider vectMultSlider = new JSlider(VECT_MULT_MIN, VECT_MULT_MAX, VECT_MULT_MIN);
     private JSpinner vectMultSpinner = new JSpinner(new SpinnerNumberModel(VECT_MULT_MIN / VECT_MULT_SCALE,
             VECT_MULT_MIN / VECT_MULT_SCALE, VECT_MULT_MAX / VECT_MULT_SCALE, VECT_MULT_STEP));
+    private JLabel gridColorLabel = new JLabel("Click to choose");
     private VectModel vectModel;
     private Region originalRegion;
     private Region savedRegion;
     private int savedGridWidth, savedGridHeight;
     private double savedVectMult;
+    private Color savedGridColor;
     private StateHistoryModel<Region> regionsHistoryModel;
     // region -- max and min are determined at setting model time
     // vectMult, grid is saved on every showDialog call
@@ -138,6 +142,23 @@ public class SettingsDialog extends JDialog implements VectListener {
                 cancel();
             }
         });
+
+        gridColorLabel.setOpaque(true);
+        gridColorLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        gridColorLabel.addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                JLabel l = (JLabel) e.getSource();
+                Color c = JColorChooser.showDialog(SettingsDialog.this, "Choose grid color", l.getBackground());
+                if (c == null) {
+                    return;
+                }
+
+                l.setBackground(c);
+                vectModel.setGridColor(l.getBackground());
+            }
+        });
     }
 
     private JPanel makeButtonsPanel() {
@@ -182,6 +203,13 @@ public class SettingsDialog extends JDialog implements VectListener {
         return p;
     }
 
+    private JPanel makeGridColorPanel() {
+        JPanel p = new JPanel(new BorderLayout());
+        p.setBorder(BorderFactory.createTitledBorder("Grid color"));
+        p.add(gridColorLabel, BorderLayout.CENTER);
+        return p;
+    }
+
     private void syncSpinnerSlider(final JSlider slider, final JSpinner spinner) {
 
         JComponent editor = spinner.getEditor();
@@ -223,6 +251,7 @@ public class SettingsDialog extends JDialog implements VectListener {
         vectModel.setRegion(savedRegion);
         vectModel.setGrid(new Grid(savedGridWidth, savedGridHeight));
         vectModel.setLengthMult(savedVectMult);
+        vectModel.setGridColor(savedGridColor);
         setVisible(false);
     }
 
@@ -240,10 +269,14 @@ public class SettingsDialog extends JDialog implements VectListener {
 
         vectMultSpinner.setValue(vectModel.getLengthMult());
 
+        gridColorLabel.setBackground(vectModel.getGridColor());
+
         savedRegion = currentRegion;
         savedGridWidth = curGrid.W;
         savedGridHeight = curGrid.H;
         savedVectMult = vectModel.getLengthMult();
+        savedGridColor = vectModel.getGridColor();
+
     }
 
     public StateHistoryModel<Region> getRegionsHistoryModel() {
@@ -299,7 +332,9 @@ public class SettingsDialog extends JDialog implements VectListener {
         mainPanel.add(makeIntervalPanel(ys, ye, "y [c,d] | [d,c]"));
         mainPanel.add(makeGridPanel());
         mainPanel.add(makeMultPanel());
+        mainPanel.add(makeGridColorPanel());
         add(mainPanel, BorderLayout.CENTER);
+
         add(makeButtonsPanel(), BorderLayout.SOUTH);
         pack();
     }
