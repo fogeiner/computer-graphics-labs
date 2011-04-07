@@ -163,6 +163,8 @@ public class VectView extends GridPanel implements VectListener {
 
         @Override
         public void mouseReleased(MouseEvent e) {
+            // bug happens if non-modal dialog is open
+            if(selectionRectStart == null) return;
             Point p = e.getPoint();
             Point llp = getLeftLowerGridPoint();
             Point rup = getRightUpperGridPoint();

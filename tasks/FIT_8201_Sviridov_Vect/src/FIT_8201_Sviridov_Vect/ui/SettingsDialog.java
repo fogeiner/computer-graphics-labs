@@ -4,14 +4,19 @@
  */
 package FIT_8201_Sviridov_Vect.ui;
 
+import FIT_8201_Sviridov_Vect.state_history.StateHistoryModel;
 import FIT_8201_Sviridov_Vect.utils.Grid;
 import FIT_8201_Sviridov_Vect.utils.Region;
+import FIT_8201_Sviridov_Vect.vect.VectListener;
 import FIT_8201_Sviridov_Vect.vect.VectModel;
+import java.awt.AWTEventMulticaster;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.DecimalFormat;
@@ -29,12 +34,13 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.NumberFormatter;
+import sun.java2d.pipe.RegionSpanIterator;
 
 /**
  *
  * @author admin
  */
-public class SettingsDialog extends JDialog {
+public class SettingsDialog extends JDialog implements VectListener {
 
     private static final long serialVersionUID = -903939050607469239L;
     private final int VECT_MULT_MIN = 500,
@@ -54,35 +60,37 @@ public class SettingsDialog extends JDialog {
     private Region savedRegion;
     private int savedGridWidth, savedGridHeight;
     private double savedVectMult;
+    private StateHistoryModel<Region> regionsHistoryModel;
     // region -- max and min are determined at setting model time
     // vectMult, grid is saved on every showDialog call
 
     {
-        xs = new JFormattedTextField();
-        xe = new JFormattedTextField();
+        xs = new JFormattedTextField(DecimalFormat.getNumberInstance());
+        xe = new JFormattedTextField(DecimalFormat.getNumberInstance());
 
-        ys = new JFormattedTextField();
-        ye = new JFormattedTextField();
+        ys = new JFormattedTextField(DecimalFormat.getNumberInstance());
+        ye = new JFormattedTextField(DecimalFormat.getNumberInstance());
 
         PropertyChangeListener pcl = new PropertyChangeListener() {
 
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
-                getVectModel().setRegion(
-                        new Region(
-                        (Double) xs.getValue(),
-                        (Double) xe.getValue(),
-                        (Double) ys.getValue(),
-                        (Double) ye.getValue()));
+                Double a = (Double) xs.getValue(),
+                        b = (Double) xe.getValue(),
+                        c = (Double) ys.getValue(),
+                        d = (Double) ye.getValue();
+                if (a != null && b != null && c != null && d != null) {
+                    getVectModel().setRegion(new Region(a, b, c, d));
+                }
 
             }
         };
 
 
-//        for (JFormattedTextField f : new JFormattedTextField[]{xs, xe, ys, ye}) {
-//            f.setColumns(10);
-//            f.addPropertyChangeListener("value", pcl);
-//        }
+        for (JFormattedTextField f : new JFormattedTextField[]{xs, xe, ys, ye}) {
+            f.setColumns(10);
+            f.addPropertyChangeListener("value", pcl);
+        }
 
         syncSpinnerSlider(vectMultSlider, vectMultSpinner);
         vectMultSlider.setPaintTicks(true);
@@ -103,6 +111,33 @@ public class SettingsDialog extends JDialog {
 
         gridHeightSpinner.addChangeListener(gridUpdater);
         gridWidthSpinner.addChangeListener(gridUpdater);
+
+        vectMultSpinner.addChangeListener(new ChangeListener() {
+
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                Double value = (Double) ((JSpinner) e.getSource()).getValue();
+                if (value != null) {
+                    vectModel.setLengthMult(value);
+                }
+            }
+        });
+
+        okButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                confirm();
+            }
+        });
+
+        cancelButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cancel();
+            }
+        });
     }
 
     private JPanel makeButtonsPanel() {
@@ -175,6 +210,24 @@ public class SettingsDialog extends JDialog {
     }
 
     public void showDialog() {
+        getValuesFromModel();
+        setVisible(true);
+    }
+
+    private void confirm() {
+        regionsHistoryModel.add(vectModel.getRegion());
+        setVisible(false);
+    }
+
+    private void cancel() {
+        vectModel.setRegion(savedRegion);
+        vectModel.setGrid(new Grid(savedGridWidth, savedGridHeight));
+        vectModel.setLengthMult(savedVectMult);
+        setVisible(false);
+    }
+
+    private void getValuesFromModel() {
+
         Region currentRegion = vectModel.getRegion();
         xs.setValue(currentRegion.xs);
         xe.setValue(currentRegion.xe);
@@ -186,37 +239,49 @@ public class SettingsDialog extends JDialog {
         gridHeightSpinner.setValue(curGrid.H);
 
         vectMultSpinner.setValue(vectModel.getLengthMult());
-        setVisible(true);
+
+        savedRegion = currentRegion;
+        savedGridWidth = curGrid.W;
+        savedGridHeight = curGrid.H;
+        savedVectMult = vectModel.getLengthMult();
     }
 
-    private void confirm() {
+    public StateHistoryModel<Region> getRegionsHistoryModel() {
+        return regionsHistoryModel;
     }
 
-    private void cancel() {
+    public void setRegionsHistoryModel(StateHistoryModel<Region> regionsHistoryModel) {
+        this.regionsHistoryModel = regionsHistoryModel;
     }
 
     public void setVectModel(VectModel vectModel) {
         this.vectModel = vectModel;
-        if(vectModel == null) return;
-        
+        if (vectModel == null) {
+            setVisible(false);
+            return;
+        }
+
         originalRegion = vectModel.getRegion();
 
-
-        for(JFormattedTextField ftf: new JFormattedTextField[]{xs,xe}){
-            NumberFormatter nf = (NumberFormatter)ftf.getFormatter();
+        for (JFormattedTextField ftf : new JFormattedTextField[]{xs, xe}) {
+            NumberFormatter nf = (NumberFormatter) ftf.getFormatter();
             nf.setMinimum(originalRegion.xs);
             nf.setMaximum(originalRegion.xe);
             nf.setCommitsOnValidEdit(true);
+            nf.setAllowsInvalid(false);
             nf.setFormat(new DecimalFormat("0.000"));
         }
 
-        for(JFormattedTextField ftf: new JFormattedTextField[]{ys,ye}){
-            NumberFormatter nf = (NumberFormatter)ftf.getFormatter();
+        for (JFormattedTextField ftf : new JFormattedTextField[]{ys, ye}) {
+            NumberFormatter nf = (NumberFormatter) ftf.getFormatter();
             nf.setMinimum(originalRegion.ys);
             nf.setMaximum(originalRegion.ye);
             nf.setCommitsOnValidEdit(true);
+            nf.setAllowsInvalid(false);
             nf.setFormat(new DecimalFormat("0.000"));
         }
+
+        getValuesFromModel();
     }
 
     public VectModel getVectModel() {
@@ -245,5 +310,50 @@ public class SettingsDialog extends JDialog {
                 Arrays.asList(new Color[]{Color.red, Color.blue}), Color.gray, true, true, true, true));
         d.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         d.showDialog();
+    }
+
+    @Override
+    public void modelChanged() {
+    }
+
+    @Override
+    public void regionChanged() {
+        Region currentRegion = vectModel.getRegion();
+        xs.setValue(currentRegion.xs);
+        xe.setValue(currentRegion.xe);
+        ys.setValue(currentRegion.ys);
+        ye.setValue(currentRegion.ye);
+    }
+
+    @Override
+    public void lengthMultChanged() {
+    }
+
+    @Override
+    public void gridChanged() {
+    }
+
+    @Override
+    public void gridColorChanged() {
+    }
+
+    @Override
+    public void colorsChanged() {
+    }
+
+    @Override
+    public void fieldModeChanged() {
+    }
+
+    @Override
+    public void gridDrawnChanged() {
+    }
+
+    @Override
+    public void arrowModeChanged() {
+    }
+
+    @Override
+    public void chessModeChanged() {
     }
 }

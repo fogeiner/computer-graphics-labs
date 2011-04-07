@@ -216,12 +216,14 @@ public final class Frame extends MainFrame implements FrameService, StateHistory
             vectView.setStatusbarModel(statusbarModel);
             vectView.setVectModel(vectModel);
             vectView.setRegionsHistory(regionsHistoryModel);
+            settingsDialog.setRegionsHistoryModel(regionsHistoryModel);
 
             legendPanel.setVectModel(vectModel);
 
             colorsChoiceDialog.setVectModel(vectModel);
             settingsDialog.setVectModel(vectModel);
 
+            vectModel.addVectListener(settingsDialog);
             vectModel.addVectListener(vectView);
             vectModel.addVectListener(legendPanel);
             vectModel.addVectListener(this);
@@ -289,6 +291,7 @@ public final class Frame extends MainFrame implements FrameService, StateHistory
         vectView.setStatusbarModel(null);
         vectView.setRegionsHistory(null);
         statusbar.setStatusbarModel(null);
+        settingsDialog.setRegionsHistoryModel(null);
         legendPanel.setVectModel(null);
         colorsChoiceDialog.setVectModel(null);
         settingsDialog.setVectModel(null);
