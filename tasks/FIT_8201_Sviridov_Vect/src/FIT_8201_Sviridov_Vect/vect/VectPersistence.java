@@ -21,11 +21,18 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- *
+ * Class represents module responsible for saving VectModel to files
+ * and reading VectModels from files
  * @author admin
  */
 public class VectPersistence {
 
+	/**
+	 * Saves given VectModel to File
+	 * @param vectModel model to be saved
+	 * @param file file to save model to
+	 * @throws IOException thrown in case of IO errors
+	 */
     static public void saveToFile(VectModel vectModel, File file) throws IOException {
         FileWriter fw = new FileWriter(file);
         Region region = vectModel.getRegion();
@@ -69,6 +76,12 @@ public class VectPersistence {
         fw.close();
     }
 
+    /**
+     * Converts color to its digit representation:
+     * red -> 255 0 0 and so on
+     * @param c color to be converted
+     * @return string representation
+     */
     public static String colorToString(Color c) {
         StringBuilder sb = new StringBuilder();
         sb.append(Integer.toString(c.getRed()));
@@ -79,6 +92,11 @@ public class VectPersistence {
         return sb.toString();
     }
 
+    /**
+     * Converts text rgb model to Color:
+     * 255 0 0 -> Color.red and so on
+     * @param string string with color model
+     */
     public static Color stringToColor(String string) {
         String[] rgb = string.split(" ");
         int r = Integer.parseInt(rgb[0]),
@@ -87,6 +105,13 @@ public class VectPersistence {
         return new Color(r, g, b);
     }
 
+    /**
+     * Loads VectModel from given File
+     * @param file file to load model from
+     * @return read VectModel
+     * @throws FileNotFoundException thrown in case of not found file
+     * @throws IOException thrown in case of IO errors
+     */
     static public VectModel loadFromFile(File file) throws FileNotFoundException, IOException {
         FileInputStream fstream = new FileInputStream(file);
         DataInputStream in = new DataInputStream(fstream);

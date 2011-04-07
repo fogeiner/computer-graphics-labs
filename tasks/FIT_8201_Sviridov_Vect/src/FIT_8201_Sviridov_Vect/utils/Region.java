@@ -1,7 +1,9 @@
 package FIT_8201_Sviridov_Vect.utils;
 
 /**
- *
+ * Class represents region of space in manner [a,b]x[c,d]
+ * Object of the class are immutable and can be easily exchanged via
+ * other objects
  * @author admin
  */
 public class Region {
@@ -11,6 +13,14 @@ public class Region {
     public final double ys;
     public final double ye;
 
+    /**
+     * Constructor with given xs, xe, ys, ye
+     * start and end can be swapped, constructor with reverse the interval
+     * @param xs x start
+     * @param xe x end 
+     * @param ys y start
+     * @param ye y end
+     */
     public Region(double xs, double xe, double ys, double ye) {
         this.xs = Math.min(xs, xe);
         this.xe = Math.max(xs, xe);
@@ -18,17 +28,19 @@ public class Region {
         this.ye = Math.max(ys, ye);
     }
 
-    public Region(final Region region) {
-        this.xs = region.xs;
-        this.xe = region.xe;
-        this.ys = region.ys;
-        this.ye = region.ye;
-    }
 
+    /**
+     * Returns width of the region
+     * @return  width of the region
+     */
     public double width() {
         return xe - xs;
     }
 
+    /**
+     * Returns height of the region
+     * @return height of the region
+     */
     public double height() {
         return ye - ys;
     }

@@ -9,254 +9,400 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- *
+ * Class represents Vector App model
+ * 
  * @author admin
  */
 public class VectModel {
 
-    private Region region;
-    private double lengthMult;
-    private Grid grid;
-    private List<Color> colors;
-    private List<Double> values;
-    private Color gridColor;
-    private boolean fieldColor;
-    private double maxVectorLength;
-    private boolean gridDrawn;
-    private boolean arrowPlain;
-    private boolean chessMode;
-    private final List<VectListener> listeners;
+	private Region region;
+	private double lengthMult;
+	private Grid grid;
+	private List<Color> colors;
+	private List<Double> values;
+	private Color gridColor;
+	private boolean fieldColor;
+	private double maxVectorLength;
+	private boolean gridDrawn;
+	private boolean arrowPlain;
+	private boolean chessMode;
+	private final List<VectListener> listeners;
 
-    public VectModel(Region region, double lengthMult,
-            Grid grid, List<Color> colors, Color gridColor,
-            boolean fieldColor, boolean gridDrawn, boolean arrowPlain, boolean chessMode) {
-        this.listeners = new LinkedList<VectListener>();
-        this.region = region;
-        this.lengthMult = lengthMult;
-        this.grid = grid;
-        this.colors = colors;
-        this.gridColor = gridColor;
-        this.fieldColor = fieldColor;
-        this.gridDrawn = gridDrawn;
-        this.arrowPlain = arrowPlain;
-        this.chessMode = chessMode;
+	/**
+	 * Computes fx
+	 * @param x x 
+	 * @param y y
+	 * @return fx
+	 */
+	public double fx(double x, double y) {
+		return Math.sin(x + y);
+	}
 
-        computeValues();
-    }
+	/**
+	 * Computes fy
+	 * @param x x 
+	 * @param y x 
+	 * @return fy
+	 */
+	public double fy(double x, double y) {
+		return Math.sin(x - y);
+	}
+	
+	/**
+	 * Constructor with all available parameters Its dangerous to leave model
+	 * uninitialized due to listeners
+	 * 
+	 * @param region
+	 *            initial region
+	 * @param lengthMult
+	 *            initial vector coefficient value
+	 * @param grid
+	 *            initial grid
+	 * @param colors
+	 *            initial colors set
+	 * @param gridColor
+	 *            initial grid color
+	 * @param fieldColor
+	 *            initial field mode value
+	 * @param gridDrawn
+	 *            initial grid drawn value
+	 * @param arrowPlain
+	 *            initial arrow mode
+	 * @param chessMode
+	 *            initial chess mode
+	 */
+	public VectModel(Region region, double lengthMult, Grid grid,
+			List<Color> colors, Color gridColor, boolean fieldColor,
+			boolean gridDrawn, boolean arrowPlain, boolean chessMode) {
+		this.listeners = new LinkedList<VectListener>();
+		this.region = region;
+		this.lengthMult = lengthMult;
+		this.grid = grid;
+		this.colors = colors;
+		this.gridColor = gridColor;
+		this.fieldColor = fieldColor;
+		this.gridDrawn = gridDrawn;
+		this.arrowPlain = arrowPlain;
+		this.chessMode = chessMode;
 
-    private void computeValues() {
-        // iterate through all cells and compute
-        // vector length; find min and max and 
-        // make a list of uniform values
-        if (grid == null || colors == null) {
-            return;
-        }
-        double min = Double.MAX_VALUE;
-        double max = Double.MIN_VALUE;
+		computeValues();
+	}
 
-        double width = region.width();
-        double height = region.height();
+	/**
+	 * Computes new values based on colors number, grid and function
+	 */
+	private void computeValues() {
+		// iterate through all cells and compute
+		// vector length; find min and max and
+		// make a list of uniform values
+		if (grid == null || colors == null) {
+			return;
+		}
+		double min = Double.MAX_VALUE;
+		double max = Double.MIN_VALUE;
 
-        for (int w = 1; w < grid.W + 1; ++w) {
-            double x = region.xs + width / grid.W * w;
-            for (int h = 1; h < grid.H + 1; ++h) {
-                double y = region.ys + height / grid.H * h;
+		double width = region.width();
+		double height = region.height();
 
-                double length = vectorLength(x, y);
-                if (length > max) {
-                    max = length;
-                }
-                if (length < min) {
-                    min = length;
-                }
-            }
-        }
+		for (int w = 1; w < grid.W + 1; ++w) {
+			double x = region.xs + width / grid.W * w;
+			for (int h = 1; h < grid.H + 1; ++h) {
+				double y = region.ys + height / grid.H * h;
 
-        maxVectorLength = max;
+				double length = vectorLength(x, y);
+				if (length > max) {
+					max = length;
+				}
+				if (length < min) {
+					min = length;
+				}
+			}
+		}
 
-        int colorsCount = colors.size();
-        double range = max - min;
-        double step = range / colorsCount;
+		maxVectorLength = max;
 
-        if (values != null) {
-            values.clear();
-        } else {
-            values = new ArrayList<Double>(colorsCount - 1);
-        }
+		int colorsCount = colors.size();
+		double range = max - min;
+		double step = range / colorsCount;
 
-        for (int k = 1; k < colorsCount; ++k) {
-            values.add(new Double(min + step * k));
-        }
-        Collections.reverse(values);
-    }
+		if (values != null) {
+			values.clear();
+		} else {
+			values = new ArrayList<Double>(colorsCount - 1);
+		}
 
-    private double vectorLength(double x, double y) {
-        double fx = fx(x, y),
-                fy = fy(x, y),
-                res = Math.hypot(fx, fy);
-        return res;
-    }
+		for (int k = 1; k < colorsCount; ++k) {
+			values.add(new Double(min + step * k));
+		}
+		Collections.reverse(values);
+	}
 
-    public void notifyListeners() {
+	/**
+	 * Computes vector (fx,fy) length
+	 * @param x x
+	 * @param y y
+	 * @return length
+	 */
+	private double vectorLength(double x, double y) {
+		double fx = fx(x, y), fy = fy(x, y), res = Math.hypot(fx, fy);
+		return res;
+	}
 
-        for (VectListener vectListener : listeners) {
-            vectListener.modelChanged();
-        }
-    }
+	/**
+	 * Calls modelChanged() of all listeners
+	 */
+	public void notifyListeners() {
+		for (VectListener vectListener : listeners) {
+			vectListener.modelChanged();
+		}
+	}
+/**
+ * Adds new listener
+ * @param vectListener new listener
+ */
+	public void addVectListener(VectListener vectListener) {
+		listeners.add(vectListener);
+	}
 
-    public void addVectListener(VectListener vectListener) {
-        listeners.add(vectListener);
-    }
+	/**
+	 * Removes listener
+	 * @param vectListener listener
+	 */
+	public void removeVectListener(VectListener vectListener) {
+		listeners.remove(vectListener);
+	}
 
-    public void removeVectListener(VectListener vectListener) {
-        listeners.remove(vectListener);
-    }
 
-    public double fx(double x, double y) {
-        return Math.sin(x + y);
-    }
+/**
+ * Getter for colors
+ * @return model colors
+ */
+	public List<Color> getColors() {
+		return colors;
+	}
 
-    public double fy(double x, double y) {
-        return Math.sin(x - y);
-    }
+	/**
+	 * Setter for colors
+	 * @param colors new colors
+	 */
+	public void setColors(List<Color> colors) {
+		this.colors = colors;
+		computeValues();
 
-    public List<Color> getColors() {
-        return colors;
-    }
+		for (VectListener vectListener : listeners) {
+			vectListener.colorsChanged();
+		}
+	}
 
-    public void setColors(List<Color> colors) {
-        this.colors = colors;
-        computeValues();
+	/**
+	 * Getter for region
+	 * @return region
+	 */
+	public Region getRegion() {
+		return region;
+	}
 
-        for (VectListener vectListener : listeners) {
-            vectListener.colorsChanged();
-        }
-    }
+	/**
+	 * Setter for region
+	 * @param region new region
+	 */
+	public void setRegion(Region region) {
+		this.region = region;
+		// place to recompute values!
 
-    public Region getRegion() {
-        return region;
-    }
+		for (VectListener vectListener : listeners) {
+			vectListener.regionChanged();
+		}
+	}
 
-    public void setRegion(Region region) {
-        this.region = region;
-        // place to recompute values!
+	/**
+	 * Getter for grid color
+	 * @return grid color
+	 */
+	public Color getGridColor() {
+		return gridColor;
+	}
 
-        for (VectListener vectListener : listeners) {
-            vectListener.regionChanged();
-        }
-    }
+	/**
+	 * Setter for grid color
+	 * @param gridColor grid color
+	 */
+	public void setGridColor(Color gridColor) {
+		this.gridColor = gridColor;
 
-    public Color getGridColor() {
-        return gridColor;
-    }
+		for (VectListener vectListener : listeners) {
+			vectListener.gridColorChanged();
 
-    public void setGridColor(Color gridColor) {
-        this.gridColor = gridColor;
+		}
+	}
 
-        for (VectListener vectListener : listeners) {
-            vectListener.gridColorChanged();
+	/**
+	 * Getter for vector length multiplier
+	 * @return vector length multiplier
+	 */
+	public double getLengthMult() {
+		return lengthMult;
+	}
 
-        }
-    }
+	/**
+	 * Setter for vector length multiplier
+	 * @param lengthMult new vector length multiplier
+	 */
+	public void setLengthMult(double lengthMult) {
+		this.lengthMult = lengthMult;
 
-    public double getLengthMult() {
-        return lengthMult;
-    }
+		for (VectListener vectListener : listeners) {
+			vectListener.lengthMultChanged();
 
-    public void setLengthMult(double lengthMult) {
-        this.lengthMult = lengthMult;
+		}
+	}
 
-        for (VectListener vectListener : listeners) {
-            vectListener.lengthMultChanged();
+	/**
+	 * Getter for grid
+	 * @return grid
+	 */
+	public Grid getGrid() {
+		return grid;
+	}
 
-        }
-    }
+	/**
+	 * Setter for grid
+	 * @param grid new grid
+	 */
+	public void setGrid(Grid grid) {
+		this.grid = grid;
+		computeValues();
+		for (VectListener vectListener : listeners) {
+			vectListener.gridChanged();
+		}
 
-    public Grid getGrid() {
-        return grid;
-    }
+	}
 
-    public void setGrid(Grid grid) {
-        this.grid = grid;
-        computeValues();
-        for (VectListener vectListener : listeners) {
-            vectListener.gridChanged();
-        }
+	/**
+	 * Getter for values
+	 * @return values
+	 */
+	public List<Double> getValues() {
+		return values;
+	}
 
-    }
+	/**
+	 * Computes region width/height ratio
+	 * @return aspect ration
+	 */
+	public double getRatio() {
+		return (region.xe - region.xs) / (region.ye - region.ys);
+	}
 
-    public List<Double> getValues() {
-        return values;
-    }
+	/**
+	 * Returns the color corresponding to the closest value in values and colors sets
+	 * @param value
+	 * @return closest color
+	 */
+	public Color getClosest(double value) {
+		int valuesSize = values.size();
 
-    public double getRatio() {
-        return (region.xe - region.xs) / (region.ye - region.ys);
-    }
+		for (int i = 0; i < valuesSize; ++i) {
+			if (values.get(i) < value) {
+				return colors.get(i);
+			}
+		}
+		return colors.get(valuesSize);
+	}
 
-    public Color getClosest(double value) {
-        int valuesSize = values.size();
+	/**
+	 * Getter for field mode
+	 * @return true if field is colorful, false if it's black and white
+	 */
+	public boolean isFieldColor() {
+		return fieldColor;
+	}
 
-        for (int i = 0; i < valuesSize; ++i) {
-            if (values.get(i) < value) {
-                return colors.get(i);
-            }
-        }
-        return colors.get(valuesSize);
-    }
+	/**
+	 * Setter for field mode
+	 * @param fieldColor true for colorful field, false for black and white
+	 */
+	public void setFieldColor(boolean fieldColor) {
+		this.fieldColor = fieldColor;
 
-    public boolean isFieldColor() {
-        return fieldColor;
-    }
+		for (VectListener vectListener : listeners) {
+			vectListener.fieldModeChanged();
 
-    public void setFieldColor(boolean fieldColor) {
-        this.fieldColor = fieldColor;
+		}
+	}
 
-        for (VectListener vectListener : listeners) {
-            vectListener.fieldModeChanged();
+	/**
+	 * Getter for is grid drawn
+	 * @return true if grid is drawn, false otherwise
+	 */
+	public boolean isGridDrawn() {
+		return gridDrawn;
+	}
 
-        }
-    }
+	/**
+	 * Setter for is grid drawn
+	 * @param gridDrawn true for grid to be drawn, false otherwise
+	 */
+	public void setGridDrawn(boolean gridDrawn) {
+		this.gridDrawn = gridDrawn;
 
-    public boolean isGridDrawn() {
-        return gridDrawn;
-    }
+		for (VectListener vectListener : listeners) {
+			vectListener.gridDrawnChanged();
+		}
+	}
 
-    public void setGridDrawn(boolean gridDrawn) {
-        this.gridDrawn = gridDrawn;
+	/**
+	 * Returns maximum length value of (fx,fy) vector
+	 * in grid points 
+	 * @return max vector length
+	 */
+	public double getMaxVectorLength() {
+		return maxVectorLength;
+	}
 
-        for (VectListener vectListener : listeners) {
-            vectListener.gridDrawnChanged();
-        }
-    }
+	/**
+	 * Getter for arrow mode
+	 * @return true if arrows are plain, false otherwise
+	 */
+	public boolean isArrowPlain() {
+		return arrowPlain;
+	}
 
-    public double getMaxVectorLength() {
-        return maxVectorLength;
-    }
+	/**
+	 * Setter for arrow mode
+	 * @param arrowPlain true for arrows to be plain, false otherwise
+	 */
+	public void setArrowPlain(boolean arrowPlain) {
+		this.arrowPlain = arrowPlain;
 
-    public boolean isArrowPlain() {
-        return arrowPlain;
-    }
+		for (VectListener vectListener : listeners) {
+			vectListener.arrowModeChanged();
+		}
+	}
 
-    public void setArrowPlain(boolean arrowPlain) {
-        this.arrowPlain = arrowPlain;
+	/**
+	 * Getter for chess mode
+	 * @return true if chess mode is on, false otherwise
+	 */
+	public boolean isChessMode() {
+		return chessMode;
+	}
 
-        for (VectListener vectListener : listeners) {
-            vectListener.arrowModeChanged();
-        }
-    }
+	/**
+	 * Setter for chess mode
+	 * @param chessMode true for chess mode to turn on, false otherwise
+	 */
+	public void setChessMode(boolean chessMode) {
+		this.chessMode = chessMode;
+		for (VectListener vectListener : listeners) {
+			vectListener.chessModeChanged();
+		}
+	}
 
-    public boolean isChessMode() {
-        return chessMode;
-    }
-
-    public void setChessMode(boolean chessMode) {
-        this.chessMode = chessMode;
-        for (VectListener vectListener : listeners) {
-            vectListener.chessModeChanged();
-        }
-    }
-
-    public void clearListeners() {
-        listeners.clear();
-    }
+	/**
+	 * Remove all listeners
+	 */
+	public void clearListeners() {
+		listeners.clear();
+	}
 }

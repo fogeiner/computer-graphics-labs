@@ -100,7 +100,7 @@ public class LegendPanel extends JPanel implements VectListener {
 
     /**
      * Calculates max width needed to display text on legend
-     * @return
+     * @return max value
      */
     private int maxValueWidth() {
         Image img = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);

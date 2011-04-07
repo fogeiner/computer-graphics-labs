@@ -178,7 +178,7 @@ public class SettingsDialog extends JDialog implements VectListener {
 	/**
 	 * Make panel with buttons
 	 * 
-	 * @return
+	 * @return panel
 	 */
 	private JPanel makeButtonsPanel() {
 		JPanel outer = new JPanel(new FlowLayout(FlowLayout.RIGHT));

@@ -42,19 +42,29 @@ public class VectView extends GridPanel implements VectListener {
     private EventHandlers handlers = new EventHandlers();
     private VectModelHandler vectModelHandler = new VectModelHandler();
 
+    /**
+     * Removes all event listeners
+     */
     private void removeHandlers() {
         removeComponentListener(handlers);
         removeMouseListener(handlers);
         removeMouseMotionListener(handlers);
     }
 
+    /**
+     * Adds all event listeners
+     */
     private void addHandlers() {
         addComponentListener(handlers);
         addMouseListener(handlers);
         addMouseMotionListener(handlers);
     }
 
-    class VectModelHandler implements VectListener {
+    /**
+     * Class responsible for VectListner interface implementation
+     * @author admin
+     */
+    private class VectModelHandler implements VectListener {
 
         @Override
         public void arrowModeChanged() {
@@ -118,7 +128,12 @@ public class VectView extends GridPanel implements VectListener {
         }
     }
 
-    class EventHandlers implements MouseListener, MouseMotionListener, ComponentListener {
+    /**
+     * Class responsible for event processing
+     * @author admin
+     *
+     */
+    private class EventHandlers implements MouseListener, MouseMotionListener, ComponentListener {
 
         @Override
         public void mouseEntered(MouseEvent e) {
@@ -242,12 +257,22 @@ public class VectView extends GridPanel implements VectListener {
     public VectView() {
     }
 
+    /**
+     * Tests if the given point lies inside region on grid
+     * @param p point to test
+     * @return true if point is inside, false otherwise
+     */
     private boolean isInsideRegion(Point p) {
         Point llp = getLeftLowerGridPoint();
         Point rup = getRightUpperGridPoint();
         return (p.x >= llp.x && p.x <= rup.x && p.y >= llp.y && p.y <= rup.y);
     }
 
+    /**
+     * Tests if the point is inside region 
+     * and if so updates statusbar
+     * @param mPoint point for update
+     */
     private void updateStatusbar(Point mPoint) {
         if (isInsideRegion(mPoint)) {
             statusbarModel.setInRegion(true);
@@ -266,6 +291,9 @@ public class VectView extends GridPanel implements VectListener {
         statusbarModel.setData(x, y, fx, fy);
     }
 
+    /**
+     * Update panel size after parent container resize
+     */
     private void updateSize() {
 
         Dimension maxSize = ((JPanel) getParent()).getSize();
@@ -293,14 +321,22 @@ public class VectView extends GridPanel implements VectListener {
         computeGridPoints();
     }
 
-    public void setRegionsHistory(StateHistoryModel<Region> regionsHistory) {
-        this.regionsHistoryModel = regionsHistory;
-    }
-
+    /**
+     * Translates point for left-hand coordinate system
+     * to right-hand one
+     * @param p point to be translated
+     */
     private void pointToCart(Point p) {
         p.setLocation(p.x, getHeight() - p.y);
     }
 
+    /**
+     * Translates coordinates from canvas coordinates to
+     * region of the model
+     * @param fromX x coordinate of point
+     * @param fromY y coordinate of point
+     * @return coordinates of translated point
+     */
     private double[] translateCoordinates(double fromX, double fromY) {
         double res[] = new double[2];
 
@@ -338,6 +374,9 @@ public class VectView extends GridPanel implements VectListener {
         return res;
     }
 
+    /**
+     * Computes all vectors
+     */
     private void computeVectors() {
         Grid grid = getGrid();
         if (grid == null) {
@@ -365,6 +404,11 @@ public class VectView extends GridPanel implements VectListener {
         paintBuffer();
     }
 
+    /**
+     * Computes new Vector based on model and current point
+     * @param p point to calculate vector in
+     * @return resulting vector
+     */
     private Vector computeVector(Point p) {
         double lCoeff = getGridCellDiagonal() * vectModel.getLengthMult();
         double maxLength = vectModel.getMaxVectorLength();
@@ -411,6 +455,9 @@ public class VectView extends GridPanel implements VectListener {
         return v;
     }
 
+    /**
+     * Paints vectors model to buffer
+     */
     private void paintBuffer() {
         Graphics2D g = imgBuffer.createGraphics();
         g.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR,
@@ -461,14 +508,28 @@ public class VectView extends GridPanel implements VectListener {
         }
     }
 
+    /**
+     * Getter for StatusbarModel
+     * @return StatusbarModel
+     */
     public StatusbarModel getStatusbarModel() {
         return statusbarModel;
     }
 
-    public VectModel getVectModel() {
-        return vectModel;
+
+    /**
+     * Setter for StateHistoryModel
+     * @param regionsHistory new StateHistoryModel
+     */
+    public void setRegionsHistory(StateHistoryModel<Region> regionsHistory) {
+        this.regionsHistoryModel = regionsHistory;
     }
 
+    
+    /**
+     * Setter for StatusbarModel
+     * @param statusbarModel new StatusbarModel
+     */
     public void setStatusbarModel(StatusbarModel statusbarModel) {
         this.statusbarModel = statusbarModel;
 
@@ -479,6 +540,18 @@ public class VectView extends GridPanel implements VectListener {
         }
     }
 
+
+    /**
+     * Getter for VectModel
+     * @return VectModel
+     */
+    public VectModel getVectModel() {
+        return vectModel;
+    }
+    /**
+     * Setter for VectModel
+     * @param vectModel new VectModel
+     */
     public void setVectModel(VectModel vectModel) {
         this.vectModel = vectModel;
         if (vectModel != null) {

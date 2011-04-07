@@ -259,13 +259,11 @@ public final class Frame extends MainFrame implements StateHistoryListener,
 			setZoomPreviousBlocked(true);
 			setTitle(file.getName());
 		} catch (IllegalArgumentException ex) {
-			System.out.println(ex);
 			JOptionPane.showMessageDialog(this,
 					"Document error: " + ex.getMessage(), "Loading document",
 					JOptionPane.ERROR_MESSAGE);
 			setTitle(Settings.UNTITLED_DOCUMENT);
 		} catch (Exception ex) {
-			System.out.println(ex);
 			JOptionPane.showMessageDialog(this,
 					"Error loading file: \n" + ex.getLocalizedMessage(),
 					"Loading document", JOptionPane.ERROR_MESSAGE);
@@ -446,7 +444,6 @@ public final class Frame extends MainFrame implements StateHistoryListener,
 			setTitle(file.getName());
 			setModified(false);
 		} catch (Exception e) {
-			System.out.println(e);
 			JOptionPane.showMessageDialog(this,
 					"Error saving file: \n" + e.getLocalizedMessage(),
 					"Saving document", JOptionPane.ERROR_MESSAGE);
