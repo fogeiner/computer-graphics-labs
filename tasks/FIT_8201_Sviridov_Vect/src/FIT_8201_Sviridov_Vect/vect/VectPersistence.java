@@ -51,7 +51,7 @@ public class VectPersistence {
         sb.append("\r\n");
         sb.append(Double.toString(c0));
         sb.append("\r\n");
-        sb.append(Integer.toString(n));
+        sb.append(Integer.toString(n - 1));
         sb.append("\r\n");
         for (Color color : colors) {
             sb.append(colorToString(color));

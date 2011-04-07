@@ -1,9 +1,6 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package FIT_8201_Sviridov_Vect.ui;
 
+import FIT_8201_Sviridov_Vect.vect.VectModel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
@@ -13,6 +10,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -20,8 +20,8 @@ import javax.swing.JColorChooser;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.border.BevelBorder;
 import javax.swing.border.EtchedBorder;
 
 /**
@@ -30,29 +30,52 @@ import javax.swing.border.EtchedBorder;
  */
 public class ColorsChoiceDialog extends JDialog {
 
+    private final int MAX_COLORS = 21;
+    private final int MIN_COLORS_TO_CHOOSE = 5;
+    private VectModel vectModel;
     JButton okButton = new JButton("OK");
     JButton cancelButton = new JButton("Cancel");
-    int N = 20;
-    JLabel labels[] = new JLabel[N];
-    JCheckBox checkBoxes[] = new JCheckBox[N];
-    MouseAdapter chooser = new MouseAdapter() {
+    ColorChoiceLabel labels[] = new ColorChoiceLabel[MAX_COLORS];
+    JCheckBox checkboxes[] = new JCheckBox[MAX_COLORS];
+    MouseAdapter labelColorChooserHandler = new MouseAdapter() {
 
         @Override
         public void mouseClicked(MouseEvent e) {
-            JLabel l = (JLabel) e.getSource();
-            Color c = JColorChooser.showDialog(l.getParent(), "Choose " + l.getText(), l.getBackground());
-            if (c != null) {
-                l.setBackground(c);
-            }
+            ColorChoiceLabel l = (ColorChoiceLabel) e.getSource();
+            l.showChooseColorDialog();
         }
     };
 
-    private JPanel makeLabelCheckBoxPanel(JLabel l, JCheckBox cb) {
-        JPanel p = new JPanel(new BorderLayout());
-        l.setToolTipText("Click to open color chooser dialog");
+    class CheckboxColorChooser implements ActionListener {
+
+        private ColorChoiceLabel l;
+
+        public CheckboxColorChooser(ColorChoiceLabel l) {
+            this.l = l;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            JCheckBox cb = (JCheckBox) e.getSource();
+            if (cb.isSelected() && !l.isChosen()) {
+                l.showChooseColorDialog();
+            }
+
+            if (l.isChosen() == false) {
+                cb.setSelected(false);
+            }
+        }
+    }
+
+    private JPanel makeLabelCheckBoxPanel(ColorChoiceLabel l, JCheckBox cb) {
+        l.setToolTipText("Click to open color chooser dialog for " + l.getText());
         cb.setToolTipText("Check if you want this color to be used");
+
         l.setOpaque(true);
-        l.addMouseListener(chooser);
+        l.addMouseListener(labelColorChooserHandler);
+        cb.addActionListener(new CheckboxColorChooser(l));
+
+        JPanel p = new JPanel(new BorderLayout());
         p.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
         p.add(l, BorderLayout.CENTER);
         p.add(cb, BorderLayout.EAST);
@@ -68,29 +91,125 @@ public class ColorsChoiceDialog extends JDialog {
         return outer;
     }
 
-    public ColorsChoiceDialog(Frame owner, String title) {
-        super(owner, title, true);
-        int cols = 4,
-                rows = 5;
-        setLayout(new BorderLayout());
-        JPanel colorsPanel = new JPanel(new GridLayout(rows, cols));
+    public void showDialog() {
 
-        int index = 0;
-        for (int i = 1; i < N + 1; ++i) {
-            labels[index] = new JLabel("Color " + (index + 1));
-            checkBoxes[index] = new JCheckBox();
+        for (ColorChoiceLabel l : labels) {
+            l.setChosen(false);
+            l.setBackground(null);
+        }
 
-            colorsPanel.add(makeLabelCheckBoxPanel(labels[index], checkBoxes[index]));
+        for (JCheckBox cb : checkboxes) {
+            cb.setSelected(false);
+        }
 
-            index = i * rows % (N - 1);
-            if (index == 0) {
-                index = (N - 1);
+        List<Color> vectModelColors = vectModel.getColors();
+        for (int i = 0; i < vectModelColors.size() && i < MAX_COLORS; ++i) {
+            labels[i].setBackground(vectModelColors.get(i));
+            labels[i].setChosen(true);
+        }
+
+        setVisible(true);
+    }
+
+    private void confirm() {
+        List<Color> newColors = new ArrayList<Color>(MAX_COLORS);
+
+        for (int i = 0; i < MAX_COLORS; ++i) {
+            if (labels[i].isChosen()) {
+                newColors.add(labels[i].getBackground());
             }
         }
+
+        if (newColors.size() < MIN_COLORS_TO_CHOOSE) {
+            JOptionPane.showMessageDialog(this, "At least " + MIN_COLORS_TO_CHOOSE
+                    + " must be chosen", "Colors count error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        vectModel.setColors(newColors);
+        setVisible(false);
+    }
+
+    private void cancel() {
+        setVisible(false);
+    }
+
+    public ColorsChoiceDialog(Frame owner, String title) {
+        super(owner, title, true);
+        int cols = 7, rows = 3;
+        setLayout(new BorderLayout());
+
+        JPanel colorsPanel = new JPanel(new GridLayout(rows, cols));
+
+
+        // for rows 5 and cols 4 generetes seq: 1 6 11 16 2 7 ...
+        int index = 0;
+        for (int i = 1; i < MAX_COLORS + 1; ++i) {
+            checkboxes[index] = new JCheckBox();
+            labels[index] = new ColorChoiceLabel("Color " + (index + 1), checkboxes[index]);
+
+
+            colorsPanel.add(makeLabelCheckBoxPanel(labels[index], checkboxes[index]));
+
+            index = i * rows % (MAX_COLORS - 1);
+            if (index == 0) {
+                index = (MAX_COLORS - 1);
+            }
+        }
+
         add(colorsPanel, BorderLayout.NORTH);
         add(makeButtonsPanel(), BorderLayout.SOUTH);
         pack();
         setResizable(false);
+
+        okButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                confirm();
+            }
+        });
+
+        cancelButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cancel();
+            }
+        });
+    }
+
+    class ColorChoiceLabel extends JLabel {
+
+        private JCheckBox cb;
+        private boolean chosen;
+
+        public boolean isChosen() {
+            return chosen;
+        }
+
+        public void setChosen(boolean chosen) {
+            this.chosen = chosen;
+            cb.setSelected(chosen);
+        }
+
+        public void showChooseColorDialog() {
+            Color c = JColorChooser.showDialog(this, "Choose " + this.getText(), this.getBackground());
+            if (c != null) {
+                this.setBackground(c);
+                setChosen(true);
+            }
+        }
+
+        public ColorChoiceLabel(String text, JCheckBox cb) {
+            super(text);
+            this.cb = cb;
+        }
+    }
+
+    public void setVectModel(VectModel vectModel) {
+        this.vectModel = vectModel;
+
     }
 
     public static void main(String args[]) {
