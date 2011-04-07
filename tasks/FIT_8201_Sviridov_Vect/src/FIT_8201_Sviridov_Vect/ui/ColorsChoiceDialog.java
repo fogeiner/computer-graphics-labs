@@ -17,7 +17,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -29,7 +28,8 @@ import javax.swing.border.EtchedBorder;
  */
 public class ColorsChoiceDialog extends JDialog {
 
-    private final int MAX_COLORS = 21;
+	private static final long serialVersionUID = 4900728146049724199L;
+	private final int MAX_COLORS = 21;
     private final int MIN_COLORS_TO_CHOOSE = 5;
     private VectModel vectModel;
     JButton okButton = new JButton("OK");
@@ -120,8 +120,8 @@ public class ColorsChoiceDialog extends JDialog {
         setVisible(false);
     }
 
-    public ColorsChoiceDialog(Frame owner, String title) {
-        super(owner, title, true);
+    public ColorsChoiceDialog(Frame owner) {
+        super(owner, "Palette dialog", true);
         int cols = 7, rows = 3;
         setLayout(new BorderLayout());
 
@@ -167,7 +167,8 @@ public class ColorsChoiceDialog extends JDialog {
 
     class ColorChoiceLabel extends JLabel {
 
-        private JCheckBox cb;
+		private static final long serialVersionUID = 2768905515393286557L;
+		private JCheckBox cb;
         private boolean chosen;
 
         public boolean isChosen() {
@@ -213,11 +214,5 @@ public class ColorsChoiceDialog extends JDialog {
             labels[i].setChosen(true);
         }
 
-    }
-
-    public static void main(String args[]) {
-        ColorsChoiceDialog d = new ColorsChoiceDialog(null, "Title");
-        d.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        d.setVisible(true);
     }
 }

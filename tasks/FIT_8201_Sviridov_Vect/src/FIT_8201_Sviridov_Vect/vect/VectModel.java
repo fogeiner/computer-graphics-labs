@@ -127,7 +127,7 @@ public class VectModel {
     public void setColors(List<Color> colors) {
         this.colors = colors;
         computeValues();
-        
+
         for (VectListener vectListener : listeners) {
             vectListener.colorsChanged();
         }
@@ -178,7 +178,7 @@ public class VectModel {
 
     public void setGrid(Grid grid) {
         this.grid = grid;
-
+        computeValues();
         for (VectListener vectListener : listeners) {
             vectListener.gridChanged();
         }
