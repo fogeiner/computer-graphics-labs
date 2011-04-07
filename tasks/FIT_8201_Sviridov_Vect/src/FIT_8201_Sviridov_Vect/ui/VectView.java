@@ -569,6 +569,7 @@ public class VectView extends GridPanel implements VectListener {
             setGridDrawn(false);
             removeHandlers();
         }
+        paintBuffer();
         repaint();
     }
 
