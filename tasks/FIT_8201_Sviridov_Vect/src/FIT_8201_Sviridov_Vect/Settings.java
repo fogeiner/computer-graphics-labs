@@ -1,6 +1,5 @@
 package FIT_8201_Sviridov_Vect;
 
-import java.awt.Color;
 
 /**
  * Interface encapsulates app settings
@@ -9,12 +8,19 @@ import java.awt.Color;
  */
 public interface Settings {
 
+	/**
+	 * App name
+	 */
 	public static final String NAME = "FIT_8201_Sviridov_Vect";
+
+	/**
+	 * Untitled document constant
+	 */
 	public static final String UNTITLED_DOCUMENT = "Untitled";
+
+	/**
+	 * About file name
+	 */
 	public static final String ABOUT_FILE = "FIT_8201_Sviridov_Vect_About.txt";
-	public static final int FRAME_WIDTH = 800;
-	public static final int FRAME_HEIGHT = 600;
-	public static final Color PANEL_COLOR = Color.white;
-	public static final int PANEL_PADDING = 10;
-        public static final Color BORDER_COLOR = Color.darkGray;
+
 }

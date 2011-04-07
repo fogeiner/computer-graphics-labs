@@ -15,6 +15,7 @@ public class Vector {
     static public final double DEFAULT_DX = 0.4;
     static public final double DEFAULT_DY = 0.2;
     static public final double DEFAULT_ARROW_THRESHOLD = 7;
+    
     private double lengthThreshold = DEFAULT_ARROW_THRESHOLD;
     private Point2D start;
     private Point2D end;
@@ -23,12 +24,15 @@ public class Vector {
     private Stroke stroke;
     private Color color;
     private boolean filled;
-    int lineX[] = new int[2];
-    int lineY[] = new int[2];
-    int arrowX[] = new int[3];
-    int arrowY[] = new int[3];
-    double length;
+    private int lineX[] = new int[2];
+    private int lineY[] = new int[2];
+    private int arrowX[] = new int[3];
+    private int arrowY[] = new int[3];
+    private double length;
 
+    /**
+     * Computes data for arrow display (coordinates of start, end and arrow ends)
+     */
     private void computePath() {
         if (start == null || end == null) {
             return;
@@ -60,6 +64,11 @@ public class Vector {
         arrowY[2] = (int) (p2y + 0.5);
     }
 
+    /**
+     * Constructor with given points
+     * @param start start point
+     * @param end end point
+     */
     public Vector(Point2D start, Point2D end) {
         this.start = start;
         this.end = end;
@@ -67,67 +76,128 @@ public class Vector {
         computePath();
     }
 
+    /**
+     * Getter for is arrow filled
+     * @return true if arrow is filled, false otherwise
+     */
     public boolean isFilled() {
         return filled;
     }
 
+    /**
+     * Setter for is arrow filled
+     * @param filled new value
+     */
     public void setFilled(boolean filled) {
         this.filled = filled;
     }
 
+    /**
+     * Getter for arrow threshold
+     * @return arrow threshold 
+     */
     public double getArrowThreshold() {
         return lengthThreshold;
     }
 
-    public void setArrowThreshold(double arrow_threshold) {
-        this.lengthThreshold = arrow_threshold;
+    /**
+     * Setter for arrow threshold
+     * @param arrowThreshold new arrow threshold
+     */
+    public void setArrowThreshold(double arrowThreshold) {
+        this.lengthThreshold = arrowThreshold;
         computePath();
     }
 
+    /**
+     * Getter for dx
+     * @return dx
+     */
     public double getDx() {
         return dx;
     }
 
+    /**
+     * Setter for dx
+     * @param dx new dx
+     */
     public void setDx(double dx) {
         this.dx = dx;
         computePath();
     }
 
+    /**
+     * Getter for dy
+     * @return dy
+     */
     public double getDy() {
         return dy;
     }
 
+    /**
+     * Setter for dy
+     * @param dy new dy
+     */
     public void setDy(double dy) {
         this.dy = dy;
         computePath();
     }
 
+    /**
+     * Getter for line end
+     * @return line end
+     */
     public Point2D getEnd() {
         return end;
     }
-
+    
+/**
+ * Setter for line end
+ * @param end new line end
+ */
     public void setEnd(Point2D end) {
         this.end = end;
         computePath();
     }
 
+    /**
+     * Getter for line start
+     * @return line start point
+     */
     public Point2D getStart() {
         return start;
     }
 
+    /**
+     * Setter for line start
+     * @param start new line start
+     */
     public void setStart(Point2D start) {
         this.start = start;
         computePath();
     }
 
+    /**
+     * Getter for vector color
+     * @return vector color
+     */
     public Color getColor() {
         return color;
     }
+    
+    /**
+     * Setter for vector color
+     * @param color new vector color
+     */
 
     public void setColor(Color color) {
         this.color = color;
     }
 
+    /**
+     * Draws vector on given Graphics2D object
+     * @param g Graphics2D object
+     */
     public void draw(Graphics2D g) {
         if (stroke == null) {
             stroke = new BasicStroke(1f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0.0f);

@@ -12,13 +12,14 @@ import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 
 /**
- *
+ * Class for statusbar model representation
  * @author admin
  */
 public class Statusbar extends JPanel implements StatusbarListener {
 
-	private static final long serialVersionUID = -6700823080898324182L;
 	public static final DecimalFormat DEFAULT_FORMAT = (DecimalFormat) NumberFormat.getInstance(Locale.ENGLISH);
+	
+	private static final long serialVersionUID = -6700823080898324182L;
     private final JLabel cValue = new JLabel();
     private final JLabel fValue = new JLabel();
     private final JLabel lValue = new JLabel();
@@ -29,6 +30,9 @@ public class Statusbar extends JPanel implements StatusbarListener {
         format.applyPattern("0.000000");
     }
 
+    /**
+     * Default constructor
+     */
     public Statusbar() {
         setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
         setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
@@ -40,20 +44,39 @@ public class Statusbar extends JPanel implements StatusbarListener {
         clear();
     }
 
+    /**
+     * Getter for StatusbarModel
+     * @return StatusbarModel
+     */
     public StatusbarModel getStatusbarModel() {
         return statusbarModel;
     }
 
+    /**
+     * Setter for StatusbarModel
+     * @param statusbarModel new StatusbarModel
+     */
     public void setStatusbarModel(StatusbarModel statusbarModel) {
         this.statusbarModel = statusbarModel;
     }
 
+    /**
+     * Sets statusbar data to null and displays
+     * "out of the region" message
+     */
     public void clear() {
         cValue.setText("Out of the region");
         fValue.setText(null);
         lValue.setText(null);
     }
 
+    /**
+     * Sets new data to statusbar
+     * @param x new x
+     * @param y new y
+     * @param fx new fx
+     * @param fy new fy
+     */
     public void setValues(double x, double y, double fx, double fy) {
         StringBuilder sb = new StringBuilder();
         sb.append("Position: (");

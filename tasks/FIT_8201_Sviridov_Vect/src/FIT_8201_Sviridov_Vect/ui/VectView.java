@@ -25,7 +25,7 @@ import java.util.List;
 import javax.swing.JPanel;
 
 /**
- *
+ * 
  * @author admin
  */
 public class VectView extends GridPanel implements VectListener {

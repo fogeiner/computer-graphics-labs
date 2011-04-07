@@ -1,8 +1,5 @@
 package FIT_8201_Sviridov_Vect.ui;
 
-import FIT_8201_Sviridov_Vect.Settings;
-import FIT_8201_Sviridov_Vect.vect.VectListener;
-import FIT_8201_Sviridov_Vect.vect.VectModel;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -16,7 +13,11 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
 import javax.swing.JPanel;
+
+import FIT_8201_Sviridov_Vect.vect.VectListener;
+import FIT_8201_Sviridov_Vect.vect.VectModel;
 
 /**
  *
@@ -26,7 +27,7 @@ public class LegendPanel extends JPanel implements VectListener {
 
     private static final long serialVersionUID = -8211800501181030587L;
     public static final int DEFAULT_COLOR_SAMPLE_WIDTH = 40;
-    public static final int DEFAULT_LEGEND_PADDING = Settings.PANEL_PADDING;
+    public static final int DEFAULT_LEGEND_PADDING = 5;
     public static final Font DEFAULT_FONT = new Font("Monospaced", Font.BOLD, 14);
     public static final DecimalFormat DEFAULT_FORMAT = (DecimalFormat) NumberFormat.getInstance(Locale.ENGLISH);
     private int colorSampleWidth = DEFAULT_COLOR_SAMPLE_WIDTH;
@@ -41,13 +42,24 @@ public class LegendPanel extends JPanel implements VectListener {
         format.applyPattern("0.0000");
     }
 
+    /**
+     * Default ctor
+     */
     public LegendPanel() {
     }
 
+    /**
+     * Getter for VectModel
+     * @return VectModel
+     */
     public VectModel getVectModel() {
         return vectModel;
     }
 
+    /**
+     * Setter for VectModel
+     * @param vectModel new VectModel
+     */
     public void setVectModel(VectModel vectModel) {
         this.vectModel = vectModel;
         if (vectModel != null) {
@@ -62,6 +74,11 @@ public class LegendPanel extends JPanel implements VectListener {
         repaint();
     }
 
+    /**
+     * Sets values and colors to be displayed
+     * @param values values
+     * @param colors colors
+     */
     private void setModel(List<Double> values, List<Color> colors) {
         if (colors.size() != values.size() + 1) {
             throw new IllegalArgumentException("There should be one colors more than values");
@@ -73,11 +90,18 @@ public class LegendPanel extends JPanel implements VectListener {
         updateSize();
     }
 
+    /**
+     * Recalculates size of the legend for layout manager
+     */
     private void updateSize() {
         // _color_sample_width + padding + max{text strings} + padding
         setPreferredSize(new Dimension(colorSampleWidth + legendPadding + maxValueWidth() + legendPadding, 0));
     }
 
+    /**
+     * Calculates max width needed to display text on legend
+     * @return
+     */
     private int maxValueWidth() {
         Image img = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
         Graphics g = img.getGraphics();
@@ -96,6 +120,7 @@ public class LegendPanel extends JPanel implements VectListener {
         }
 
         g.setFont(old_font);
+        g.dispose();
         return max;
     }
 

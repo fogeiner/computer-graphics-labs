@@ -138,8 +138,7 @@ public final class Frame extends MainFrame implements StateHistoryListener,
 			e.printStackTrace();
 		}
 
-		final JPanel mainPanel = new JPanel(new BorderLayout(
-				Settings.PANEL_PADDING, Settings.PANEL_PADDING));
+		final JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
 		final JPanel outerFieldPanel = new JPanel(new GridBagLayout());
 		outerFieldPanel.addComponentListener(new ComponentAdapter() {
 
@@ -157,9 +156,7 @@ public final class Frame extends MainFrame implements StateHistoryListener,
 
 		outerFieldPanel.add(vectView, new GridBagConstraints());
 
-		mainPanel.setBorder(BorderFactory.createEmptyBorder(
-				Settings.PANEL_PADDING, Settings.PANEL_PADDING,
-				Settings.PANEL_PADDING, Settings.PANEL_PADDING));
+		mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		mainPanel.setBackground(Color.white);
 		mainPanel.add(outerFieldPanel, BorderLayout.CENTER);
 		mainPanel.add(legendPanel, BorderLayout.EAST);
@@ -543,7 +540,9 @@ public final class Frame extends MainFrame implements StateHistoryListener,
 
 	/**
 	 * VectModel setter
-	 * @param vectModel new VectModel
+	 * 
+	 * @param vectModel
+	 *            new VectModel
 	 */
 	public void setVectModel(VectModel vectModel) {
 		this.vectModel = vectModel;
@@ -633,7 +632,7 @@ public final class Frame extends MainFrame implements StateHistoryListener,
 
 			@Override
 			public void run() {
-				int size = 32*16;
+				int size = 32 * 16;
 				Frame frame = new Frame(size, size);
 				frame.setMinimumSize(new Dimension(size, size));
 				frame.setSize(new Dimension(size, size));
