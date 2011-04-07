@@ -44,8 +44,8 @@ public class SettingsDialog extends JDialog {
     private JFormattedTextField xs, xe, ys, ye;
     private JButton okButton = new JButton("OK"),
             cancelButton = new JButton("Cancel");
-    private JSpinner widthSpinner = new JSpinner(new SpinnerNumberModel(10, 4, 50, 1)),
-            heightSpinner = new JSpinner(new SpinnerNumberModel(10, 4, 50, 1));
+    private final JSpinner gridWidthSpinner = new JSpinner(new SpinnerNumberModel(10, 4, 50, 1)),
+            gridHeightSpinner = new JSpinner(new SpinnerNumberModel(10, 4, 50, 1));
     private JSlider vectMultSlider = new JSlider(VECT_MULT_MIN, VECT_MULT_MAX, VECT_MULT_MIN);
     private JSpinner vectMultSpinner = new JSpinner(new SpinnerNumberModel(VECT_MULT_MIN / VECT_MULT_SCALE,
             VECT_MULT_MIN / VECT_MULT_SCALE, VECT_MULT_MAX / VECT_MULT_SCALE, VECT_MULT_STEP));
@@ -58,12 +58,51 @@ public class SettingsDialog extends JDialog {
     // vectMult, grid is saved on every showDialog call
 
     {
+        xs = new JFormattedTextField();
+        xe = new JFormattedTextField();
+
+        ys = new JFormattedTextField();
+        ye = new JFormattedTextField();
+
+        PropertyChangeListener pcl = new PropertyChangeListener() {
+
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                getVectModel().setRegion(
+                        new Region(
+                        (Double) xs.getValue(),
+                        (Double) xe.getValue(),
+                        (Double) ys.getValue(),
+                        (Double) ye.getValue()));
+
+            }
+        };
+
+
+//        for (JFormattedTextField f : new JFormattedTextField[]{xs, xe, ys, ye}) {
+//            f.setColumns(10);
+//            f.addPropertyChangeListener("value", pcl);
+//        }
 
         syncSpinnerSlider(vectMultSlider, vectMultSpinner);
         vectMultSlider.setPaintTicks(true);
         vectMultSlider.setMajorTickSpacing((VECT_MULT_MAX - VECT_MULT_MIN) / 5);
         vectMultSlider.setMinorTickSpacing((VECT_MULT_MAX - VECT_MULT_MIN) / 10);
 
+        ChangeListener gridUpdater = new ChangeListener() {
+
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                Integer width = (Integer) gridWidthSpinner.getValue(),
+                        height = (Integer) gridHeightSpinner.getValue();
+                if (width != null && height != null) {
+                    vectModel.setGrid(new Grid(width, height));
+                }
+            }
+        };
+
+        gridHeightSpinner.addChangeListener(gridUpdater);
+        gridWidthSpinner.addChangeListener(gridUpdater);
     }
 
     private JPanel makeButtonsPanel() {
@@ -89,8 +128,8 @@ public class SettingsDialog extends JDialog {
     private JPanel makeGridPanel() {
         JPanel p = new JPanel(new GridLayout(0, 2, 5, 0));
         p.setBorder(BorderFactory.createTitledBorder("Width x Height (MxN)"));
-        p.add(widthSpinner);
-        p.add(heightSpinner);
+        p.add(gridWidthSpinner);
+        p.add(gridHeightSpinner);
         return p;
     }
 
@@ -136,6 +175,17 @@ public class SettingsDialog extends JDialog {
     }
 
     public void showDialog() {
+        Region currentRegion = vectModel.getRegion();
+        xs.setValue(currentRegion.xs);
+        xe.setValue(currentRegion.xe);
+        ys.setValue(currentRegion.ys);
+        ye.setValue(currentRegion.ye);
+
+        Grid curGrid = vectModel.getGrid();
+        gridWidthSpinner.setValue(curGrid.W);
+        gridHeightSpinner.setValue(curGrid.H);
+
+        vectMultSpinner.setValue(vectModel.getLengthMult());
         setVisible(true);
     }
 
@@ -145,57 +195,36 @@ public class SettingsDialog extends JDialog {
     private void cancel() {
     }
 
-    private void init() {
+    public void setVectModel(VectModel vectModel) {
+        this.vectModel = vectModel;
+        if(vectModel == null) return;
+        
+        originalRegion = vectModel.getRegion();
 
-        PropertyChangeListener pcl = new PropertyChangeListener() {
 
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-               getVectModel().setRegion(
-                       new Region(
-                       (Double)xs.getValue(),
-                       (Double)xe.getValue(),
-                       (Double)ys.getValue(),
-                       (Double)ye.getValue()
-                       ));
-
-            }
-        };
-
-        NumberFormatter nf = new NumberFormatter();
-        nf.setMinimum(originalRegion.xs);
-        nf.setMaximum(originalRegion.xe);
-        nf.setCommitsOnValidEdit(true);
-        nf.setFormat(new DecimalFormat("0.000"));
-
-        xs = new JFormattedTextField(nf);
-        xe = new JFormattedTextField(nf);
-
-        nf = new NumberFormatter();
-        nf.setMinimum(originalRegion.ys);
-        nf.setMaximum(originalRegion.ye);
-        nf.setCommitsOnValidEdit(true);
-        nf.setFormat(new DecimalFormat("0.000"));
-
-        ys = new JFormattedTextField(nf);
-        ye = new JFormattedTextField(nf);
-
-        for (JFormattedTextField f : new JFormattedTextField[]{xs, xe, ys, ye}) {
-            f.setColumns(10);
-            f.addPropertyChangeListener("value", pcl);
+        for(JFormattedTextField ftf: new JFormattedTextField[]{xs,xe}){
+            NumberFormatter nf = (NumberFormatter)ftf.getFormatter();
+            nf.setMinimum(originalRegion.xs);
+            nf.setMaximum(originalRegion.xe);
+            nf.setCommitsOnValidEdit(true);
+            nf.setFormat(new DecimalFormat("0.000"));
         }
 
+        for(JFormattedTextField ftf: new JFormattedTextField[]{ys,ye}){
+            NumberFormatter nf = (NumberFormatter)ftf.getFormatter();
+            nf.setMinimum(originalRegion.ys);
+            nf.setMaximum(originalRegion.ye);
+            nf.setCommitsOnValidEdit(true);
+            nf.setFormat(new DecimalFormat("0.000"));
+        }
     }
 
-    public VectModel getVectModel(){
+    public VectModel getVectModel() {
         return vectModel;
     }
 
-    public SettingsDialog(Frame owner, VectModel vectModel) {
+    public SettingsDialog(Frame owner) {
         super(owner, "Vect settings dialog");
-        this.vectModel = vectModel;
-        originalRegion = vectModel.getRegion();
-        init();
         // region 4 jformattedtextfield
         // M N
         // C0
@@ -211,8 +240,8 @@ public class SettingsDialog extends JDialog {
     }
 
     public static void main(String[] args) {
-        SettingsDialog d = new SettingsDialog(null,
-                new VectModel(new Region(-1, 1, -1, 1), 1.0, new Grid(10, 10),
+        SettingsDialog d = new SettingsDialog(null);
+        d.setVectModel(new VectModel(new Region(-1, 1, -1, 1), 1.0, new Grid(10, 10),
                 Arrays.asList(new Color[]{Color.red, Color.blue}), Color.gray, true, true, true, true));
         d.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         d.showDialog();

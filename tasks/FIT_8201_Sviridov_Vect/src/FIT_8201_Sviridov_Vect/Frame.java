@@ -6,6 +6,7 @@ import FIT_8201_Sviridov_Vect.utils.Region;
 import FIT_8201_Sviridov_Vect.statusbar.StatusbarModel;
 import FIT_8201_Sviridov_Vect.ui.ColorsChoiceDialog;
 import FIT_8201_Sviridov_Vect.ui.LegendPanel;
+import FIT_8201_Sviridov_Vect.ui.SettingsDialog;
 import FIT_8201_Sviridov_Vect.ui.Statusbar;
 import FIT_8201_Sviridov_Vect.ui.VectView;
 import FIT_8201_Sviridov_Vect.vect.VectListener;
@@ -48,6 +49,7 @@ public final class Frame extends MainFrame implements FrameService, StateHistory
     private LegendPanel legendPanel = new LegendPanel();
     private VectView vectView = new VectView();
     private ColorsChoiceDialog colorsChoiceDialog = new ColorsChoiceDialog(this, "Palette dialog");
+    private SettingsDialog settingsDialog = new SettingsDialog(this);
     private VectModel vectModel;
     private boolean modified;
 
@@ -218,6 +220,7 @@ public final class Frame extends MainFrame implements FrameService, StateHistory
             legendPanel.setVectModel(vectModel);
 
             colorsChoiceDialog.setVectModel(vectModel);
+            settingsDialog.setVectModel(vectModel);
 
             vectModel.addVectListener(vectView);
             vectModel.addVectListener(legendPanel);
@@ -263,6 +266,7 @@ public final class Frame extends MainFrame implements FrameService, StateHistory
 
 
     public void onSettings() {
+        settingsDialog.showDialog();
     }
 
     public void onPalette(){
@@ -287,6 +291,7 @@ public final class Frame extends MainFrame implements FrameService, StateHistory
         statusbar.setStatusbarModel(null);
         legendPanel.setVectModel(null);
         colorsChoiceDialog.setVectModel(null);
+        settingsDialog.setVectModel(null);
         setBlockedAll(true);
     }
 
