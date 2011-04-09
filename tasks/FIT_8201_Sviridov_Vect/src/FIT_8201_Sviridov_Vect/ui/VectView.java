@@ -60,6 +60,11 @@ public class VectView extends GridPanel implements VectListener {
         addMouseMotionListener(handlers);
     }
 
+    @Override
+    public void fieldColorChanged() {
+        vectModelHandler.fieldColorChanged();
+    }
+
     /**
      * Class responsible for VectListner interface implementation
      * @author admin
@@ -124,6 +129,12 @@ public class VectView extends GridPanel implements VectListener {
         @Override
         public void colorsChanged() {
             computeVectors();
+            repaint();
+        }
+
+        @Override
+        public void fieldColorChanged() {
+            VectView.this.setBackground(vectModel.getFieldColor());
             repaint();
         }
     }
@@ -410,7 +421,7 @@ public class VectView extends GridPanel implements VectListener {
      * @return resulting vector
      */
     private Vector computeVector(Point p) {
-        double lCoeff = getGridCellDiagonal() * vectModel.getLengthMult();
+        double lCoeff = getGridCellDiagonal() * vectModel.getVectLengthMult();
         double maxLength = vectModel.getMaxVectorLength();
 
         double coord[] = translateCoordinates(p.getX(), p.getY());
@@ -428,7 +439,7 @@ public class VectView extends GridPanel implements VectListener {
         double xCoeff, yCoeff, xe, ye;
 
         Color vectColor;
-        if (vectModel.isFieldColor()) {
+        if (vectModel.isFieldColorful()) {
             double length = Math.hypot(fx, fy);
 
             vectColor = vectModel.getClosest(length);
@@ -480,9 +491,8 @@ public class VectView extends GridPanel implements VectListener {
 
     @Override
     protected void paintComponent(Graphics g1) {
+        super.paintComponent(g1);
         Graphics2D g = (Graphics2D) g1;
-
-        super.paintComponent(g);
 
         g.translate(0, this.getHeight());
         g.scale(1, -1);
@@ -555,6 +565,8 @@ public class VectView extends GridPanel implements VectListener {
     public void setVectModel(VectModel vectModel) {
         this.vectModel = vectModel;
         if (vectModel != null) {
+            this.setVisible(true);
+            setBackground(vectModel.getFieldColor());
             setGrid(vectModel.getGrid());
             setGridColor(vectModel.getGridColor());
             setGridDrawn(vectModel.isGridDrawn());
@@ -566,6 +578,7 @@ public class VectView extends GridPanel implements VectListener {
                 addHandlers();
             }
         } else {
+            this.setVisible(false);
             setGridDrawn(false);
             removeHandlers();
         }

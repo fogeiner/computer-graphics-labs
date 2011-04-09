@@ -22,6 +22,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.DecimalFormat;
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JComponent;
@@ -39,27 +40,26 @@ import javax.swing.text.NumberFormatter;
 
 /**
  * Class for Settings dialog
+ * 
  * @author admin
  */
 public class SettingsDialog extends JDialog implements VectListener {
 
 	private static final long serialVersionUID = -903939050607469239L;
-
 	private final int VECT_MULT_MIN = 500, VECT_MULT_MAX = 3000;
-
+	private final int GRID_MIN = 4, GRID_MAX = 50;
 	private final double VECT_MULT_SCALE = 1000.0;
 	private final double VECT_MULT_STEP = 0.01;
-
 	private JFormattedTextField xs, xe, ys, ye;
 	private JButton okButton;
 	private JButton cancelButton;
-
+	private JSlider gridWidthSlider;
 	private JSpinner gridWidthSpinner;
+	private JSlider gridHeightSlider;
 	private JSpinner gridHeightSpinner;
-
 	private JSlider vectMultSlider;
 	private JSpinner vectMultSpinner;
-
+	private JLabel fieldColorLabel;
 	private JLabel gridColorLabel;
 	private VectModel vectModel;
 	private Region originalRegion;
@@ -67,14 +67,20 @@ public class SettingsDialog extends JDialog implements VectListener {
 	private int savedGridWidth, savedGridHeight;
 	private double savedVectMult;
 	private Color savedGridColor;
+	private Color savedFieldColor;
+
 	private StateHistoryModel<Region> regionsHistoryModel;
 
 	{
 		okButton = new JButton("OK");
 		cancelButton = new JButton("Cancel");
 
-		gridWidthSpinner = new JSpinner(new SpinnerNumberModel(10, 4, 50, 1));
-		gridHeightSpinner = new JSpinner(new SpinnerNumberModel(10, 4, 50, 1));
+		gridWidthSlider = new JSlider(GRID_MIN, GRID_MAX, GRID_MIN);
+		gridHeightSlider = new JSlider(GRID_MIN, GRID_MAX, GRID_MIN);
+		gridWidthSpinner = new JSpinner(new SpinnerNumberModel(GRID_MIN,
+				GRID_MIN, GRID_MAX, 1));
+		gridHeightSpinner = new JSpinner(new SpinnerNumberModel(GRID_MIN,
+				GRID_MIN, GRID_MAX, 1));
 		vectMultSpinner = new JSpinner(new SpinnerNumberModel(VECT_MULT_MIN
 				/ VECT_MULT_SCALE, VECT_MULT_MIN / VECT_MULT_SCALE,
 				VECT_MULT_MAX / VECT_MULT_SCALE, VECT_MULT_STEP));
@@ -83,6 +89,7 @@ public class SettingsDialog extends JDialog implements VectListener {
 				VECT_MULT_MIN);
 
 		gridColorLabel = new JLabel("Click to choose");
+		fieldColorLabel = new JLabel("Click to choose");
 
 		xs = new JFormattedTextField(DecimalFormat.getNumberInstance());
 		xe = new JFormattedTextField(DecimalFormat.getNumberInstance());
@@ -108,11 +115,22 @@ public class SettingsDialog extends JDialog implements VectListener {
 			f.addPropertyChangeListener("value", pcl);
 		}
 
-		syncSpinnerSlider(vectMultSlider, vectMultSpinner);
+		syncVectLengthMultSpinnerSlider(vectMultSlider, vectMultSpinner);
+		syncSpinnerSlider(gridWidthSlider, gridWidthSpinner);
+		syncSpinnerSlider(gridHeightSlider, gridHeightSpinner);
+
 		vectMultSlider.setPaintTicks(true);
 		vectMultSlider.setMajorTickSpacing((VECT_MULT_MAX - VECT_MULT_MIN) / 5);
 		vectMultSlider
 				.setMinorTickSpacing((VECT_MULT_MAX - VECT_MULT_MIN) / 10);
+
+		gridWidthSlider.setPaintLabels(true);
+		gridWidthSlider.setPaintTicks(true);
+		gridWidthSlider.setMajorTickSpacing((GRID_MAX - GRID_MIN) / 5);
+
+		gridHeightSlider.setPaintLabels(true);
+		gridHeightSlider.setPaintTicks(true);
+		gridHeightSlider.setMajorTickSpacing((GRID_MAX - GRID_MIN) / 5);
 
 		ChangeListener gridUpdater = new ChangeListener() {
 
@@ -135,7 +153,7 @@ public class SettingsDialog extends JDialog implements VectListener {
 			public void stateChanged(ChangeEvent e) {
 				Double value = (Double) ((JSpinner) e.getSource()).getValue();
 				if (value != null) {
-					vectModel.setLengthMult(value);
+					vectModel.setVectLengthMult(value);
 				}
 			}
 		});
@@ -173,6 +191,25 @@ public class SettingsDialog extends JDialog implements VectListener {
 				vectModel.setGridColor(l.getBackground());
 			}
 		});
+
+		fieldColorLabel.setOpaque(true);
+		fieldColorLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		fieldColorLabel.addMouseListener(new MouseAdapter() {
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				JLabel l = (JLabel) e.getSource();
+				Color c = JColorChooser.showDialog(SettingsDialog.this,
+						"Choose field color", l.getBackground());
+				if (c == null) {
+					return;
+				}
+
+				l.setBackground(c);
+				vectModel.setFieldColor(l.getBackground());
+			}
+		});
+
 	}
 
 	/**
@@ -202,13 +239,13 @@ public class SettingsDialog extends JDialog implements VectListener {
 	 */
 	private JPanel makeIntervalPanel(JFormattedTextField start,
 			JFormattedTextField end, String title) {
-		JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		JPanel p = new JPanel(new GridLayout(0, 2, 5, 5));
 		p.setBorder(BorderFactory.createTitledBorder(title));
-		p.add(new JLabel("["));
+
 		p.add(start);
-		p.add(new JLabel(","));
+
 		p.add(end);
-		p.add(new JLabel("]"));
+
 		return p;
 	}
 
@@ -218,10 +255,16 @@ public class SettingsDialog extends JDialog implements VectListener {
 	 * @return panel
 	 */
 	private JPanel makeGridPanel() {
-		JPanel p = new JPanel(new GridLayout(0, 2, 5, 0));
+		JPanel p = new JPanel(new GridLayout(0, 1, 5, 0));
 		p.setBorder(BorderFactory.createTitledBorder("Width x Height (MxN)"));
-		p.add(gridWidthSpinner);
-		p.add(gridHeightSpinner);
+		JPanel p1 = new JPanel();
+		p1.add(gridWidthSlider);
+		p1.add(gridWidthSpinner);
+		JPanel p2 = new JPanel();
+		p2.add(gridHeightSlider);
+		p2.add(gridHeightSpinner);
+		p.add(p1);
+		p.add(p2);
 		return p;
 	}
 
@@ -258,6 +301,18 @@ public class SettingsDialog extends JDialog implements VectListener {
 	}
 
 	/**
+	 * Makes panel with grid color settings
+	 * 
+	 * @return panel
+	 */
+	private JPanel makeFieldColorPanel() {
+		JPanel p = new JPanel(new BorderLayout());
+		p.setBorder(BorderFactory.createTitledBorder("Field color"));
+		p.add(fieldColorLabel, BorderLayout.CENTER);
+		return p;
+	}
+
+	/**
 	 * Syncs slider and spinner
 	 * 
 	 * @param slider
@@ -266,6 +321,41 @@ public class SettingsDialog extends JDialog implements VectListener {
 	 *            spinner to sync
 	 */
 	private void syncSpinnerSlider(final JSlider slider, final JSpinner spinner) {
+
+		JComponent editor = spinner.getEditor();
+		JFormattedTextField textfield = ((JSpinner.DefaultEditor) editor)
+				.getTextField();
+		NumberFormatter n_format = (NumberFormatter) textfield.getFormatter();
+		n_format.setCommitsOnValidEdit(true);
+		n_format.setAllowsInvalid(false);
+
+		spinner.addChangeListener(new ChangeListener() {
+
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				slider.setValue((Integer) ((JSpinner) e.getSource()).getValue());
+			}
+		});
+
+		slider.addChangeListener(new ChangeListener() {
+
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				spinner.setValue((Integer) ((JSlider) e.getSource()).getValue());
+			}
+		});
+	}
+
+	/**
+	 * Syncs slider and spinner
+	 * 
+	 * @param slider
+	 *            slider to sync
+	 * @param spinner
+	 *            spinner to sync
+	 */
+	private void syncVectLengthMultSpinnerSlider(final JSlider slider,
+			final JSpinner spinner) {
 
 		JComponent editor = spinner.getEditor();
 		JFormattedTextField textfield = ((JSpinner.DefaultEditor) editor)
@@ -317,8 +407,9 @@ public class SettingsDialog extends JDialog implements VectListener {
 	private void cancel() {
 		vectModel.setRegion(savedRegion);
 		vectModel.setGrid(new Grid(savedGridWidth, savedGridHeight));
-		vectModel.setLengthMult(savedVectMult);
+		vectModel.setVectLengthMult(savedVectMult);
 		vectModel.setGridColor(savedGridColor);
+		vectModel.setFieldColor(savedFieldColor);
 		setVisible(false);
 	}
 
@@ -337,16 +428,17 @@ public class SettingsDialog extends JDialog implements VectListener {
 		gridWidthSpinner.setValue(curGrid.W);
 		gridHeightSpinner.setValue(curGrid.H);
 
-		vectMultSpinner.setValue(vectModel.getLengthMult());
+		vectMultSpinner.setValue(vectModel.getVectLengthMult());
 
 		gridColorLabel.setBackground(vectModel.getGridColor());
+		fieldColorLabel.setBackground(vectModel.getFieldColor());
 
 		savedRegion = currentRegion;
 		savedGridWidth = curGrid.W;
 		savedGridHeight = curGrid.H;
-		savedVectMult = vectModel.getLengthMult();
+		savedVectMult = vectModel.getVectLengthMult();
 		savedGridColor = vectModel.getGridColor();
-
+		savedFieldColor = vectModel.getFieldColor();
 	}
 
 	/**
@@ -417,15 +509,18 @@ public class SettingsDialog extends JDialog implements VectListener {
 		// M N
 		// C0
 		setLayout(new BorderLayout(5, 5));
-		JPanel mainPanel = new JPanel(new GridLayout(0, 1));
+		JPanel mainPanel = new JPanel();
+		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 		mainPanel.add(makeIntervalPanel(xs, xe, "x [a,b] | [b,a]"));
 		mainPanel.add(makeIntervalPanel(ys, ye, "y [c,d] | [d,c]"));
 		mainPanel.add(makeGridPanel());
 		mainPanel.add(makeMultPanel());
 		mainPanel.add(makeGridColorPanel());
+		mainPanel.add(makeFieldColorPanel());
 		add(mainPanel, BorderLayout.CENTER);
 
 		add(makeButtonsPanel(), BorderLayout.SOUTH);
+		setResizable(false);
 		pack();
 	}
 
@@ -472,5 +567,9 @@ public class SettingsDialog extends JDialog implements VectListener {
 
 	@Override
 	public void chessModeChanged() {
+	}
+
+	@Override
+	public void fieldColorChanged() {
 	}
 }

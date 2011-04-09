@@ -290,7 +290,7 @@ public final class Frame extends MainFrame implements StateHistoryListener,
      * Method called when user chooses "Field mode" in menu or on toolbar.
      */
     public void onBWField() {
-        vectModel.setFieldColor(!vectModel.isFieldColor());
+        vectModel.setFieldColorful(!vectModel.isFieldColorful());
     }
 
     /**
@@ -579,7 +579,7 @@ public final class Frame extends MainFrame implements StateHistoryListener,
     @Override
     public void fieldModeChanged() {
         Color c = null;
-        if (!vectModel.isFieldColor()) {
+        if (!vectModel.isFieldColorful()) {
             c = toggleColor;
         }
         toolBar.getComponent(7).setBackground(c);
@@ -613,6 +613,11 @@ public final class Frame extends MainFrame implements StateHistoryListener,
         toolBar.getComponent(5).setBackground(c);
     }
 
+
+    @Override
+    public void fieldColorChanged() {
+    }
+    
     /**
      * Application main entry point
      *
@@ -632,4 +637,5 @@ public final class Frame extends MainFrame implements StateHistoryListener,
             }
         });
     }
+
 }

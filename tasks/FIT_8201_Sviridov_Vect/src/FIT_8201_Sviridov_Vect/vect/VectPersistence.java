@@ -42,7 +42,7 @@ public class VectPersistence {
                 c = region.ys,
                 d = region.ye;
 
-        double c0 = vectModel.getLengthMult();
+        double c0 = vectModel.getVectLengthMult();
         List<Color> colors = vectModel.getColors();
         Color gridColor = vectModel.getGridColor();
         int n = colors.size();
@@ -169,7 +169,7 @@ public class VectPersistence {
         string = LineParseUtils.nextNormalizedLine(br);
         gridColor = stringToColor(string);
 
-        VectModel vectModel = new VectModel(new Region(a, b, c, d), c0, new Grid(M, N), colors, gridColor, true, true, true, false);
+        VectModel vectModel = new VectModel(new Region(a, b, c, d), c0, new Grid(M, N), colors, gridColor, Color.white, true, true, true, false);
         return vectModel;
     }
 }
