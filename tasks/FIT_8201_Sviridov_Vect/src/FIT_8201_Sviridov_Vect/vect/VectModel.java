@@ -91,6 +91,9 @@ public class VectModel {
         computeValues();
     }
 
+    /**
+     * Computes max and min values of vectors on given grid and region
+     */
     private void computeVectorMaxMinLength() {
 
         double min = Double.MAX_VALUE;
