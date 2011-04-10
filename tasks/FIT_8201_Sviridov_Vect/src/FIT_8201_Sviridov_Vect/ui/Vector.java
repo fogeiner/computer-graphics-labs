@@ -200,7 +200,7 @@ public class Vector {
      */
     public void draw(Graphics2D g) {
         if (stroke == null) {
-            stroke = new BasicStroke(1f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0.0f);
+            stroke = new BasicStroke(1f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL, 0.0f);
         }
 
         Stroke oldStroke = g.getStroke();
@@ -208,7 +208,7 @@ public class Vector {
         g.setColor(color);
         g.setStroke(stroke);
 
-        g.drawPolygon(lineX, lineY, 2);
+        g.drawPolyline(lineX, lineY, 2);
         if (length > lengthThreshold) {
             if (filled) {
                 g.fillPolygon(arrowX, arrowY, 3);

@@ -439,21 +439,31 @@ public class VectView extends GridPanel implements VectListener {
         double xCoeff, yCoeff, xe, ye;
 
         Color vectColor;
+        final double EPS = 10e-12;
         if (vectModel.isFieldColorful()) {
+            
             double length = Math.hypot(fx, fy);
 
             vectColor = vectModel.getClosest(length);
 
-            xCoeff = fx / length;
-            yCoeff = fy / length;
-
+            if (length > EPS) {
+                xCoeff = fx / length;
+                yCoeff = fy / length;
+            } else {
+                xCoeff = yCoeff = 0.0;
+            }
+            
             xe = xs + xCoeff * lCoeff;
             ye = ys + yCoeff * lCoeff;
         } else {
             vectColor = Color.black;
 
+            if(maxLength > EPS){
             xCoeff = fx / maxLength;
             yCoeff = fy / maxLength;
+            } else {
+                xCoeff = yCoeff = 0.0;
+            }
 
             xe = xs + xCoeff * lCoeff;
             ye = ys + yCoeff * lCoeff;
@@ -526,7 +536,6 @@ public class VectView extends GridPanel implements VectListener {
         return statusbarModel;
     }
 
-
     /**
      * Setter for StateHistoryModel
      * @param regionsHistory new StateHistoryModel
@@ -535,7 +544,6 @@ public class VectView extends GridPanel implements VectListener {
         this.regionsHistoryModel = regionsHistory;
     }
 
-    
     /**
      * Setter for StatusbarModel
      * @param statusbarModel new StatusbarModel
@@ -550,7 +558,6 @@ public class VectView extends GridPanel implements VectListener {
         }
     }
 
-
     /**
      * Getter for VectModel
      * @return VectModel
@@ -558,6 +565,7 @@ public class VectView extends GridPanel implements VectListener {
     public VectModel getVectModel() {
         return vectModel;
     }
+
     /**
      * Setter for VectModel
      * @param vectModel new VectModel
