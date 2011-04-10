@@ -23,6 +23,7 @@ public class VectModel {
     private Color gridColor;
     private Color fieldColor;
     private boolean fieldColorful;
+    private double minVectorLength;
     private double maxVectorLength;
     private boolean gridDrawn;
     private boolean arrowPlain;
@@ -90,16 +91,8 @@ public class VectModel {
         computeValues();
     }
 
-    /**
-     * Computes new values based on colors number, grid and function
-     */
-    private void computeValues() {
-        // iterate through all cells and compute
-        // vector length; find min and max and
-        // make a list of uniform values
-        if (grid == null || colors == null) {
-            return;
-        }
+    private void computeVectorMaxMinLength() {
+
         double min = Double.MAX_VALUE;
         double max = Double.MIN_VALUE;
 
@@ -122,9 +115,25 @@ public class VectModel {
         }
 
         maxVectorLength = max;
+        minVectorLength = min;
+
+    }
+
+    /**
+     * Computes new values based on colors number, grid and function
+     */
+    private void computeValues() {
+        // iterate through all cells and compute
+        // vector length; find min and max and
+        // make a list of uniform values
+        if (grid == null || colors == null) {
+            return;
+        }
+
+        computeVectorMaxMinLength();
 
         int colorsCount = colors.size();
-        double range = max - min;
+        double range = maxVectorLength - minVectorLength;
         double step = range / colorsCount;
 
         if (values != null) {
@@ -134,7 +143,7 @@ public class VectModel {
         }
 
         for (int k = 1; k < colorsCount; ++k) {
-            values.add(new Double(min + step * k));
+            values.add(new Double(minVectorLength + step * k));
         }
         Collections.reverse(values);
     }
@@ -210,8 +219,8 @@ public class VectModel {
      */
     public void setRegion(Region region) {
         this.region = region;
-        // place to recompute values!
 
+        computeVectorMaxMinLength();
         for (VectListener vectListener : listeners) {
             vectListener.regionChanged();
         }
