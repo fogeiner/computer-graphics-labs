@@ -14,7 +14,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 
 import ru.nsu.cg.MainFrame;
-
 /**
  * Frame - Application main frame
  * 
