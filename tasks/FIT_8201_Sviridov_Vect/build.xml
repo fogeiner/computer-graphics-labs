@@ -39,9 +39,4 @@
         </javac>
     </target>
     <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
-    <target name="Frame">
-        <java classname="FIT_8201_Sviridov_Vect.Frame" failonerror="true" fork="yes">
-            <classpath refid="FIT_8201_Sviridov_Vect.classpath"/>
-        </java>
-    </target>
 </project>
