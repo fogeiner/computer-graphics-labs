@@ -1,37 +1,17 @@
-package FIT_8201_Sviridov_Vect;
+package FIT_8201_Sviridov_Cam;
 
-import FIT_8201_Sviridov_Vect.state_history.StateHistoryListener;
-import FIT_8201_Sviridov_Vect.state_history.StateHistoryModel;
-import FIT_8201_Sviridov_Vect.utils.Region;
-import FIT_8201_Sviridov_Vect.statusbar.StatusbarModel;
-import FIT_8201_Sviridov_Vect.ui.ColorsChoiceDialog;
-import FIT_8201_Sviridov_Vect.ui.LegendPanel;
-import FIT_8201_Sviridov_Vect.ui.SettingsDialog;
-import FIT_8201_Sviridov_Vect.ui.Statusbar;
-import FIT_8201_Sviridov_Vect.ui.VectView;
-import FIT_8201_Sviridov_Vect.vect.VectListener;
-import FIT_8201_Sviridov_Vect.vect.VectModel;
-import FIT_8201_Sviridov_Vect.vect.VectPersistence;
-import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
-import javax.swing.BorderFactory;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 
 import ru.nsu.cg.MainFrame;
 
@@ -40,20 +20,11 @@ import ru.nsu.cg.MainFrame;
  * 
  * @author alstein
  */
-public final class Frame extends MainFrame implements StateHistoryListener,
-        VectListener {
+public final class Frame extends MainFrame {
 
-    private static final long serialVersionUID = 3501543956694236029L;
-    // color to highlight inactive elements on toolbar
-    private Color toggleColor = Color.lightGray;
-    private StateHistoryModel<Region> regionsHistoryModel = new StateHistoryModel<Region>();
-    private StatusbarModel statusbarModel = new StatusbarModel();
-    private Statusbar statusbar = new Statusbar();
-    private LegendPanel legendPanel = new LegendPanel();
-    private VectView vectView = new VectView();
-    private ColorsChoiceDialog colorsChoiceDialog = new ColorsChoiceDialog(this);
-    private SettingsDialog settingsDialog = new SettingsDialog(this);
-    private VectModel vectModel;
+    public static final String NAME = "FIT_8201_Sviridov_Cam";
+    public static final String UNTITLED_DOCUMENT = "Untitled";
+    public static final String ABOUT_FILE = "FIT_8201_Sviridov_Cam_About.txt";
     private boolean modified;
 
     /**
@@ -62,8 +33,9 @@ public final class Frame extends MainFrame implements StateHistoryListener,
      * @param name
      *            first part of application title
      */
+    @Override
     public void setTitle(String name) {
-        super.setTitle(name + " - " + Settings.NAME);
+        super.setTitle(name + " - " + NAME);
     }
 
     /**
@@ -88,24 +60,8 @@ public final class Frame extends MainFrame implements StateHistoryListener,
             addMenuItem("File/Exit", "Exit application", KeyEvent.VK_X,
                     "exit.gif", "onExit");
             addSubMenu("Edit", KeyEvent.VK_E);
-            addMenuItem("Edit/Grid", "Show/hide grid", KeyEvent.VK_G,
-                    "grid.gif", "onGrid");
-            addMenuItem("Edit/Chess mode", "Switch vectors chess order",
-                    KeyEvent.VK_K, "checker.gif", "onChess");
-            addMenuItem("Edit/Change field mode",
-                    "Change field mode (B&W vs color)", KeyEvent.VK_B,
-                    "bw_arrows.gif", "onBWField");
-            addMenuItem("Edit/Change arrow mode",
-                    "Change arrow mode (plain vs filled)", KeyEvent.VK_F,
-                    "filled_arrow.gif", "onFilledArrow");
-            addMenuItem("Edit/Previous zoom level", "Previous zoom state",
-                    KeyEvent.VK_O, "zoom_previous.gif", "onZoomPrevious");
-            addMenuItem("Edit/Next zoom level", "Next zoom state",
-                    KeyEvent.VK_I, "zoom_next.gif", "onZoomNext");
             addMenuItem("Edit/Settings", "Show settings dialog", KeyEvent.VK_S,
                     "settings.gif", "onSettings");
-            addMenuItem("Edit/Palette", "Show pallete dialog", KeyEvent.VK_P,
-                    "palette.gif", "onPalette");
 
             addSubMenu("Help", KeyEvent.VK_H);
 
@@ -116,20 +72,7 @@ public final class Frame extends MainFrame implements StateHistoryListener,
             addToolBarButton("File/New");
             addToolBarButton("File/Load");
             addToolBarButton("File/Save as...");
-            addToolBarSeparator();
-            addToolBarButton("Edit/Grid");
-            addToolBarButton("Edit/Chess mode");
-            addToolBarSeparator();
-            addToolBarButton("Edit/Change field mode");
-
-            addToolBarSeparator();
-            addToolBarButton("Edit/Change arrow mode");
-            addToolBarSeparator();
-            addToolBarButton("Edit/Previous zoom level");
-            addToolBarButton("Edit/Next zoom level");
-            addToolBarSeparator();
             addToolBarButton("Edit/Settings");
-            addToolBarButton("Edit/Palette");
             addToolBarSeparator();
             addToolBarButton("Help/About");
             addToolBarSeparator();
@@ -138,31 +81,7 @@ public final class Frame extends MainFrame implements StateHistoryListener,
             e.printStackTrace();
         }
 
-        final JPanel mainPanel = new JPanel(new BorderLayout(5, 5));
-        final JPanel outerFieldPanel = new JPanel(new GridBagLayout());
-        outerFieldPanel.addComponentListener(new ComponentAdapter() {
 
-            @Override
-            public void componentResized(ComponentEvent e) {
-                super.componentResized(e);
-                vectView.dispatchEvent(e);
-            }
-        });
-
-        mainPanel.setBackground(Color.white);
-        vectView.setBackground(Color.white);
-        legendPanel.setBackground(Color.white);
-        outerFieldPanel.setBackground(Color.white);
-
-        outerFieldPanel.add(vectView, new GridBagConstraints());
-
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        mainPanel.setBackground(Color.white);
-        mainPanel.add(outerFieldPanel, BorderLayout.CENTER);
-        mainPanel.add(legendPanel, BorderLayout.EAST);
-
-        this.add(mainPanel, BorderLayout.CENTER);
-        this.add(statusbar, BorderLayout.SOUTH);
 
         toolBar.setFloatable(false);
 
@@ -183,23 +102,8 @@ public final class Frame extends MainFrame implements StateHistoryListener,
      * Resets application to state with no document loaded
      */
     public void reset() {
-        setTitle(Settings.UNTITLED_DOCUMENT);
+        setTitle(UNTITLED_DOCUMENT);
 
-        if (vectModel != null) {
-            vectModel.clearListeners();
-        }
-        statusbarModel.clearListeners();
-        regionsHistoryModel.clearListeners();
-
-        vectView.setVectModel(null);
-        vectView.setStatusbarModel(null);
-        vectView.setRegionsHistory(null);
-        statusbar.setStatusbarModel(null);
-        settingsDialog.setRegionsHistoryModel(null);
-        legendPanel.setVectModel(null);
-        colorsChoiceDialog.setVectModel(null);
-        settingsDialog.setVectModel(null);
-        setBlockedAll(true);
         setModified(false);
     }
 
@@ -232,86 +136,25 @@ public final class Frame extends MainFrame implements StateHistoryListener,
             if (file == null) {
                 return;
             }
-
-            vectModel = VectPersistence.loadFromFile(file);
-            regionsHistoryModel.add(vectModel.getRegion());
-
-            statusbar.setStatusbarModel(statusbarModel);
-            vectView.setStatusbarModel(statusbarModel);
-            vectView.setVectModel(vectModel);
-            vectView.setRegionsHistory(regionsHistoryModel);
-            settingsDialog.setRegionsHistoryModel(regionsHistoryModel);
-
-            legendPanel.setVectModel(vectModel);
-
-            colorsChoiceDialog.setVectModel(vectModel);
-            settingsDialog.setVectModel(vectModel);
-
-            vectModel.addVectListener(settingsDialog);
-            vectModel.addVectListener(vectView);
-            vectModel.addVectListener(legendPanel);
-            vectModel.addVectListener(this);
-            statusbarModel.addStatusbarListener(statusbar);
-            regionsHistoryModel.addListener(this);
-
             setBlockedAll(false);
-            setZoomNextBlocked(true);
-            setZoomPreviousBlocked(true);
             setTitle(file.getName());
         } catch (IllegalArgumentException ex) {
             JOptionPane.showMessageDialog(this,
                     "Document error: " + ex.getMessage(), "Loading document",
                     JOptionPane.ERROR_MESSAGE);
-            setTitle(Settings.UNTITLED_DOCUMENT);
+            setTitle(UNTITLED_DOCUMENT);
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this,
                     "Error loading file: \n" + ex.getLocalizedMessage(),
                     "Loading document", JOptionPane.ERROR_MESSAGE);
-            setTitle(Settings.UNTITLED_DOCUMENT);
+            setTitle(UNTITLED_DOCUMENT);
         }
-    }
-
-    /**
-     * Method called when user chooses "Chess mode" in menu or on toolbar.
-     */
-    public void onChess() {
-        vectModel.setChessMode(!vectModel.isChessMode());
-    }
-
-    /**
-     * Method called when user chooses "Grid" in menu or on toolbar.
-     */
-    public void onGrid() {
-        vectModel.setGridDrawn(!vectModel.isGridDrawn());
-
-    }
-
-    /**
-     * Method called when user chooses "Field mode" in menu or on toolbar.
-     */
-    public void onBWField() {
-        vectModel.setFieldColorful(!vectModel.isFieldColorful());
-    }
-
-    /**
-     * Method called when user chooses "Arrow mode" in menu or on toolbar.
-     */
-    public void onFilledArrow() {
-        vectModel.setArrowPlain(!vectModel.isArrowPlain());
     }
 
     /**
      * Method called when user chooses "Settings" in menu or on toolbar.
      */
     public void onSettings() {
-        settingsDialog.showDialog();
-    }
-
-    /**
-     * Method called when user chooses "Palette" in menu or on toolbar.
-     */
-    public void onPalette() {
-        colorsChoiceDialog.showDialog();
     }
 
     /**
@@ -382,17 +225,17 @@ public final class Frame extends MainFrame implements StateHistoryListener,
      * editor with <tt>FIT_8201_Sviridov_About.txt</tt> open
      */
     public void onAbout() {
-        String path = Settings.ABOUT_FILE;
+        String path = ABOUT_FILE;
         File f = new File(path);
         if (f.exists() == false) {
             path = ".." + System.getProperties().getProperty("file.separator")
-                    + Settings.ABOUT_FILE;
+                    + ABOUT_FILE;
             f = new File(path);
             if (f.exists() == false) {
                 JOptionPane.showMessageDialog(
                         this,
                         "File "
-                        + Settings.ABOUT_FILE
+                        + ABOUT_FILE
                         + " could not be found neither in the application directory nor in the preceding directory.",
                         "Opening about file", JOptionPane.ERROR_MESSAGE);
                 return;
@@ -438,7 +281,6 @@ public final class Frame extends MainFrame implements StateHistoryListener,
                     return;
                 }
             }
-            VectPersistence.saveToFile(vectModel, file);
             setTitle(file.getName());
             setModified(false);
         } catch (Exception e) {
@@ -446,25 +288,6 @@ public final class Frame extends MainFrame implements StateHistoryListener,
                     "Error saving file: \n" + e.getLocalizedMessage(),
                     "Saving document", JOptionPane.ERROR_MESSAGE);
         }
-    }
-
-    /**
-     * Method called when user chooses "Previous zoom state" in menu or on
-     * toolbar
-     * */
-    public void onZoomPrevious() {
-        vectModel.setRegion(regionsHistoryModel.prev());
-        setZoomPreviousBlocked(!regionsHistoryModel.hasPrev());
-        setZoomNextBlocked(!regionsHistoryModel.hasNext());
-    }
-
-    /**
-     * Method called when user chooses "Next zoom state" in menu or on toolbar
-     * */
-    public void onZoomNext() {
-        vectModel.setRegion(regionsHistoryModel.next());
-        setZoomPreviousBlocked(!regionsHistoryModel.hasPrev());
-        setZoomNextBlocked(!regionsHistoryModel.hasNext());
     }
 
     /**
@@ -492,132 +315,8 @@ public final class Frame extends MainFrame implements StateHistoryListener,
         JMenuBar menu_bar = getJMenuBar();
         JMenu file = (JMenu) menu_bar.getComponent(0);
         JMenu edit = (JMenu) menu_bar.getComponent(1);
-        file.getMenuComponent(2).setEnabled(!blocked);
-        for (int i = 0; i < 8; ++i) {
-            edit.getMenuComponent(i).setEnabled(!blocked);
-        }
-        for (int i = 2; i < 16; ++i) {
-            if (i != 3 && i != 6 && i != 8 && i != 10 && i != 13) {
-                toolBar.getComponent(i).setBackground(null);
-                toolBar.getComponent(i).setEnabled(!blocked);
-            }
-        }
     }
 
-    /**
-     * Method to block/unblock previous zoom button
-     *
-     * @param blocked
-     *            value of blocked or not
-     */
-    public void setZoomPreviousBlocked(boolean blocked) {
-        JMenuBar menu_bar = getJMenuBar();
-        JMenu edit = (JMenu) menu_bar.getComponent(1);
-        edit.getMenuComponent(4).setEnabled(!blocked);
-        toolBar.getComponent(11).setEnabled(!blocked);
-    }
-
-    /**
-     * Method to block/unblock next zoom button
-     *
-     * @param blocked
-     *            value of blocked or not
-     */
-    public void setZoomNextBlocked(boolean blocked) {
-        JMenuBar menu_bar = getJMenuBar();
-        JMenu edit = (JMenu) menu_bar.getComponent(1);
-        edit.getMenuComponent(5).setEnabled(!blocked);
-        toolBar.getComponent(12).setEnabled(!blocked);
-    }
-
-    /**
-     * VectModel setter
-     *
-     * @param vectModel
-     *            new VectModel
-     */
-    public void setVectModel(VectModel vectModel) {
-        this.vectModel = vectModel;
-    }
-
-    @Override
-    public void historyStateChanged() {
-        setZoomPreviousBlocked(!regionsHistoryModel.hasPrev());
-        setZoomNextBlocked(!regionsHistoryModel.hasNext());
-    }
-
-    @Override
-    public void modelChanged() {
-        setModified(true);
-    }
-
-    @Override
-    public void regionChanged() {
-        setModified(true);
-    }
-
-    @Override
-    public void lengthMultChanged() {
-        setModified(true);
-    }
-
-    @Override
-    public void gridChanged() {
-        setModified(true);
-    }
-
-    @Override
-    public void gridColorChanged() {
-        setModified(true);
-    }
-
-    @Override
-    public void colorsChanged() {
-        setModified(true);
-    }
-
-    @Override
-    public void fieldModeChanged() {
-        Color c = null;
-        if (!vectModel.isFieldColorful()) {
-            c = toggleColor;
-        }
-        toolBar.getComponent(7).setBackground(c);
-    }
-
-    @Override
-    public void gridDrawnChanged() {
-        Color c = null;
-        if (vectModel.isGridDrawn()) {
-            c = toggleColor;
-        }
-        toolBar.getComponent(4).setBackground(c);
-    }
-
-    @Override
-    public void arrowModeChanged() {
-
-        Color c = null;
-        if (!vectModel.isArrowPlain()) {
-            c = toggleColor;
-        }
-        toolBar.getComponent(9).setBackground(c);
-    }
-
-    @Override
-    public void chessModeChanged() {
-        Color c = null;
-        if (vectModel.isChessMode()) {
-            c = toggleColor;
-        }
-        toolBar.getComponent(5).setBackground(c);
-    }
-
-
-    @Override
-    public void fieldColorChanged() {
-    }
-    
     /**
      * Application main entry point
      *
@@ -637,5 +336,4 @@ public final class Frame extends MainFrame implements StateHistoryListener,
             }
         });
     }
-
 }
