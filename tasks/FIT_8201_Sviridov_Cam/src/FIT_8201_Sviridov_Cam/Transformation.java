@@ -1,13 +1,15 @@
 package FIT_8201_Sviridov_Cam;
 
+import FIT_8201_Sviridov_Cam.primitives.WireframeShape;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.NumberFormat;
 import java.util.Locale;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
  *
@@ -16,12 +18,12 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 public class Transformation {
 
     private final double[][] m = new double[4][4];
-    private final NumberFormat format;
     public static final int X_AXIS = 0;
     public static final int Y_AXIS = 1;
     public static final int Z_AXIS = 2;
+    private static final NumberFormat format;
 
-    {
+    static {
         format = NumberFormat.getInstance(Locale.ENGLISH);
         format.setMaximumFractionDigits(2);
         format.setMinimumFractionDigits(2);
@@ -111,11 +113,11 @@ public class Transformation {
         return result;
     }
 
-    static Transformation uniformScale(double s) {
+    public static Transformation uniformScale(double s) {
         return Transformation.scale(s, s, s);
     }
 
-    static Transformation scale(double xs, double ys, double zs) {
+    public static Transformation scale(double xs, double ys, double zs) {
         Transformation t;
         t = new Transformation(
                 xs, 0, 0, 0,
@@ -125,7 +127,7 @@ public class Transformation {
         return t;
     }
 
-    static Transformation translate(double tx, double ty, double tz) {
+    public static Transformation translate(double tx, double ty, double tz) {
         Transformation t;
         t = new Transformation(
                 1, 0, 0, tx,
@@ -138,7 +140,7 @@ public class Transformation {
     // cos -sin 0
     // sin  cos 0
     // 0    0   1
-    static Transformation rotate(double phi, int axis) {
+    public static Transformation rotate(double phi, int axis) {
         Transformation t;
 
         double c = Math.cos(phi);
@@ -170,8 +172,20 @@ public class Transformation {
         return t;
     }
 
-    static Transformation perspective() {
-        throw new NotImplementedException();
+    public static Transformation perspective(double w, double h, double zn, double zf) {
+        Transformation t;
+        double a = 2 * zn / w,
+                b = 2 * zn / h,
+                d = zf / (zf - zn),
+                c = -d * zn;
+
+        t = new Transformation(
+                a, 0, 0, 0,
+                0, b, 0, 0,
+                0, 0, d, c,
+                0, 0, 1, 0);
+
+        return t;
     }
 
     @Override
@@ -191,26 +205,36 @@ public class Transformation {
 
     public static void main(String args[]) {
         Transformation t = identity();
-        t = compose(rotate(3.14, X_AXIS), translate(10, 15, 20));
+        WireframeShape cube = WireframeShape.cube(100);
         System.out.println(t);
+        System.out.println(cube);
+
 
         class Canvas extends JPanel implements ActionListener {
-
-            Vertex v1 = new Vertex(WIDTH, WIDTH, WIDTH)
 
             public Canvas() {
                 setPreferredSize(new Dimension(500, 500));
                 Timer timer = new Timer(1000 / 25, this);
+                timer.start();
             }
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 repaint();
             }
+
+            @Override
+            protected void paintComponent(Graphics g1) {
+                super.paintComponent(g1);
+                Graphics2D g = (Graphics2D)g1;
+                g.translate(getWidth()/2, getHeight()/2);
+                g.scale(1.0, -1.0);
+
+            }
         }
 
-        JFrame frame = new JFrame();
+        /*JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.add(new Canvas());
+        frame.add(new Canvas());*/
     }
 }

@@ -4,13 +4,26 @@
  */
 package FIT_8201_Sviridov_Cam;
 
+import java.awt.Color;
+import java.text.NumberFormat;
+import java.util.Locale;
+
 /**
  *
  * @author alstein
  */
 public class Vertex {
 
+    public static final Color DEFAULT_COLOR = Color.black;
     private double x, y, z, w;
+    private Color color;
+    private final static NumberFormat format;
+
+    static {
+        format = NumberFormat.getInstance(Locale.ENGLISH);
+        format.setMaximumFractionDigits(2);
+        format.setMinimumFractionDigits(2);
+    }
 
     public Vertex(double v[]) {
         if (v.length == 3) {
@@ -38,12 +51,33 @@ public class Vertex {
         this(x, y, z, 1.0);
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append('(');
+        sb.append(format.format(x));
+        sb.append(',');
+        sb.append(format.format(y));
+        sb.append(',');
+        sb.append(format.format(z));
+        if (w != 1.0) {
+            sb.append(',');
+            sb.append(format.format(w));
+        }
+        sb.append(')');
+        return sb.toString();
+    }
+
     public Vertex normalize() {
         return new Vertex(this.x / this.w, this.y / this.w, this.z / this.w);
     }
 
     public double[] getV() {
         return new double[]{x, y, z, w};
+    }
+
+    public Color getColor() {
+        return color;
     }
 
     public double getW() {
@@ -76,5 +110,9 @@ public class Vertex {
 
     public void setZ(double z) {
         this.z = z;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
     }
 }
