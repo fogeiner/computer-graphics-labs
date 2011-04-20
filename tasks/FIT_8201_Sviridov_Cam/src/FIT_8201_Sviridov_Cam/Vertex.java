@@ -30,7 +30,7 @@ public class Vertex {
             this.x = v[0];
             this.y = v[1];
             this.z = v[2];
-        } else if (v.length == 3) {
+        } else if (v.length == 4) {
             this.x = v[0];
             this.y = v[1];
             this.z = v[2];

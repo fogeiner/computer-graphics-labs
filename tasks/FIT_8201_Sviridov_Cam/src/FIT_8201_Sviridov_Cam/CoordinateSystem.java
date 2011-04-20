@@ -23,50 +23,57 @@ public class CoordinateSystem {
         format.setMinimumFractionDigits(2);
     }
 
-    public CoordinateSystem(Vertex origin, Vector v1, Vector v2, Vector v3) {
-        this.origin = origin;
-        this.v1 = v1;
-        this.v2 = v2;
-        this.v3 = v3;
+    public CoordinateSystem() {
+        this(new Vertex(0, 0, 0));
+    }
 
+    public CoordinateSystem(Vertex origin) {
+        this(
+                origin,
+                new Vector(1, 0, 0),
+                new Vector(0, 1, 0),
+                new Vector(0, 0, 1));
+    }
+
+    private void checkBasis() {
         // check that coordinate system given is right-handed and orthonormal
-        double a = v1.getX(),
-                b = v2.getX(),
-                c = v3.getX(),
-                d = v1.getY(),
-                e = v2.getY(),
-                f = v3.getY(),
-                g = v1.getZ(),
-                h = v2.getZ(),
-                i = v3.getZ();
+        double v1x = v1.getX(),
+                v2x = v2.getX(),
+                v3x = v3.getX(),
+                v1y = v1.getY(),
+                v2y = v2.getY(),
+                v3y = v3.getY(),
+                v1z = v1.getZ(),
+                v2z = v2.getZ(),
+                v3z = v3.getZ();
 
-        double v1Length = Math.sqrt(a * a + d * d + g * g);
-        double v2Length = Math.sqrt(b * b + e * e + h * h);
-        double v3Length = Math.sqrt(c * c + f * f + i * i);
+        double v1Length = Math.sqrt(v1x * v1x + v1y * v1y + v1z * v1z);
+        double v2Length = Math.sqrt(v2x * v2x + v2y * v2y + v2z * v2z);
+        double v3Length = Math.sqrt(v3x * v3x + v3y * v3y + v3z * v3z);
 
-        double v1v2Product = a * d + b * e + c * f,
-                v1v3Product = a * g + b * h + c * i,
-                v2v3Product = d * g + e * h + f * i;
+        double v1v2Product = v1x * v2x + v1y * v2y + v1z * v2z,
+                v1v3Product = v1x * v3x + v1y * v3y + v1z * v3z,
+                v2v3Product = v2x * v3x + v2y * v3y + v2z * v3z;
 
-        double det = a * (e * i - f * h) - b * (d * i - f * g) + c * (d * h - e * g);
+        double det = v1x * (v2y * v3z - v3y * v2z) - v2x * (v1y * v3z - v3y * v1z) + v3x * (v1y * v2z - v2y * v1z);
 
-        if (v1Length - 1.0 > EPS) {
+        if (Math.abs(v1Length - 1.0) > EPS) {
             throw new IllegalArgumentException("v1 is not normalized");
         }
-        if (v2Length - 1.0 > EPS) {
+        if (Math.abs(v2Length - 1.0) > EPS) {
             throw new IllegalArgumentException("v2 is not normalized");
         }
-        if (v3Length - 1.0 > EPS) {
+        if (Math.abs(v3Length - 1.0) > EPS) {
             throw new IllegalArgumentException("v3 is not normalized");
         }
 
-        if (v1v2Product > EPS) {
+        if (Math.abs(v1v2Product) > EPS) {
             throw new IllegalArgumentException("v1 and v2 not orthogonal");
         }
-        if (v1v3Product > EPS) {
+        if (Math.abs(v1v3Product) > EPS) {
             throw new IllegalArgumentException("v1 and v3 not orthogonal");
         }
-        if (v2v3Product > EPS) {
+        if (Math.abs(v2v3Product) > EPS) {
             throw new IllegalArgumentException("v2 and v3 not orthogonal");
         }
 
@@ -74,26 +81,70 @@ public class CoordinateSystem {
             throw new IllegalArgumentException("Right-hand coordinate system expected");
         }
 
+    }
+
+    private void updateTransformation() {
+        double v1x = v1.getX(),
+                v2x = v2.getX(),
+                v3x = v3.getX(),
+                v1y = v1.getY(),
+                v2y = v2.getY(),
+                v3y = v3.getY(),
+                v1z = v1.getZ(),
+                v2z = v2.getZ(),
+                v3z = v3.getZ();
+
+
         // compute transformation to world coordinate system
         double ox = origin.getX(),
                 oy = origin.getY(),
                 oz = origin.getZ();
 
-        double v1xv = v1.getX() - ox,
-                v2xv = v2.getX() - ox,
-                v3xv = v3.getX() - ox,
-                v1yv = v1.getY() - oy,
-                v2yv = v2.getY() - oy,
-                v3yv = v3.getY() - oy,
-                v1zv = v1.getZ() - oz,
-                v2zv = v2.getZ() - oz,
-                v3zv = v3.getZ() - oz;
-
         frameToCanonicalTransformation = new Transformation(
-                v1xv, v2xv, v3xv, ox,
-                v1yv, v2yv, v3yv, oy,
-                v1zv, v2zv, v3zv, oz,
+                v1x, v2x, v3x, ox,
+                v1y, v2y, v3y, oy,
+                v1z, v2z, v3z, oz,
                 0, 0, 0, 1);
+
+    }
+
+    public CoordinateSystem(Vertex origin, Vector v1, Vector v2, Vector v3) {
+        this.origin = origin;
+        this.v1 = v1;
+        this.v2 = v2;
+        checkBasis();
+        updateTransformation();
+        this.v3 = v3;
+    }
+
+    public Vertex getOrigin() {
+        return origin;
+    }
+
+    public void setOrigin(Vertex origin) {
+        this.origin = origin;
+        updateTransformation();
+    }
+
+    public void setBasis(Vector v1, Vector v2, Vector v3) {
+        Vector v1Old = this.v1,
+                v2Old = this.v2,
+                v3Old = this.v3;
+
+        this.v1 = v1;
+        this.v2 = v2;
+        this.v3 = v3;
+
+        try {
+            checkBasis();
+        } catch (IllegalArgumentException ex) {
+            this.v1 = v1Old;
+            this.v2 = v2Old;
+            this.v3 = v3Old;
+            throw ex;
+        }
+        
+        updateTransformation();
     }
 
     public Transformation getFrameToCanonicalTransformation() {
@@ -103,25 +154,28 @@ public class CoordinateSystem {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("at ");
+        sb.append("origin at ");
         sb.append(origin);
-        sb.append(" with ");
+        sb.append(" with vectors ");
         sb.append(v1);
         sb.append(' ');
         sb.append(v2);
         sb.append(' ');
         sb.append(v3);
         return sb.toString();
-
     }
 
     public static void main(String args[]) {
         CoordinateSystem cs = new CoordinateSystem(
-                new Vertex(100, 50, 75),
+                new Vertex(50, 60, 70),
                 new Vector(1, 0, 0),
                 new Vector(0, 1, 0),
                 new Vector(0, 0, 1));
         System.out.println(cs);
-        System.out.println(cs.getFrameToCanonicalTransformation());
+        System.out.print(cs.getFrameToCanonicalTransformation());
+        Vertex v = new Vertex(10, 10, 10);
+        Transformation t = cs.getFrameToCanonicalTransformation();
+        v = t.apply(v);
+        System.out.println(v);
     }
 }
