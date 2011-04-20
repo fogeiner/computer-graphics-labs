@@ -38,8 +38,8 @@ public class WireframeShape {
     }
 
     public static WireframeShape cube(double length) {
-        int p = length / 2;
-        int m = -p;
+        double p = length / 2;
+        double m = -p;
 
         List<Segment> cube = new ArrayList<Segment>(12);
 
