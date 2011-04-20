@@ -1,5 +1,8 @@
 package FIT_8201_Sviridov_Cam;
 
+import java.text.NumberFormat;
+import java.util.Locale;
+
 /**
  *
  * @author admin
@@ -11,6 +14,14 @@ public class CoordinateSystem {
     private Vector v1;
     private Vector v2;
     private Vector v3;
+    private Transformation frameToCanonicalTransformation;
+    private static final NumberFormat format;
+
+    static {
+        format = NumberFormat.getInstance(Locale.ENGLISH);
+        format.setMaximumFractionDigits(2);
+        format.setMinimumFractionDigits(2);
+    }
 
     public CoordinateSystem(Vertex origin, Vector v1, Vector v2, Vector v3) {
         this.origin = origin;
@@ -62,12 +73,11 @@ public class CoordinateSystem {
         if (det < 0) {
             throw new IllegalArgumentException("Right-hand coordinate system expected");
         }
-    }
 
-    public Transformation frameToCanonicalTransformation() {
+        // compute transformation to world coordinate system
         double ox = origin.getX(),
                 oy = origin.getY(),
-                oz = origin.getY();
+                oz = origin.getZ();
 
         double v1xv = v1.getX() - ox,
                 v2xv = v2.getX() - ox,
@@ -79,12 +89,39 @@ public class CoordinateSystem {
                 v2zv = v2.getZ() - oz,
                 v3zv = v3.getZ() - oz;
 
-        Transformation t = new Transformation(
+        frameToCanonicalTransformation = new Transformation(
                 v1xv, v2xv, v3xv, ox,
                 v1yv, v2yv, v3yv, oy,
                 v1zv, v2zv, v3zv, oz,
                 0, 0, 0, 1);
-        
-        return t;
+    }
+
+    public Transformation getFrameToCanonicalTransformation() {
+        return frameToCanonicalTransformation;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("at ");
+        sb.append(origin);
+        sb.append(" with ");
+        sb.append(v1);
+        sb.append(' ');
+        sb.append(v2);
+        sb.append(' ');
+        sb.append(v3);
+        return sb.toString();
+
+    }
+
+    public static void main(String args[]) {
+        CoordinateSystem cs = new CoordinateSystem(
+                new Vertex(100, 50, 75),
+                new Vector(1, 0, 0),
+                new Vector(0, 1, 0),
+                new Vector(0, 0, 1));
+        System.out.println(cs);
+        System.out.println(cs.getFrameToCanonicalTransformation());
     }
 }
