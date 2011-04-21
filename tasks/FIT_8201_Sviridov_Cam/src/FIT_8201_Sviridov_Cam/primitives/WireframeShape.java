@@ -101,31 +101,30 @@ public class WireframeShape {
                 ppm = new Vertex(p, p, m),
                 ppp = new Vertex(p, p, p);
 
+        cube.add(new Segment(mmm, mmp));
         cube.add(new Segment(mmm, pmm));
         cube.add(new Segment(mmm, mpm));
-        cube.add(new Segment(mmm, mmp));
-        cube.add(new Segment(ppp, mpp));
-        cube.add(new Segment(ppp, ppm));
-        cube.add(new Segment(ppp, pmp));
-        cube.add(new Segment(ppm, mpm));
-        cube.add(new Segment(ppm, pmm));
+
+
+        cube.add(new Segment(pmm, ppm));
+        cube.add(new Segment(pmm, pmp));
+
+        cube.add(new Segment(mmp, mpp));
+        cube.add(new Segment(mmp, pmp));
+
+        cube.add(new Segment(mpm, ppm));
         cube.add(new Segment(mpm, mpp));
-        cube.add(new Segment(pmp, pmm));
-        cube.add(new Segment(pmp, mmp));
-        cube.add(new Segment(mpp, mmp));
+
+        cube.add(new Segment(mpp, ppp));
+        cube.add(new Segment(ppm, ppp));
+        
+        cube.add(new Segment(pmp, ppp));
 
         return new WireframeShape(cube);
     }
 
     public static WireframeShape parallelepiped(
-            double maxX, double minX,
-            double maxY, double minY,
-            double maxZ, double minZ) {
-
-        double width = maxX - minX,
-                height = maxY - minY,
-                depth = maxZ - minZ;
-
+            double width, double height, double depth) {
         double wp = width / 2,
                 wm = -wp,
                 hp = height / 2,
@@ -144,18 +143,24 @@ public class WireframeShape {
 
         List<Segment> parallelepiped = new ArrayList<Segment>(12);
 
+        parallelepiped.add(new Segment(mmm, mmp));
         parallelepiped.add(new Segment(mmm, pmm));
         parallelepiped.add(new Segment(mmm, mpm));
-        parallelepiped.add(new Segment(mmm, mmp));
-        parallelepiped.add(new Segment(ppp, mpp));
-        parallelepiped.add(new Segment(ppp, ppm));
-        parallelepiped.add(new Segment(ppp, pmp));
-        parallelepiped.add(new Segment(ppm, mpm));
-        parallelepiped.add(new Segment(ppm, pmm));
+
+
+        parallelepiped.add(new Segment(pmm, ppm));
+        parallelepiped.add(new Segment(pmm, pmp));
+
+        parallelepiped.add(new Segment(mmp, mpp));
+        parallelepiped.add(new Segment(mmp, pmp));
+
+        parallelepiped.add(new Segment(mpm, ppm));
         parallelepiped.add(new Segment(mpm, mpp));
-        parallelepiped.add(new Segment(pmp, pmm));
-        parallelepiped.add(new Segment(pmp, mmp));
-        parallelepiped.add(new Segment(mpp, mmp));
+
+        parallelepiped.add(new Segment(mpp, ppp));
+        parallelepiped.add(new Segment(ppm, ppp));
+
+        parallelepiped.add(new Segment(pmp, ppp));
 
         return new WireframeShape(parallelepiped);
     }
@@ -178,8 +183,12 @@ public class WireframeShape {
         transformation = coordinateSystem.getFrameToCanonicalTransformation();
     }
 
-    public Vertex getOrigin() {
-        return coordinateSystem.getOrigin();
+    public Vertex getTransformedOrigin() {
+        return transformation.apply(coordinateSystem.getOrigin());
+    }
+
+    private Transformation getFrameToCanonicalTransformation() {
+        return coordinateSystem.getFrameToCanonicalTransformation();
     }
 
     public Color getColor() {

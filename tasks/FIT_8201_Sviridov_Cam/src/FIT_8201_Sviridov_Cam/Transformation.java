@@ -17,7 +17,7 @@ import javax.swing.Timer;
  */
 public class Transformation {
 
-    private final double[][] m = new double[4][4];
+    private double[][] m = new double[4][4];
     public static final int X_AXIS = 0;
     public static final int Y_AXIS = 1;
     public static final int Z_AXIS = 2;
@@ -73,6 +73,22 @@ public class Transformation {
                 0, 0, 1, 0,
                 0, 0, 0, 1);
         return t;
+    }
+
+    public void compose(Transformation leftTransformation){
+        double m1[][] = leftTransformation.m; // n x k X k x m -> n (rows) x m (cols)
+        double m2[][] = this.m;
+        double m3[][] = new double[m1.length][m2[0].length];
+        for (int i = 0; i < m1.length; ++i) {
+            for (int j = 0; j < m2[0].length; ++j) {
+                double v = 0;
+                for (int k = 0; k < m1[0].length; ++k) {
+                    v += m1[i][k] * m2[k][j];
+                }
+                m3[i][j] = v;
+            }
+        }
+        this.m = m3;
     }
 
     // A B C x = A(B(Cx))
@@ -155,9 +171,9 @@ public class Transformation {
                     0, 0, 0, 1);
         } else if (axis == Transformation.Y_AXIS) {
             t = new Transformation(
-                    c, 0, m, 0,
+                    c, 0, s, 0,
                     0, 1, 0, 0,
-                    s, 0, c, 0,
+                    m, 0, c, 0,
                     0, 0, 0, 1);
         } else if (axis == Transformation.Z_AXIS) {
             t = new Transformation(
@@ -174,9 +190,9 @@ public class Transformation {
 
     public static Transformation perspective(double w, double h, double zn, double zf) {
         Transformation t;
-        double a = 2 * zn / w,
-                b = 2 * zn / h,
-                d = zf / (zf - zn),
+        double a = 2 * zf / w,
+                b = 2 * zf / h,
+                d = zf / (zn - zf),
                 c = -d * zn;
 
         t = new Transformation(
