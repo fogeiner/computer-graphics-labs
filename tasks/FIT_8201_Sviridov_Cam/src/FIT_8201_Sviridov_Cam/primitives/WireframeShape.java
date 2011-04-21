@@ -1,6 +1,7 @@
 package FIT_8201_Sviridov_Cam.primitives;
 
 import FIT_8201_Sviridov_Cam.CoordinateSystem;
+import FIT_8201_Sviridov_Cam.Rect3D;
 import FIT_8201_Sviridov_Cam.Transformation;
 import FIT_8201_Sviridov_Cam.Vector;
 import FIT_8201_Sviridov_Cam.Vertex;
@@ -35,6 +36,37 @@ public class WireframeShape {
 
     public List<Segment> getSegments() {
         return Collections.unmodifiableList(segments);
+    }
+
+    public Rect3D getBoundRect3d() {
+        if (segments.isEmpty()) {
+            return new Rect3D(0, 0, 0);
+        }
+
+        double maxX = Double.NEGATIVE_INFINITY, minX = Double.POSITIVE_INFINITY,
+                maxY = Double.NEGATIVE_INFINITY, minY = Double.POSITIVE_INFINITY,
+                maxZ = Double.NEGATIVE_INFINITY, minZ = Double.POSITIVE_INFINITY;
+
+        for (Segment s : segments) {
+            Vertex start = s.getStartPoint(),
+                    end = s.getEndPoint();
+            double sx = start.getX(),
+                    sy = start.getY(),
+                    sz = start.getZ(),
+                    ex = end.getX(),
+                    ey = end.getY(),
+                    ez = end.getZ();
+
+            maxX = Math.max(sx, Math.max(ex, maxX));
+            maxY = Math.max(sy, Math.max(ey, maxY));
+            maxZ = Math.max(sz, Math.max(ez, maxZ));
+
+            minX = Math.min(sx, Math.min(ex, minX));
+            minY = Math.min(sy, Math.min(ey, minY));
+            minZ = Math.min(sz, Math.min(ez, minZ));
+        }
+
+        return new Rect3D(maxX - minX, maxY - minY, maxZ - minZ);
     }
 
     public static WireframeShape cube(double length) {
@@ -164,16 +196,6 @@ public class WireframeShape {
     public static void main(String args[]) {
         class Canvas extends JPanel implements ActionListener {
 
-            double v1[] = new double[]{-250, -100, 1},
-                    v2[] = new double[]{350, -100, 1},
-                    v3[] = new double[]{-250, 250, 1};
-            double vertices[][] = new double[][]{v1, v2, v3};
-            double phi = 0.01;
-            double m[][] = new double[][]{
-                new double[]{Math.cos(phi), -Math.sin(phi), 0},
-                new double[]{Math.sin(phi), Math.cos(phi), 0},
-                new double[]{0, 0, 1}};
-
             public Canvas() {
                 setPreferredSize(new Dimension(500, 500));
                 Timer timer = new Timer(1000 / 25, this);
@@ -182,17 +204,6 @@ public class WireframeShape {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                for (double v[] : vertices) {
-                    double vprime[] = new double[v.length];
-                    for (int i = 0; i < v1.length; ++i) {
-                        vprime[i] = m[i][0] * v[0]
-                                + m[i][1] * v[1]
-                                + m[i][2] * v[2];
-                    }
-                    for (int i = 0; i < v.length; ++i) {
-                        v[i] = vprime[i];
-                    }
-                }
                 repaint();
             }
 
@@ -202,10 +213,7 @@ public class WireframeShape {
                 Graphics2D g = (Graphics2D) g1;
                 g.translate(getWidth() / 2, getHeight() / 2);
                 g.scale(1, -1);
-                int ix[] = new int[]{(int) (v1[0] + 0.5), (int) (v2[0] + 0.5), (int) (v3[0] + 0.5)};
-                int iy[] = new int[]{(int) (v1[1] + 0.5), (int) (v2[1] + 0.5), (int) (v3[1] + 0.5)};
-                g.drawPolygon(ix, iy, Math.min(ix.length, iy.length));
-            }
+               }
         }
 
         JFrame frame = new JFrame();
@@ -213,6 +221,5 @@ public class WireframeShape {
         frame.add(new Canvas());
         frame.pack();
         frame.setVisible(true);
-
     }
 }

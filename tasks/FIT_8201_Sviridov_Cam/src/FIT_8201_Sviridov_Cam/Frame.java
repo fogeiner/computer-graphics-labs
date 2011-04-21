@@ -80,21 +80,18 @@ public final class Frame extends MainFrame {
             e.printStackTrace();
         }
 
-
-
         toolBar.setFloatable(false);
-
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
-
             @Override
             public void windowClosing(WindowEvent e) {
                 onExit();
             }
         });
 
-        reset();
+        add(new Scene());
 
+        reset();
     }
 
     /**

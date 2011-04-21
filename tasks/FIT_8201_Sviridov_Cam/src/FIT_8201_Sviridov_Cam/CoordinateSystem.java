@@ -112,9 +112,10 @@ public class CoordinateSystem {
         this.origin = origin;
         this.v1 = v1;
         this.v2 = v2;
+        this.v3 = v3;
+
         checkBasis();
         updateTransformation();
-        this.v3 = v3;
     }
 
     public Vertex getOrigin() {
@@ -143,7 +144,7 @@ public class CoordinateSystem {
             this.v3 = v3Old;
             throw ex;
         }
-        
+
         updateTransformation();
     }
 
