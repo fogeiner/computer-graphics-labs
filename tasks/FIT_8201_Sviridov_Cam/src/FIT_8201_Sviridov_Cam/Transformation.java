@@ -66,7 +66,7 @@ public class Transformation {
      * 0 0 0 1
      * @return
      */
-    static Transformation identity() {
+    public static Transformation identity() {
         Transformation t = new Transformation(
                 1, 0, 0, 0,
                 0, 1, 0, 0,
@@ -80,7 +80,7 @@ public class Transformation {
     // t1.compose(translate())
     // t1.compose(rotate())
     // first translate, then rotate, i.e. t2 is on the left!
-    static Transformation compose(Transformation t1, Transformation t2) {
+    public static Transformation compose(Transformation t1, Transformation t2) {
         double m1[][] = t1.m; // n x k X k x m -> n (rows) x m (cols)
         double m2[][] = t2.m;
         double m3[][] = new double[m1.length][m2[0].length];
@@ -226,8 +226,8 @@ public class Transformation {
             @Override
             protected void paintComponent(Graphics g1) {
                 super.paintComponent(g1);
-                Graphics2D g = (Graphics2D)g1;
-                g.translate(getWidth()/2, getHeight()/2);
+                Graphics2D g = (Graphics2D) g1;
+                g.translate(getWidth() / 2, getHeight() / 2);
                 g.scale(1.0, -1.0);
 
             }
