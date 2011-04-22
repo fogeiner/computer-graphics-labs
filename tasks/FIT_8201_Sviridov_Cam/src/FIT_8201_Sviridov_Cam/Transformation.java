@@ -190,9 +190,9 @@ public class Transformation {
 
     public static Transformation perspective(double w, double h, double zn, double zf) {
         Transformation t;
-        double a = 2 * zf / w,
-                b = 2 * zf / h,
-                d = zf / (zn - zf),
+        double a = 2 * zn / w,
+                b = 2 * zn / h,
+                d = zf / (zf - zn),
                 c = -d * zn;
 
         t = new Transformation(

@@ -39,8 +39,8 @@ public class Scene extends JPanel {
         sceneObjects = new ArrayList<WireframeShape>(3);
         orts = new ArrayList<WireframeShape>(3);
         mouseHandler = new MouseHandler();
-        znear = 300;
-        zfar = 500;
+        znear = 1000;
+        zfar = 5000;
     }
 
     /**
@@ -100,15 +100,15 @@ public class Scene extends JPanel {
     private void initSceneObjects() {
         // cube, sphere, torus
         WireframeShape cube = WireframeShape.cube(100);
-        cube.setOrigin(new Vertex(150, 0, 50));
+        cube.setOrigin(new Vertex(180, -100, 50));
         sceneObjects.add(cube);
 
         cube = WireframeShape.cube(100);
-        cube.setOrigin(new Vertex(100, 0, 150));
+        cube.setOrigin(new Vertex(100, 50, 190));
         sceneObjects.add(cube);
 
         cube = WireframeShape.cube(100);
-        cube.setOrigin(new Vertex(50, 0, 250));
+        cube.setOrigin(new Vertex(50, 300, 450));
         sceneObjects.add(cube);
     }
 
@@ -269,8 +269,7 @@ public class Scene extends JPanel {
         for (WireframeShape shape : getAllObjects()) {
             g.setColor(shape.getColor());
             g.setStroke(new BasicStroke(shape.getWidth()));
-            // orts should not be hidden
-            boolean canHide = !orts.contains(shape);
+            
 
             for (Segment s : shape.getTransformatedSegments()) {
                 Vertex start = s.getStartPoint(),
@@ -286,10 +285,10 @@ public class Scene extends JPanel {
                         ex = endProjected.getX(),
                         ey = endProjected.getY(),
                         ez = endProjected.getZ();
-//                System.out.println(startProjected);
-//                System.out.println(endProjected);
-                if (canHide && (sx < -1 || sx > 1 || sy < -1 || sy > 1
-                        || ex < -1 || ex > 1 || ey < -1 || ey > 1)) {
+                System.out.println(startProjected);
+                System.out.println(endProjected);
+                if (sx < -1 || sx > 1 || sy < -1 || sy > 1 || sz < 0 || sz > 1
+                        || ex < -1 || ex > 1 || ey < -1 || ey > 1 || ez < 0 || ez > 1) {
                     continue;
                 }
                 int x1 = (int) (sx * halfWidth + 0.5),
