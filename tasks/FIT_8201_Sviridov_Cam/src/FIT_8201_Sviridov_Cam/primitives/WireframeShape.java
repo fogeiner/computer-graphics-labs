@@ -46,7 +46,7 @@ public class WireframeShape {
      * Returns segments of the shape after Transformation application
      * @return
      */
-    public List<Segment> getTransformatedSegments() {
+    public List<Segment> getTransformedSegments() {
         List<Segment> result = new ArrayList<Segment>(this.segments.size());
         for (Segment s : segments) {
             Segment newSegment = new Segment(transformation.apply(s.getStartPoint()), transformation.apply(s.getEndPoint()));
@@ -64,7 +64,7 @@ public class WireframeShape {
                 maxY = Double.NEGATIVE_INFINITY, minY = Double.POSITIVE_INFINITY,
                 maxZ = Double.NEGATIVE_INFINITY, minZ = Double.POSITIVE_INFINITY;
 
-        for (Segment s : getTransformatedSegments()) {
+        for (Segment s : getTransformedSegments()) {
             Vertex start = s.getStartPoint(),
                     end = s.getEndPoint();
             double sx = start.getX(),
@@ -187,6 +187,11 @@ public class WireframeShape {
         return transformation.apply(coordinateSystem.getOrigin());
     }
 
+
+    public Vertex getOrigin() {
+        return coordinateSystem.getOrigin();
+    }
+
     private Transformation getFrameToCanonicalTransformation() {
         return coordinateSystem.getFrameToCanonicalTransformation();
     }
@@ -214,40 +219,10 @@ public class WireframeShape {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for (Segment s : getTransformatedSegments()) {
+        for (Segment s : getTransformedSegments()) {
             sb.append(s);
             sb.append('\n');
         }
         return sb.toString();
-    }
-
-    public static void main(String args[]) {
-        class Canvas extends JPanel implements ActionListener {
-
-            public Canvas() {
-                setPreferredSize(new Dimension(500, 500));
-                Timer timer = new Timer(1000 / 25, this);
-                timer.start();
-            }
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                repaint();
-            }
-
-            @Override
-            protected void paintComponent(Graphics g1) {
-                super.paintComponent(g1);
-                Graphics2D g = (Graphics2D) g1;
-                g.translate(getWidth() / 2, getHeight() / 2);
-                g.scale(1, -1);
-            }
-        }
-
-        JFrame frame = new JFrame();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.add(new Canvas());
-        frame.pack();
-        frame.setVisible(true);
     }
 }
