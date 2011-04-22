@@ -23,7 +23,11 @@ import javax.swing.JPanel;
  */
 public class Scene extends JPanel {
 
+    private static final double DEFAULT_ROTATE_COEF = Math.PI / 64;
+    private static final double DEFAULT_ROLL_COEF = 50.0;
     private static final double ORT_COEF = 1.5;
+    private double rollCoef = DEFAULT_ROLL_COEF;
+    private double rotateCoef = DEFAULT_ROTATE_COEF;
     // all scene objects
     private List<WireframeShape> sceneObjects;
     // orts; should not be clipped
@@ -50,6 +54,15 @@ public class Scene extends JPanel {
         private Point lastPoint;
 
         @Override
+        public void mousePressed(MouseEvent e) {
+            super.mousePressed(e);
+            Point currentPoint = e.getPoint();
+            currentPoint = new Point(currentPoint.x, getHeight() - currentPoint.y);
+            lastPoint = currentPoint;
+
+        }
+
+        @Override
         public void mouseReleased(MouseEvent e) {
             super.mouseReleased(e);
             lastPoint = null;
@@ -59,14 +72,16 @@ public class Scene extends JPanel {
         public void mouseDragged(MouseEvent e) {
             //System.out.println("mouseDragged: " + e);
             Point currentPoint = e.getPoint();
-            currentPoint = new Point(currentPoint.x, getHeight() - currentPoint.y);
-            if (lastPoint == null) {
-                lastPoint = currentPoint;
+
+            double dx = (lastPoint.getX() - currentPoint.getX()),
+                    dy = (lastPoint.getY() - currentPoint.getY());
+
+            double length = Math.hypot(dx, dy);
+            if (length == 0) {
                 return;
             }
-
-            double dx = (lastPoint.getX() - currentPoint.getX()) / 1000,
-                    dy = (lastPoint.getY() - currentPoint.getY()) / 1000;
+            dx = dx / length * rotateCoef;
+            dy = dy / length * rotateCoef;
 
             lastPoint = currentPoint;
 
@@ -84,8 +99,8 @@ public class Scene extends JPanel {
 
         @Override
         public void mouseWheelMoved(MouseWheelEvent e) {
-            int wheelRotation = e.getWheelRotation();
-            Transformation translate = Transformation.translate(0, 0, wheelRotation * 100);
+            int wheelRotationSign = (int) Math.signum(e.getWheelRotation());
+            Transformation translate = Transformation.translate(0, 0, wheelRotationSign * rollCoef);
             transformAllObjects(translate);
             repaint();
         }
@@ -97,16 +112,16 @@ public class Scene extends JPanel {
      */
     private void initSceneObjects() {
         // cube, sphere, torus
-        WireframeShape cube = WireframeShape.cube(80);
-        cube.setOrigin(new Vertex(180, -100, 50));
+        WireframeShape cube = WireframeShape.cube(200);
+        cube.setOrigin(new Vertex(0, 0, 0));
         sceneObjects.add(cube);
-
+        
         cube = WireframeShape.cube(100);
         cube.setOrigin(new Vertex(100, 50, 190));
         sceneObjects.add(cube);
 
         cube = WireframeShape.cube(120);
-        cube.setOrigin(new Vertex(50, 300, 450));
+        cube.setOrigin(new Vertex(50, 150, 450));
         sceneObjects.add(cube);
     }
 
@@ -127,7 +142,6 @@ public class Scene extends JPanel {
                 double sx = start.getX(),
                         sy = start.getY(),
                         sz = start.getZ(),
-
                         ex = end.getX(),
                         ey = end.getY(),
                         ez = end.getZ();
@@ -141,6 +155,7 @@ public class Scene extends JPanel {
                 minZ = Math.min(minZ, Math.min(sz, ez));
             }
         }
+
         double boxX = (maxX + minX) / 2,
                 boxY = (maxY + minY) / 2,
                 boxZ = (maxZ + minZ) / 2;
@@ -154,7 +169,7 @@ public class Scene extends JPanel {
                 maxY - minY,
                 maxZ - minZ);
 
-        box.setOrigin(new Vertex(boxX, boxY, boxZ));
+        box.setOrigin(new Vertex(boxX, boxY, -boxZ));
     }
 
     /**
@@ -163,10 +178,12 @@ public class Scene extends JPanel {
      */
     private void initOrts() {
         Rect3D rect = this.box.getBoundRect3D();
-        Vertex boxOrigin = box.getOrigin();
+
         WireframeShape x = WireframeShape.segment(ORT_COEF * rect.getWidth() / 2, 0, 0),
                 y = WireframeShape.segment(0, ORT_COEF * rect.getHeight() / 2, 0),
-                z = WireframeShape.segment(0, 0, ORT_COEF * rect.getDepth() / 2);
+                z = WireframeShape.segment(0, 0, -ORT_COEF * rect.getDepth() / 2);
+
+        Vertex boxOrigin = box.getOrigin();
         // XYZ -> RGB
         x.setColor(Color.red);
         x.setOrigin(boxOrigin);
@@ -197,31 +214,31 @@ public class Scene extends JPanel {
 
         // Camera is fixed, aimed against z axis and in world coordinates (0,0,0)
         Vertex boxOrigin = box.getOrigin();
-       
+
         Transformation translate = Transformation.translate(-boxOrigin.getX(), -boxOrigin.getY(), 0);
         transformAllObjects(translate);
 
-        boxOrigin = box.getOrigin();
+        boxOrigin = box.getTransformedOrigin();
 
         double boxX = boxOrigin.getX(),
                 boxY = boxOrigin.getY(),
-                boxZ = boxOrigin.getZ();
+                boxZ = -boxOrigin.getZ();
 
         Rect3D boxSizes = box.getBoundRect3D();
 
         double cameraX = boxX,
                 cameraY = boxY,
-                cameraZ = boxZ + boxSizes.getDepth()/2 + boxSizes.getWidth() / 2 / Math.atan(Math.PI / 12);
+                cameraZ = boxZ + boxSizes.getDepth() / 2 + boxSizes.getWidth() / 2 / Math.atan(Math.PI / 12);
 
         translate = Transformation.translate(
                 -cameraX,
                 -cameraY,
-                -cameraZ);
+                cameraZ);
 
         transformAllObjects(translate);
 
-        znear =boxSizes.getDepth()/2 +  boxSizes.getWidth() / 2 / Math.atan(Math.PI / 12);
-        zfar =znear +  2.5 * boxSizes.getDepth();
+        znear = boxSizes.getDepth() / 2 + boxSizes.getWidth() / 2 / Math.atan(Math.PI / 12);
+        zfar = znear + 1.5 * boxSizes.getDepth();
     }
 
     /**
@@ -245,9 +262,7 @@ public class Scene extends JPanel {
         List<WireframeShape> objects = new ArrayList<WireframeShape>();
         objects.addAll(sceneObjects);
         objects.addAll(orts);
-        if (box != null) {
-            objects.add(box);
-        }
+        objects.add(box);
         return objects;
     }
 
@@ -273,11 +288,14 @@ public class Scene extends JPanel {
         for (WireframeShape shape : getAllObjects()) {
             g.setColor(shape.getColor());
             g.setStroke(new BasicStroke(shape.getWidth()));
-            
+
 
             for (Segment s : shape.getTransformedSegments()) {
                 Vertex start = s.getStartPoint(),
                         end = s.getEndPoint();
+
+                System.out.println(start);
+                System.out.println(end);
 
                 Vertex startProjected = projection.apply(start).normalize();
                 Vertex endProjected = projection.apply(end).normalize();
@@ -291,8 +309,8 @@ public class Scene extends JPanel {
                         ez = endProjected.getZ();
                 System.out.println(startProjected);
                 System.out.println(endProjected);
-                if (sx < -1 || sx > 1 || sy < -1 || sy > 1 || sz < 0 || sz > 1
-                        || ex < -1 || ex > 1 || ey < -1 || ey > 1 || ez < 0 || ez > 1) {
+                if (sz > 1 || sz < 0
+                        || ez < 0 || ez > 1) {
                     continue;
                 }
                 int x1 = (int) (sx * halfWidth + 0.5),

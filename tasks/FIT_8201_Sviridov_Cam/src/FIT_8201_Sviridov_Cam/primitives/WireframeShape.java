@@ -184,7 +184,9 @@ public class WireframeShape {
     }
 
     public Vertex getTransformedOrigin() {
-        return transformation.apply(coordinateSystem.getOrigin());
+        Vertex origin = coordinateSystem.getOrigin();
+        Vertex transformedOrigin = transformation.apply(origin);
+        return transformedOrigin;
     }
 
 
@@ -205,7 +207,7 @@ public class WireframeShape {
     }
 
     public void transform(Transformation transformation) {
-        this.transformation = Transformation.compose(transformation, this.transformation);
+        this.transformation.compose(transformation);
     }
 
     public int getWidth() {

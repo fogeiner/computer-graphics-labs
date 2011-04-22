@@ -192,8 +192,8 @@ public class Transformation {
         Transformation t;
         double a = 2 * zn / w,
                 b = 2 * zn / h,
-                d = zf / (zf - zn),
-                c = -d * zn;
+                d = zn / (zf - zn),
+                c = -d * zf;
 
         t = new Transformation(
                 a, 0, 0, 0,

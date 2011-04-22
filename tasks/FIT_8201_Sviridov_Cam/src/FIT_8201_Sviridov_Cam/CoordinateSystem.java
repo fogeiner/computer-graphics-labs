@@ -165,18 +165,4 @@ public class CoordinateSystem {
         sb.append(v3);
         return sb.toString();
     }
-
-    public static void main(String args[]) {
-        CoordinateSystem cs = new CoordinateSystem(
-                new Vertex(50, 60, 70),
-                new Vector(1, 0, 0),
-                new Vector(0, 1, 0),
-                new Vector(0, 0, 1));
-        System.out.println(cs);
-        System.out.print(cs.getFrameToCanonicalTransformation());
-        Vertex v = new Vertex(10, 10, 10);
-        Transformation t = cs.getFrameToCanonicalTransformation();
-        v = t.apply(v);
-        System.out.println(v);
-    }
 }
