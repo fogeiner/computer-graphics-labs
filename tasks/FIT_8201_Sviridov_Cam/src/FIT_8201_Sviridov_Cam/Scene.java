@@ -36,11 +36,10 @@ public class Scene extends JPanel {
     private WireframeShape box;
     // projection matrix
     private double znear, zfar;
-    // mouse handler
-    private double aspectRatio;
     private boolean ortsHidden;
     private boolean boxHidden;
     private boolean objectsHidden;
+    // mouse handler
     private MouseHandler mouseHandler;
     private Double savedZnear, savedZfar;
     private Vertex savedBoxOrigin;
@@ -72,7 +71,6 @@ public class Scene extends JPanel {
 
         @Override
         public void mouseDragged(MouseEvent e) {
-            //System.out.println("mouseDragged: " + e);
             Point currentPoint = e.getPoint();
 
             double dx = (lastPoint.getX() - currentPoint.getX()),
@@ -113,11 +111,6 @@ public class Scene extends JPanel {
      * coordinate system
      */
     private void initSceneObjects() {
-        // cube, sphere, torus
-//        WireframeShape cube = WireframeShape.cube(100);
-//        cube.setOrigin(new Vertex(100, 100, 100));
-//        sceneObjects.add(cube);
-
         double c = 1 / Math.sqrt(2);
         int sSteps = 30,
                 tSteps = 30;
@@ -150,8 +143,8 @@ public class Scene extends JPanel {
 
         for (WireframeShape shape : sceneObjects) {
             for (Segment s : shape.getTransformedSegments()) {
-                Vertex start = s.getStartPoint();
-                Vertex end = s.getEndPoint();
+                Vertex start = s.getStartVertex();
+                Vertex end = s.getEndVertex();
                 double sx = start.getX(),
                         sy = start.getY(),
                         sz = start.getZ(),
@@ -176,20 +169,12 @@ public class Scene extends JPanel {
 
         savedBoxOrigin = new Vertex(boxX, boxY, boxZ);
 
-//        Transformation translate = Transformation.translate(-boxX, -boxY, -boxZ);
-//        transformAllObjects(translate);
-
         box = WireframeShape.parallelepiped(
                 maxX - minX,
                 maxY - minY,
                 maxZ - minZ);
-
+        box.setColor(Color.black);
         box.transform(Transformation.translate(boxX, boxY, boxZ));
-
-        Rect3D boxSizes = box.getBoundRect3D();
-        aspectRatio = boxSizes.getWidth() / boxSizes.getHeight();
-
-        System.out.println("Created bound box: " + box);
     }
 
     /**
@@ -220,10 +205,6 @@ public class Scene extends JPanel {
         orts.add(x);
         orts.add(y);
         orts.add(z);
-
-        System.out.println("Created x ort: " + x);
-        System.out.println("Created y ort: " + y);
-        System.out.println("Created z ort: " + z);
     }
 
     /**
@@ -235,17 +216,11 @@ public class Scene extends JPanel {
         // 1. find the center of the bound box
         // 2. find the coordinates of the camera
         // 3. translate all the way that camera is in the center
-
         // Camera is fixed, aimed against z axis and in world coordinates (0,0,0)
         Vertex boxOrigin = box.getTransformedOrigin();
 
-        System.out.println("Translating all objects (dx,dy,dx)" + "(" + -boxOrigin.getX() + ","
-                + -boxOrigin.getY() + "," + 0 + ")");
-
         Transformation translate = Transformation.translate(-boxOrigin.getX(), -boxOrigin.getY(), -boxOrigin.getZ());
         transformAllObjects(translate);
-
-        System.out.println("Bound box now: " + box);
 
         Rect3D boxSizes = box.getBoundRect3D();
 
@@ -255,9 +230,6 @@ public class Scene extends JPanel {
                 cameraY = 0,
                 cameraZ = d + boxSizes.getDepth() / 2 + 1;
 
-        System.out.println("Translating all objects (dx,dy,dx)" + "(" + -cameraX + ","
-                + -cameraY + "," + cameraZ + ")");
-
 
         translate = Transformation.translate(
                 -cameraX,
@@ -265,8 +237,6 @@ public class Scene extends JPanel {
                 -cameraZ);
 
         transformAllObjects(translate);
-
-        System.out.println("Bound box now: " + box);
 
         znear = d;
         zfar = znear + 2.5 * boxSizes.getDepth();
@@ -277,9 +247,6 @@ public class Scene extends JPanel {
         if (savedZfar == null) {
             savedZfar = zfar;
         }
-
-//        transformAllObjects(Transformation.translate(0, 0, 2*zfar));
-        System.out.println("znear: " + znear + " zfar: " + zfar);
     }
 
     /**
@@ -324,7 +291,6 @@ public class Scene extends JPanel {
     @Override
     protected void paintComponent(Graphics g1) {
         super.paintComponent(g1);
-        System.out.println("paintComponent");
         Graphics2D g = (Graphics2D) g1;
 
         double height = getHeight(),
@@ -335,8 +301,6 @@ public class Scene extends JPanel {
         g.translate(halfWidth, halfHeight);
         g.scale(1.0, -1.0);
 
-
-
         Color oldColor = g.getColor();
         Stroke oldStroke = g.getStroke();
 
@@ -345,28 +309,21 @@ public class Scene extends JPanel {
                 -halfHeight, halfHeight,
                 znear, zfar);
 
-//        System.out.println(projection);
-
         for (WireframeShape shape : getAllObjects()) {
             g.setColor(shape.getColor());
             g.setStroke(new BasicStroke(shape.getWidth()));
 
 
-            // hide orts and box only if flags are set
             if ((orts.contains(shape) && ortsHidden) || (shape == box && boxHidden) || (sceneObjects.contains(shape) && objectsHidden)) {
                 continue;
             }
 
-
             for (Segment s : shape.getTransformedSegments()) {
-                Vertex start = s.getStartPoint(),
-                        end = s.getEndPoint();
+                Vertex start = s.getStartVertex(),
+                        end = s.getEndVertex();
 
                 Vertex startProjected = projection.apply(start).normalize();
                 Vertex endProjected = projection.apply(end).normalize();
-
-//                System.out.println("from " + start + " to " + startProjected);
-//                System.out.println("from " + end + " to " + endProjected);
 
                 double sx = startProjected.getX(),
                         sy = startProjected.getY(),
@@ -375,8 +332,9 @@ public class Scene extends JPanel {
                         ey = endProjected.getY(),
                         ez = endProjected.getZ();
 
-                if (sz > 1 || sz < -1
-                        || ez > 1 || ez < -1) {
+                if (sx > 1 || sx < - 1 || ex > 1 || ex < - 1
+                        || sy < -1 || sy > 1 || ey < -1 || ey > 1
+                        || sz > 1 || sz < -1 || ez > 1 || ez < -1) {
                     continue;
                 }
                 int x1 = (int) (sx * halfWidth + 0.5),

@@ -4,7 +4,7 @@ import java.text.NumberFormat;
 import java.util.Locale;
 
 /**
- *
+ * Class for transformations
  * @author alstein
  */
 public class Transformation {
@@ -21,6 +21,10 @@ public class Transformation {
         format.setMinimumFractionDigits(2);
     }
 
+    /**
+     * Ctor for tranformation with given matrix m
+     * @param m
+     */
     public Transformation(double[][] m) {
         for (int i = 0; i < this.m.length; ++i) {
             for (int j = 0; j < this.m.length; ++j) {
@@ -29,6 +33,25 @@ public class Transformation {
         }
     }
 
+    /**
+     * Ctor for transformation with given matrix elements
+     * @param m11 m11
+     * @param m12 m12
+     * @param m13 m13
+     * @param m14 m14
+     * @param m21 m21
+     * @param m22 m22
+     * @param m23 m23
+     * @param m24 n24
+     * @param m31 m31
+     * @param m32 m32
+     * @param m33 m33
+     * @param m34 m34
+     * @param m41 m41
+     * @param m42 m42
+     * @param m43 m43
+     * @param m44 m44
+     */
     public Transformation(double m11, double m12, double m13, double m14,
             double m21, double m22, double m23, double m24,
             double m31, double m32, double m33, double m34,
@@ -52,11 +75,12 @@ public class Transformation {
     }
 
     /**
+     * Returns identity transformation
      * 1 0 0 0   
      * 0 1 0 0    
      * 0 0 1 0   
      * 0 0 0 1
-     * @return
+     * @return identity transformation
      */
     public static Transformation identity() {
         Transformation t = new Transformation(
@@ -67,6 +91,10 @@ public class Transformation {
         return t;
     }
 
+    /**
+     * Composes this transformation with given (given is on the left)
+     * @param leftTransformation another transformation
+     */
     public void compose(Transformation leftTransformation) {
         double m1[][] = leftTransformation.m; // n x k X k x m -> n (rows) x m (cols)
         double m2[][] = this.m;
@@ -83,11 +111,18 @@ public class Transformation {
         this.m = m3;
     }
 
-    // A B C x = A(B(Cx))
-    // Transformation t1 = identity()
-    // t1.compose(translate())
-    // t1.compose(rotate())
-    // first translate, then rotate, i.e. t2 is on the left!
+    /**
+     * Composes two given transformations
+    <code>
+    A B C x = A(B(Cx))
+    Transformation t1 = identity()
+    t1.compose(translate())
+    t1.compose(rotate())
+    </code>
+     * first translate, then rotate, i.e. t2 is on the left!
+     * @param t1 1st transformation
+     * @param t2 2nd transformation
+     */
     public static Transformation compose(Transformation t1, Transformation t2) {
         double m1[][] = t1.m; // n x k X k x m -> n (rows) x m (cols)
         double m2[][] = t2.m;
@@ -104,6 +139,11 @@ public class Transformation {
         return new Transformation(m3);
     }
 
+    /**
+     * Applies transformation to given vertex
+     * @param vertex original vertex
+     * @return transformed vertex
+     */
     public Vertex apply(Vertex vertex) {
         double v[] = vertex.getV();
         double newV[] = new double[v.length];
@@ -121,10 +161,22 @@ public class Transformation {
         return result;
     }
 
+    /**
+     * Returns uniform scale transformation
+     * @param s scale coefficient
+     * @return uniform scale transformation
+     */
     public static Transformation uniformScale(double s) {
         return Transformation.scale(s, s, s);
     }
 
+    /**
+     * Returns scale transformation
+     * @param xs x coefficient
+     * @param ys y coefficient
+     * @param zs z coefficient
+     * @return scale transformation
+     */
     public static Transformation scale(double xs, double ys, double zs) {
         Transformation t;
         t = new Transformation(
@@ -135,6 +187,13 @@ public class Transformation {
         return t;
     }
 
+    /**
+     * Returns translate transformation
+     * @param tx x shift
+     * @param ty y shift
+     * @param tz z shift
+     * @return translate transformation
+     */
     public static Transformation translate(double tx, double ty, double tz) {
         Transformation t;
         t = new Transformation(
@@ -145,9 +204,12 @@ public class Transformation {
         return t;
     }
 
-    // cos -sin 0
-    // sin  cos 0
-    // 0    0   1
+    /**
+     * Returns rotate transformation
+     * @param phi angle
+     * @param axis axis
+     * @return rotate transformation
+     */
     public static Transformation rotate(double phi, int axis) {
         Transformation t;
 
@@ -180,20 +242,30 @@ public class Transformation {
         return t;
     }
 
+    /**
+     * Returns perspective projection (by OpenGL specification)
+     * @param l left
+     * @param r right
+     * @param b bottom
+     * @param t top
+     * @param n near
+     * @param f far
+     * @return perspective projection (by OpenGL glFrustum specification)
+     */
     public static Transformation perspective(double l, double r, double b, double t, double n, double f) {
         Transformation transformation;
-        double a11 = 2*n/(r-l),
+        double a11 = 2 * n / (r - l),
                 a12 = 0,
-                a13 = (r+l)/(r-l),
+                a13 = (r + l) / (r - l),
                 a14 = 0,
                 a21 = 0,
-                a22 = 2*n/(t-b),
-                a23 = (t+b)/(t-b),
+                a22 = 2 * n / (t - b),
+                a23 = (t + b) / (t - b),
                 a24 = 0,
                 a31 = 0,
                 a32 = 0,
-                a33 = -(f+n)/(f-n),
-                a34 = -2*f*n/(f-n),
+                a33 = -(f + n) / (f - n),
+                a34 = -2 * f * n / (f - n),
                 a41 = 0,
                 a42 = 0,
                 a43 = -1,
@@ -205,16 +277,6 @@ public class Transformation {
                 a41, a42, a43, a44);
 
         return transformation;
-    }
-
-    public static Transformation worldToView() {
-        Transformation t;
-        t = new Transformation(
-                1, 0, 0, 0,
-                0, 1, 0, 0,
-                0, 0, -1, 0,
-                0, 0, 0, 1);
-        return t;
     }
 
     @Override
@@ -230,27 +292,5 @@ public class Transformation {
         }
 
         return sb.toString();
-    }
-
-    public static void main(String args[]) {
-        Transformation scale = Transformation.uniformScale(2);
-        Transformation perspective = Transformation.perspective(-10, 10, -20, 20, 10, 30);
-        Vertex v = new Vertex(1, -1, 20);
-        Vertex v1 = scale.apply(v);
-        Vertex v2 = scale.apply(v1);
-        Vertex r1 = perspective.apply(v1);
-        r1 = r1.normalize();
-        Vertex r2 = perspective.apply(v2);
-        r2 = r2.normalize();
-        System.out.println(r1);
-        System.out.println(r2);
-
-        Vertex v3 = new Vertex(1, 1, 1);
-        Transformation rotX = Transformation.rotate(Math.PI/3, Transformation.X_AXIS);
-        Transformation rotY = Transformation.rotate(Math.PI/6, Transformation.Y_AXIS);
-        Transformation c1 = Transformation.compose(rotX, rotY);
-        Transformation c2 = Transformation.compose(rotY, rotX);
-        System.out.println(c1.apply(v3));
-        System.out.println(c2.apply(v3));
     }
 }

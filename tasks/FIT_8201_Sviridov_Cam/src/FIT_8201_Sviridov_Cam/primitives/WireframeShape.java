@@ -6,20 +6,12 @@ import FIT_8201_Sviridov_Cam.Transformation;
 import FIT_8201_Sviridov_Cam.Vector;
 import FIT_8201_Sviridov_Cam.Vertex;
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.Timer;
 
 /**
- *
+ * Class for wireframe shapes
  * @author admin
  */
 public class WireframeShape {
@@ -27,10 +19,10 @@ public class WireframeShape {
     private static final Color DEFAULT_COLOR = Color.black;
     private static final int DEFAULT_WIDTH = 1;
     private List<Segment> segments;
-    private Color color = DEFAULT_COLOR;
-    private int width = DEFAULT_WIDTH;
     private CoordinateSystem coordinateSystem;
     private Transformation transformation;
+    private int width;
+    private Color color;
 
     /**
      * Default ctor with given segments given in local WireframeShape model
@@ -49,12 +41,16 @@ public class WireframeShape {
     public List<Segment> getTransformedSegments() {
         List<Segment> result = new ArrayList<Segment>(this.segments.size());
         for (Segment s : segments) {
-            Segment newSegment = new Segment(transformation.apply(s.getStartPoint()), transformation.apply(s.getEndPoint()));
+            Segment newSegment = new Segment(transformation.apply(s.getStartVertex()), transformation.apply(s.getEndVertex()));
             result.add(newSegment);
         }
         return Collections.unmodifiableList(result);
     }
 
+    /**
+     * Returns bound 3d rect
+     * @return bound 3d rect
+     */
     public Rect3D getBoundRect3D() {
         if (segments.isEmpty()) {
             return new Rect3D(0, 0, 0);
@@ -65,8 +61,8 @@ public class WireframeShape {
                 maxZ = Double.NEGATIVE_INFINITY, minZ = Double.POSITIVE_INFINITY;
 
         for (Segment s : getTransformedSegments()) {
-            Vertex start = s.getStartPoint(),
-                    end = s.getEndPoint();
+            Vertex start = s.getStartVertex(),
+                    end = s.getEndVertex();
             double sx = start.getX(),
                     sy = start.getY(),
                     sz = start.getZ(),
@@ -86,6 +82,11 @@ public class WireframeShape {
         return new Rect3D(maxX - minX, maxY - minY, maxZ - minZ);
     }
 
+    /**
+     * Returns cube
+     * @param length cube edge length
+     * @return cube wireframe shape
+     */
     public static WireframeShape cube(double length) {
         double p = length / 2;
         double m = -p;
@@ -123,6 +124,13 @@ public class WireframeShape {
         return new WireframeShape(cube);
     }
 
+    /**
+     * Returns parallelepiped with given parameters
+     * @param width parallelepiped width
+     * @param height parallelepiped height
+     * @param depth parallelepiped depth
+     * @return parallelepiped
+     */
     public static WireframeShape parallelepiped(
             double width, double height, double depth) {
         double wp = width / 2,
@@ -165,10 +173,19 @@ public class WireframeShape {
         return new WireframeShape(parallelepiped);
     }
 
+    /**
+     * Returns superquadric with given parameters
+     * @param size size
+     * @param tSteps t steps
+     * @param sSteps s steps
+     * @param e1 e1
+     * @param e2 e2
+     * @return superquadric
+     */
     public static WireframeShape superquadric(double size, int tSteps, int sSteps, double e1, double e2) {
         List<Segment> segs = new ArrayList<Segment>((tSteps + 1) * (sSteps + 1));
         double tStep = Math.PI / tSteps;
-        double sStep = 2* Math.PI / sSteps;
+        double sStep = 2 * Math.PI / sSteps;
 
         Vertex vertices[][] = new Vertex[tSteps + 1][sSteps + 1];
 
@@ -189,22 +206,29 @@ public class WireframeShape {
             }
         }
 
-         for (int tIndex = 0; tIndex < tSteps + 1; ++tIndex) {
+        for (int tIndex = 0; tIndex < tSteps + 1; ++tIndex) {
             for (int sIndex = 0; sIndex < sSteps; ++sIndex) {
                 Segment s = new Segment(vertices[tIndex][sIndex], vertices[tIndex][sIndex + 1]);
                 segs.add(s);
-             }
+            }
         }
 
         for (int sIndex = 0; sIndex < sSteps + 1; ++sIndex) {
             for (int tIndex = 0; tIndex < tSteps; ++tIndex) {
-                Segment s = new Segment(vertices[tIndex][sIndex], vertices[tIndex+1][sIndex]);
+                Segment s = new Segment(vertices[tIndex][sIndex], vertices[tIndex + 1][sIndex]);
                 segs.add(s);
-             }
+            }
         }
         return new WireframeShape(segs);
     }
 
+    /**
+     * Returns segment
+     * @param x end x
+     * @param y end y
+     * @param z end z
+     * @return segment
+     */
     public static WireframeShape segment(
             double x, double y, double z) {
         List<Segment> segment = new ArrayList<Segment>(1);
@@ -213,48 +237,89 @@ public class WireframeShape {
         return new WireframeShape(segment);
     }
 
+    /**
+     * Sets basis for given wireframe shape
+     * @param v1 1st vector
+     * @param v2 2nd vector
+     * @param v3 3rd vector
+     */
     public void setBasis(Vector v1, Vector v2, Vector v3) {
         coordinateSystem.setBasis(v1, v2, v3);
         transformation = coordinateSystem.getFrameToCanonicalTransformation();
     }
 
+    /**
+     * Sets origin of the shape
+     * @param origin origin
+     */
     public void setOrigin(Vertex origin) {
         coordinateSystem.setOrigin(origin);
         transformation = coordinateSystem.getFrameToCanonicalTransformation();
     }
 
+    /**
+     * Returns origin after current transformation
+     * @return origin after current transformation
+     */
     public Vertex getTransformedOrigin() {
         Vertex origin = coordinateSystem.getOrigin();
         Vertex transformedOrigin = transformation.apply(origin);
         return transformedOrigin;
     }
 
+    /**
+     * Returns initial origin
+     * @return initial origin
+     */
     public Vertex getOrigin() {
         return coordinateSystem.getOrigin();
     }
 
-    public Color getColor() {
-        return color;
-    }
-
-    public void setColor(Color color) {
-        this.color = color;
-    }
-
+    /**
+     * Composes current transformation with given one
+     * @param transformation
+     */
     public void transform(Transformation transformation) {
         this.transformation.compose(transformation);
     }
 
+    /**
+     * Sets transformation to initial model to world one
+     */
+    public void resetTransformation() {
+        transformation = coordinateSystem.getFrameToCanonicalTransformation();
+    }
+
+    /**
+     * Returns color
+     * @return color
+     */
+    public Color getColor() {
+        return color;
+    }
+
+    /**
+     * Sets color
+     * @param color color
+     */
+    public void setColor(Color color) {
+        this.color = color;
+    }
+
+    /**
+     * Returns width
+     * @return width
+     */
     public int getWidth() {
         return width;
     }
 
+    /**
+     * Sets width
+     * @param width width
+     */
     public void setWidth(int width) {
         this.width = width;
-    }
-
-    public void resetTransformation() {
-        transformation = coordinateSystem.getFrameToCanonicalTransformation();
     }
 
     @Override

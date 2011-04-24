@@ -570,6 +570,7 @@ public final class Frame extends MainFrame {
             fw.append(new Double(scene.getRotateCoef()).toString());
             fw.append(" ");
             fw.append(new Double(scene.getRollCoef()).toString());
+            fw.append("\r\n");
             fw.close();
             setTitle(file.getName());
             setModified(false);
@@ -606,7 +607,7 @@ public final class Frame extends MainFrame {
 
             @Override
             public void run() {
-                Frame frame = new Frame(800, 600);
+                Frame frame = new Frame(900, 700);
                 frame.setVisible(true);
             }
         });
