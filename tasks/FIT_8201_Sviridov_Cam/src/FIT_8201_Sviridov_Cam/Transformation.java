@@ -1,15 +1,7 @@
 package FIT_8201_Sviridov_Cam;
 
-import FIT_8201_Sviridov_Cam.primitives.WireframeShape;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.text.NumberFormat;
 import java.util.Locale;
-import javax.swing.JPanel;
-import javax.swing.Timer;
 
 /**
  *
@@ -75,7 +67,7 @@ public class Transformation {
         return t;
     }
 
-    public void compose(Transformation leftTransformation){
+    public void compose(Transformation leftTransformation) {
         double m1[][] = leftTransformation.m; // n x k X k x m -> n (rows) x m (cols)
         double m2[][] = this.m;
         double m3[][] = new double[m1.length][m2[0].length];
@@ -188,19 +180,40 @@ public class Transformation {
         return t;
     }
 
-    public static Transformation perspective(double w, double h, double zn, double zf) {
+    public static Transformation perspective(double l, double r, double b, double t, double n, double f) {
+        Transformation transformation;
+        double a11 = 2*n/(r-l),
+                a12 = 0,
+                a13 = (r+l)/(r-l),
+                a14 = 0,
+                a21 = 0,
+                a22 = 2*n/(t-b),
+                a23 = (t+b)/(t-b),
+                a24 = 0,
+                a31 = 0,
+                a32 = 0,
+                a33 = -(f+n)/(f-n),
+                a34 = -2*f*n/(f-n),
+                a41 = 0,
+                a42 = 0,
+                a43 = -1,
+                a44 = 0;
+        transformation = new Transformation(
+                a11, a12, a13, a14,
+                a21, a22, a23, a24,
+                a31, a32, a33, a34,
+                a41, a42, a43, a44);
+
+        return transformation;
+    }
+
+    public static Transformation worldToView() {
         Transformation t;
-        double a = 2 * zn / w,
-                b = 2 * zn / h,
-                d = zn / (zf - zn),
-                c = -d * zf;
-
         t = new Transformation(
-                a, 0, 0, 0,
-                0, b, 0, 0,
-                0, 0, d, c,
-                0, 0, 1, 0);
-
+                1, 0, 0, 0,
+                0, 1, 0, 0,
+                0, 0, -1, 0,
+                0, 0, 0, 1);
         return t;
     }
 
@@ -220,37 +233,24 @@ public class Transformation {
     }
 
     public static void main(String args[]) {
-        Transformation t = identity();
-        WireframeShape cube = WireframeShape.cube(100);
-        System.out.println(t);
-        System.out.println(cube);
+        Transformation scale = Transformation.uniformScale(2);
+        Transformation perspective = Transformation.perspective(-10, 10, -20, 20, 10, 30);
+        Vertex v = new Vertex(1, -1, 20);
+        Vertex v1 = scale.apply(v);
+        Vertex v2 = scale.apply(v1);
+        Vertex r1 = perspective.apply(v1);
+        r1 = r1.normalize();
+        Vertex r2 = perspective.apply(v2);
+        r2 = r2.normalize();
+        System.out.println(r1);
+        System.out.println(r2);
 
-
-        class Canvas extends JPanel implements ActionListener {
-
-            public Canvas() {
-                setPreferredSize(new Dimension(500, 500));
-                Timer timer = new Timer(1000 / 25, this);
-                timer.start();
-            }
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                repaint();
-            }
-
-            @Override
-            protected void paintComponent(Graphics g1) {
-                super.paintComponent(g1);
-                Graphics2D g = (Graphics2D) g1;
-                g.translate(getWidth() / 2, getHeight() / 2);
-                g.scale(1.0, -1.0);
-
-            }
-        }
-
-        /*JFrame frame = new JFrame();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.add(new Canvas());*/
+        Vertex v3 = new Vertex(1, 1, 1);
+        Transformation rotX = Transformation.rotate(Math.PI/3, Transformation.X_AXIS);
+        Transformation rotY = Transformation.rotate(Math.PI/6, Transformation.Y_AXIS);
+        Transformation c1 = Transformation.compose(rotX, rotY);
+        Transformation c2 = Transformation.compose(rotY, rotX);
+        System.out.println(c1.apply(v3));
+        System.out.println(c2.apply(v3));
     }
 }

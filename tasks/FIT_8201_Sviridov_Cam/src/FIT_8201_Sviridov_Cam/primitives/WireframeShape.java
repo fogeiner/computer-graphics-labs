@@ -24,7 +24,7 @@ import javax.swing.Timer;
  */
 public class WireframeShape {
 
-    private static final Color DEFAULT_COLOR = Color.white;
+    private static final Color DEFAULT_COLOR = Color.black;
     private static final int DEFAULT_WIDTH = 1;
     private List<Segment> segments;
     private Color color = DEFAULT_COLOR;
@@ -117,7 +117,7 @@ public class WireframeShape {
 
         cube.add(new Segment(mpp, ppp));
         cube.add(new Segment(ppm, ppp));
-        
+
         cube.add(new Segment(pmp, ppp));
 
         return new WireframeShape(cube);
@@ -165,6 +165,46 @@ public class WireframeShape {
         return new WireframeShape(parallelepiped);
     }
 
+    public static WireframeShape superquadric(double size, int tSteps, int sSteps, double e1, double e2) {
+        List<Segment> segs = new ArrayList<Segment>((tSteps + 1) * (sSteps + 1));
+        double tStep = Math.PI / tSteps;
+        double sStep = 2* Math.PI / sSteps;
+
+        Vertex vertices[][] = new Vertex[tSteps + 1][sSteps + 1];
+
+        for (int tIndex = 0; tIndex < tSteps + 1; ++tIndex) {
+            for (int sIndex = 0; sIndex < sSteps + 1; ++sIndex) {
+                double t = -Math.PI / 2 + tIndex * tStep,
+                        s = sIndex * sStep,
+                        ct = Math.cos(t),
+                        cs = Math.cos(s),
+                        ss = Math.sin(s),
+                        st = Math.sin(t);
+                double x = size * Math.pow(Math.abs(ct), e1) * Math.signum(ct) * Math.pow(Math.abs(cs), e2) * Math.signum(cs),
+                        y = size * Math.pow(Math.abs(ct), e1) * Math.signum(ct) * Math.pow(Math.abs(ss), e2) * Math.signum(ss),
+                        z = size * Math.pow(Math.abs(st), e1) * Math.signum(st);
+
+                Vertex cur = new Vertex(x, y, z);
+                vertices[tIndex][sIndex] = cur;
+            }
+        }
+
+         for (int tIndex = 0; tIndex < tSteps + 1; ++tIndex) {
+            for (int sIndex = 0; sIndex < sSteps; ++sIndex) {
+                Segment s = new Segment(vertices[tIndex][sIndex], vertices[tIndex][sIndex + 1]);
+                segs.add(s);
+             }
+        }
+
+        for (int sIndex = 0; sIndex < sSteps + 1; ++sIndex) {
+            for (int tIndex = 0; tIndex < tSteps; ++tIndex) {
+                Segment s = new Segment(vertices[tIndex][sIndex], vertices[tIndex+1][sIndex]);
+                segs.add(s);
+             }
+        }
+        return new WireframeShape(segs);
+    }
+
     public static WireframeShape segment(
             double x, double y, double z) {
         List<Segment> segment = new ArrayList<Segment>(1);
@@ -189,13 +229,8 @@ public class WireframeShape {
         return transformedOrigin;
     }
 
-
     public Vertex getOrigin() {
         return coordinateSystem.getOrigin();
-    }
-
-    private Transformation getFrameToCanonicalTransformation() {
-        return coordinateSystem.getFrameToCanonicalTransformation();
     }
 
     public Color getColor() {
@@ -218,9 +253,17 @@ public class WireframeShape {
         this.width = width;
     }
 
+    public void resetTransformation() {
+        transformation = coordinateSystem.getFrameToCanonicalTransformation();
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
+        sb.append("Transformed origin: ");
+        sb.append(getTransformedOrigin());
+        sb.append("\n");
+        sb.append("Transformed segments: \n");
         for (Segment s : getTransformedSegments()) {
             sb.append(s);
             sb.append('\n');

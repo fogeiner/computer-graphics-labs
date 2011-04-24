@@ -1,19 +1,28 @@
 package FIT_8201_Sviridov_Cam;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.GridBagLayout;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import javax.swing.BorderFactory;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.border.LineBorder;
+import javax.swing.border.MatteBorder;
 
 import ru.nsu.cg.MainFrame;
+
 /**
  * Frame - Application main frame
  * 
@@ -83,13 +92,22 @@ public final class Frame extends MainFrame {
         toolBar.setFloatable(false);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+
             @Override
             public void windowClosing(WindowEvent e) {
                 onExit();
             }
         });
 
-        add(new Scene());
+        Scene s = new Scene();
+
+        JPanel outer1 = new JPanel(new BorderLayout());
+        outer1.setBackground(Color.white);
+        outer1.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        s.setBorder(new LineBorder(Color.black));
+        outer1.add(s, BorderLayout.CENTER);
+
+        add(outer1);
 
         reset();
     }
@@ -324,10 +342,7 @@ public final class Frame extends MainFrame {
 
             @Override
             public void run() {
-                int size = 32 * 16;
-                Frame frame = new Frame(size, size);
-                frame.setMinimumSize(new Dimension(size, size));
-                frame.setSize(new Dimension(size, size));
+                Frame frame = new Frame(800, 600);
                 frame.setVisible(true);
             }
         });

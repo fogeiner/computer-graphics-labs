@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package FIT_8201_Sviridov_Cam;
 
 import java.awt.Color;
@@ -56,12 +52,12 @@ public class Vertex {
         StringBuilder sb = new StringBuilder();
         sb.append('(');
         sb.append(format.format(x));
-        sb.append(',');
+        sb.append(';');
         sb.append(format.format(y));
-        sb.append(',');
+        sb.append(';');
         sb.append(format.format(z));
         if (w != 1.0) {
-            sb.append(',');
+            sb.append(';');
             sb.append(format.format(w));
         }
         sb.append(')');
