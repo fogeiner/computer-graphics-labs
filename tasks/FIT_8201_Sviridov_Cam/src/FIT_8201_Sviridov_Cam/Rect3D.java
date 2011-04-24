@@ -8,7 +8,7 @@ import java.text.NumberFormat;
 import java.util.Locale;
 
 /**
- *
+ * Class for 3D rect with width, height and depth
  * @author alstein
  */
 public class Rect3D {
@@ -24,20 +24,38 @@ public class Rect3D {
         format.setMinimumFractionDigits(2);
     }
 
+    /**
+     * Ctor with given width, height and depth
+     * @param width width
+     * @param height height
+     * @param depth depth
+     */
     public Rect3D(double width, double height, double depth) {
         this.width = width;
         this.height = height;
         this.depth = depth;
     }
 
+    /**
+     * Returns depth
+     * @return depth
+     */
     public double getDepth() {
         return depth;
     }
 
+    /**
+     * Returns height
+     * @return height
+     */
     public double getHeight() {
         return height;
     }
 
+    /**
+     * Return width
+     * @return width
+     */
     public double getWidth() {
         return width;
     }

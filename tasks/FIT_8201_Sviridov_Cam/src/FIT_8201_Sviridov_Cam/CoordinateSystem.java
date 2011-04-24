@@ -4,7 +4,7 @@ import java.text.NumberFormat;
 import java.util.Locale;
 
 /**
- *
+ * Class represents coordinate system
  * @author admin
  */
 public class CoordinateSystem {
@@ -14,7 +14,6 @@ public class CoordinateSystem {
     private Vector v1;
     private Vector v2;
     private Vector v3;
-    private Transformation frameToCanonicalTransformation;
     private static final NumberFormat format;
 
     static {
@@ -23,10 +22,17 @@ public class CoordinateSystem {
         format.setMinimumFractionDigits(2);
     }
 
+    /**
+     * Default constructor; origin at (0,0,0) and vectors are (1,0,0) (0,1,0) (0,0,1)
+     */
     public CoordinateSystem() {
         this(new Vertex(0, 0, 0));
     }
 
+    /**
+     * Constructor; origin is given and vectors are (1,0,0) (0,1,0) (0,0,1)
+     * @param origin origin
+     */
     public CoordinateSystem(Vertex origin) {
         this(
                 origin,
@@ -35,6 +41,9 @@ public class CoordinateSystem {
                 new Vector(0, 0, 1));
     }
 
+    /**
+     * Checks basis for right-handed and ortonormal
+     */
     private void checkBasis() {
         // check that coordinate system given is right-handed and orthonormal
         double v1x = v1.getX(),
@@ -83,31 +92,13 @@ public class CoordinateSystem {
 
     }
 
-    private void updateTransformation() {
-        double v1x = v1.getX(),
-                v2x = v2.getX(),
-                v3x = v3.getX(),
-                v1y = v1.getY(),
-                v2y = v2.getY(),
-                v3y = v3.getY(),
-                v1z = v1.getZ(),
-                v2z = v2.getZ(),
-                v3z = v3.getZ();
-
-
-        // compute transformation to world coordinate system
-        double ox = origin.getX(),
-                oy = origin.getY(),
-                oz = origin.getZ();
-
-        frameToCanonicalTransformation = new Transformation(
-                v1x, v2x, v3x, ox,
-                v1y, v2y, v3y, oy,
-                v1z, v2z, v3z, oz,
-                0, 0, 0, 1);
-
-    }
-
+    /**
+     * Ctor with given origin and vectors
+     * @param origin origin
+     * @param v1 1st vector
+     * @param v2 2ns vector
+     * @param v3 3rd vector
+     */
     public CoordinateSystem(Vertex origin, Vector v1, Vector v2, Vector v3) {
         this.origin = origin;
         this.v1 = v1;
@@ -115,18 +106,30 @@ public class CoordinateSystem {
         this.v3 = v3;
 
         checkBasis();
-        updateTransformation();
     }
 
+    /**
+     * Return origin
+     * @return origin
+     */
     public Vertex getOrigin() {
         return origin;
     }
 
+    /**
+     * Sets origin
+     * @param origin origin
+     */
     public void setOrigin(Vertex origin) {
         this.origin = origin;
-        updateTransformation();
     }
 
+    /**
+     * Sets basis
+     * @param v1 1st vector
+     * @param v2 2nd vector
+     * @param v3 3rd vector
+     */
     public void setBasis(Vector v1, Vector v2, Vector v3) {
         Vector v1Old = this.v1,
                 v2Old = this.v2,
@@ -144,11 +147,35 @@ public class CoordinateSystem {
             this.v3 = v3Old;
             throw ex;
         }
-
-        updateTransformation();
     }
 
+    /**
+     * Returns transformation from frame to world
+     * @return
+     */
     public Transformation getFrameToCanonicalTransformation() {
+        double v1x = v1.getX(),
+                v2x = v2.getX(),
+                v3x = v3.getX(),
+                v1y = v1.getY(),
+                v2y = v2.getY(),
+                v3y = v3.getY(),
+                v1z = v1.getZ(),
+                v2z = v2.getZ(),
+                v3z = v3.getZ();
+
+
+        // compute transformation to world coordinate system
+        double ox = origin.getX(),
+                oy = origin.getY(),
+                oz = origin.getZ();
+
+        Transformation frameToCanonicalTransformation = new Transformation(
+                v1x, v2x, v3x, ox,
+                v1y, v2y, v3y, oy,
+                v1z, v2z, v3z, oz,
+                0, 0, 0, 1);
+
         return frameToCanonicalTransformation;
     }
 

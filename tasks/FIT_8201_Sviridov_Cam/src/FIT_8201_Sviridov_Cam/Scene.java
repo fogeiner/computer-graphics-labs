@@ -4,7 +4,6 @@ import FIT_8201_Sviridov_Cam.primitives.Segment;
 import FIT_8201_Sviridov_Cam.primitives.WireframeShape;
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -19,16 +18,16 @@ import java.util.List;
 import javax.swing.JPanel;
 
 /**
- *
+ * Class for scene
  * @author alstein
  */
 public class Scene extends JPanel {
 
-    private static final double DEFAULT_ROTATE_COEF = Math.PI / 96;
+    private static final double DEFAULT_ROTATE_COEF = Math.PI / 32;
     private static final double DEFAULT_ROLL_COEF = 25.0;
     private static final double ORT_COEF = 1.1;
     private double rollCoef = DEFAULT_ROLL_COEF;
-    private double rotateCoef = DEFAULT_ROTATE_COEF;
+    private double rotateCoef = 1 / 5.0;
     // all scene objects
     private List<WireframeShape> sceneObjects;
     // orts
@@ -39,8 +38,12 @@ public class Scene extends JPanel {
     private double znear, zfar;
     // mouse handler
     private double aspectRatio;
-
+    private boolean ortsHidden;
+    private boolean boxHidden;
+    private boolean objectsHidden;
     private MouseHandler mouseHandler;
+    private Double savedZnear, savedZfar;
+    private Vertex savedBoxOrigin;
 
     {
         sceneObjects = new ArrayList<WireframeShape>(3);
@@ -79,8 +82,8 @@ public class Scene extends JPanel {
             if (length == 0) {
                 return;
             }
-            dx = dx / length * rotateCoef;
-            dy = dy / length * rotateCoef;
+            dx = dx / length * rotateCoef * DEFAULT_ROTATE_COEF;
+            dy = dy / length * rotateCoef * DEFAULT_ROTATE_COEF;
 
             lastPoint = currentPoint;
 
@@ -117,7 +120,7 @@ public class Scene extends JPanel {
 
         double c = 1 / Math.sqrt(2);
         int sSteps = 30,
-            tSteps = 30;
+                tSteps = 30;
 
         WireframeShape sq1 = WireframeShape.superquadric(115, tSteps, sSteps, 0.5, 0.5);
         sq1.setOrigin(new Vertex(-150, 180, 30));
@@ -171,6 +174,8 @@ public class Scene extends JPanel {
                 boxZ = (maxZ + minZ) / 2;
 
 
+        savedBoxOrigin = new Vertex(boxX, boxY, boxZ);
+
 //        Transformation translate = Transformation.translate(-boxX, -boxY, -boxZ);
 //        transformAllObjects(translate);
 
@@ -182,8 +187,8 @@ public class Scene extends JPanel {
         box.transform(Transformation.translate(boxX, boxY, boxZ));
 
         Rect3D boxSizes = box.getBoundRect3D();
-        aspectRatio = boxSizes.getWidth()/boxSizes.getHeight();
-        
+        aspectRatio = boxSizes.getWidth() / boxSizes.getHeight();
+
         System.out.println("Created bound box: " + box);
     }
 
@@ -266,6 +271,13 @@ public class Scene extends JPanel {
         znear = d;
         zfar = znear + 2.5 * boxSizes.getDepth();
 
+        if (savedZnear == null) {
+            savedZnear = znear;
+        }
+        if (savedZfar == null) {
+            savedZfar = zfar;
+        }
+
 //        transformAllObjects(Transformation.translate(0, 0, 2*zfar));
         System.out.println("znear: " + znear + " zfar: " + zfar);
     }
@@ -287,6 +299,10 @@ public class Scene extends JPanel {
         initCamera();
     }
 
+    /**
+     * Returns all objects on scene
+     * @return all objects on scene
+     */
     private List<WireframeShape> getAllObjects() {
         List<WireframeShape> objects = new ArrayList<WireframeShape>();
         objects.addAll(sceneObjects);
@@ -295,6 +311,10 @@ public class Scene extends JPanel {
         return objects;
     }
 
+    /**
+     * Applies transformation to all objects on scene
+     * @param transformation
+     */
     private void transformAllObjects(Transformation transformation) {
         for (WireframeShape shape : getAllObjects()) {
             shape.transform(transformation);
@@ -315,7 +335,7 @@ public class Scene extends JPanel {
         g.translate(halfWidth, halfHeight);
         g.scale(1.0, -1.0);
 
-        
+
 
         Color oldColor = g.getColor();
         Stroke oldStroke = g.getStroke();
@@ -331,9 +351,7 @@ public class Scene extends JPanel {
             g.setColor(shape.getColor());
             g.setStroke(new BasicStroke(shape.getWidth()));
 
-            boolean ortsHidden = false;
-            boolean boxHidden = false;
-            boolean objectsHidden = false;
+
             // hide orts and box only if flags are set
             if ((orts.contains(shape) && ortsHidden) || (shape == box && boxHidden) || (sceneObjects.contains(shape) && objectsHidden)) {
                 continue;
@@ -374,5 +392,129 @@ public class Scene extends JPanel {
 
         g.scale(1.0, -1.0);
         g.translate(-halfWidth, -halfHeight);
+    }
+
+    /**
+     * Returns all object to initial state
+     */
+    public void init() {
+        for (WireframeShape shape : getAllObjects()) {
+            shape.resetTransformation();
+        }
+        box.transform(Transformation.translate(
+                savedBoxOrigin.getX(), savedBoxOrigin.getY(), savedBoxOrigin.getZ()));
+        initCamera();
+        zfar = savedZfar;
+        znear = savedZnear;
+        repaint();
+    }
+
+    /**
+     * Sets orts visibility to value
+     * @param value boolean value
+     */
+    public void setOrtsVisible(boolean value) {
+        ortsHidden = !value;
+        repaint();
+    }
+
+    /**
+     * Sets box visibility to value
+     * @param value boolean value
+     */
+    public void setBoxVisible(boolean value) {
+        boxHidden = !value;
+        repaint();
+    }
+
+    /**
+     * Sets objects visibility to value
+     * @param value boolean value
+     */
+    public void setObjectsVisible(boolean value) {
+        objectsHidden = !value;
+        repaint();
+    }
+
+    /**
+     * Returns roll coefficient
+     * @return roll coefficient
+     */
+    public double getRollCoef() {
+        return rollCoef;
+    }
+
+    /**
+     * Sets roll coefficient
+     * @param rollCoef roll coefficient
+     */
+    public void setRollCoef(double rollCoef) {
+        this.rollCoef = rollCoef;
+    }
+
+    /**
+     * Returns rotate coefficient
+     * @return rotate coefficient
+     */
+    public double getRotateCoef() {
+        return rotateCoef;
+    }
+
+    /**
+     * Sets rotate coefficient
+     * @param rotateCoef rotate coefficient
+     */
+    public void setRotateCoef(double rotateCoef) {
+        this.rotateCoef = rotateCoef;
+    }
+
+    /**
+     * Returns initial zfar
+     * @return initial zfar
+     */
+    public Double getSavedZfar() {
+        return savedZfar;
+    }
+
+    /**
+     * Returns initial znear
+     * @return initial zfar
+     */
+    public Double getSavedZnear() {
+        return savedZnear;
+    }
+
+    /**
+     * Returns current zfar
+     * @return current zfar
+     */
+    public double getZfar() {
+        return zfar;
+    }
+
+    /**
+     * Sets  current zfar
+     * @param zfar  current zfar
+     */
+    public void setZfar(double zfar) {
+        this.zfar = zfar;
+        repaint();
+    }
+
+    /**
+     * Returns current znear
+     * @return current znear
+     */
+    public double getZnear() {
+        return znear;
+    }
+
+    /**
+     * Sets current znear
+     * @param znear current znear
+     */
+    public void setZnear(double znear) {
+        this.znear = znear;
+        repaint();
     }
 }
