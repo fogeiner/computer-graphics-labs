@@ -116,6 +116,9 @@ public class Scene extends JPanel {
 	 * Create scene objects and set their origins in the world coordinate system
 	 */
 	private void initSceneObjects() {
+//            WireframeShape cube = WireframeShape.cube(1000);
+//            cube.setOrigin(new Vertex(0, 0, 0));
+//            sceneObjects.add(cube);
 		double c = 1 / Math.sqrt(2);
 		int sSteps = 30, tSteps = 30;
 
@@ -325,7 +328,8 @@ public class Scene extends JPanel {
 						|| ez < -1) {
 					continue;
 				}
-				int x1 = (int) (sx * halfWidth + 0.5), y1 = (int) (sy
+                                
+                                int x1 = (int) (sx * halfWidth + 0.5), y1 = (int) (sy
 						* halfHeight + 0.5), x2 = (int) (ex * halfWidth + 0.5), y2 = (int) (ey
 						* halfHeight + 0.5);
 
