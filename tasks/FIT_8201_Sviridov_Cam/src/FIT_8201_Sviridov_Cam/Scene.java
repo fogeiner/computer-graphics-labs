@@ -119,32 +119,32 @@ public class Scene extends JPanel {
      * Create scene objects and set their origins in the world coordinate system
      */
     private void initSceneObjects() {
-//        WireframeShape cube = WireframeShape.cube(1000);
-//        cube.setOrigin(new Vertex(0, 0, 0));
-//        sceneObjects.add(cube);
-        double c = 1 / Math.sqrt(2);
-        int sSteps = 30, tSteps = 30;
-
-        WireframeShape sq1 = WireframeShape.superquadric(115, tSteps, sSteps,
-                0.5, 0.5);
-        sq1.setOrigin(new Vertex(-150, 180, 30));
-        sq1.setBasis(new Vector(1, 0, 0), new Vector(0, -c, c), new Vector(0,
-                -c, -c));
-        sceneObjects.add(sq1);
-
-        WireframeShape sq2 = WireframeShape.superquadric(150, tSteps, sSteps,
-                1, 3);
-        sq2.setOrigin(new Vertex(0, 0, 0));
-        sq2.setBasis(new Vector(0, c, c), new Vector(-1, 0, 0), new Vector(0,
-                -c, c));
-        sceneObjects.add(sq2);
-
-        WireframeShape sq3 = WireframeShape.superquadric(120, tSteps, sSteps,
-                2, 1);
-        sq3.setOrigin(new Vertex(180, -140, 60));
-        sq3.setBasis(new Vector(-1, 0, 0), new Vector(0, -c, -c), new Vector(0,
-                -c, c));
-        sceneObjects.add(sq3);
+        WireframeShape cube = WireframeShape.cube(500);
+        cube.setOrigin(new Vertex(0, 0, 0));
+        sceneObjects.add(cube);
+//        double c = 1 / Math.sqrt(2);
+//        int sSteps = 30, tSteps = 30;
+//
+//        WireframeShape sq1 = WireframeShape.superquadric(115, tSteps, sSteps,
+//                0.5, 0.5);
+//        sq1.setOrigin(new Vertex(-150, 180, 30));
+//        sq1.setBasis(new Vector(1, 0, 0), new Vector(0, -c, c), new Vector(0,
+//                -c, -c));
+//        sceneObjects.add(sq1);
+//
+//        WireframeShape sq2 = WireframeShape.superquadric(150, tSteps, sSteps,
+//                1, 3);
+//        sq2.setOrigin(new Vertex(0, 0, 0));
+//        sq2.setBasis(new Vector(0, c, c), new Vector(-1, 0, 0), new Vector(0,
+//                -c, c));
+//        sceneObjects.add(sq2);
+//
+//        WireframeShape sq3 = WireframeShape.superquadric(120, tSteps, sSteps,
+//                2, 1);
+//        sq3.setOrigin(new Vertex(180, -140, 60));
+//        sq3.setBasis(new Vector(-1, 0, 0), new Vector(0, -c, -c), new Vector(0,
+//                -c, c));
+//        sceneObjects.add(sq3);
     }
 
     /**
@@ -226,7 +226,7 @@ public class Scene extends JPanel {
         double d = (boxSizes.getWidth() / 2) / Math.tan(Math.toRadians(15));
         double cameraX = boxOrigin.getX(),
                 cameraY = boxOrigin.getY(),
-                cameraZ = boxOrigin.getZ() + boxSizes.getDepth() / 2 + d;
+                cameraZ = boxOrigin.getZ() + boxSizes.getDepth() / 2 + d + 1;
 
         worldToCamera = Transformation.translate(-cameraX, -cameraY, -cameraZ);
 
