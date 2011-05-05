@@ -1,4 +1,4 @@
-package FIT_8201_Sviridov_Cam;
+package FIT_8201_Sviridov_Quad;
 
 /**
  * Class represents vector

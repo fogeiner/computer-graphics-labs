@@ -1,10 +1,11 @@
-package FIT_8201_Sviridov_Cam.primitives;
+package FIT_8201_Sviridov_Quad.primitives;
 
-import FIT_8201_Sviridov_Cam.CoordinateSystem;
-import FIT_8201_Sviridov_Cam.Rect3D;
-import FIT_8201_Sviridov_Cam.Transformation;
-import FIT_8201_Sviridov_Cam.Vector;
-import FIT_8201_Sviridov_Cam.Vertex;
+import FIT_8201_Sviridov_Quad.CoordinateSystem;
+import FIT_8201_Sviridov_Quad.Rect3D;
+import FIT_8201_Sviridov_Quad.Transformation;
+import FIT_8201_Sviridov_Quad.Vector;
+import FIT_8201_Sviridov_Quad.Vertex;
+
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -229,6 +230,21 @@ public class WireframeShape {
     public static WireframeShape segment(double x, double y, double z) {
         List<Segment> segment = new ArrayList<Segment>(1);
         segment.add(new Segment(new Vertex(0, 0, 0), new Vertex(x, y, z)));
+        return new WireframeShape(segment);
+    }
+
+    /**
+     * Returns triangle
+     * @param v1 1st verticle
+     * @param v2 2nd verticle
+     * @param v3 3rd verticle
+     * @return triangle
+     */
+    public static WireframeShape triangle(Vertex v1, Vertex v2, Vertex v3){
+        List<Segment> segment = new ArrayList<Segment>(1);
+        segment.add(new Segment(v1, v2));
+        segment.add(new Segment(v2, v3));
+        segment.add(new Segment(v3, v1));
         return new WireframeShape(segment);
     }
 

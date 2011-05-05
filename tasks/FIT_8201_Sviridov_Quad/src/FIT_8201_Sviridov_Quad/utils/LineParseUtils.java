@@ -1,4 +1,4 @@
-package FIT_8201_Sviridov_Cam.utils;
+package FIT_8201_Sviridov_Quad.utils;
 
 import java.io.BufferedReader;
 import java.io.IOException;

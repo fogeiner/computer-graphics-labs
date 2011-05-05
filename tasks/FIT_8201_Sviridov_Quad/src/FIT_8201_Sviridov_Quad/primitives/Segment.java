@@ -1,6 +1,6 @@
-package FIT_8201_Sviridov_Cam.primitives;
+package FIT_8201_Sviridov_Quad.primitives;
 
-import FIT_8201_Sviridov_Cam.Vertex;
+import FIT_8201_Sviridov_Quad.Vertex;
 
 /**
  * Class represents segment

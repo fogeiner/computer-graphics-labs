@@ -1,4 +1,4 @@
-package FIT_8201_Sviridov_Cam;
+package FIT_8201_Sviridov_Quad;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -48,9 +48,9 @@ public final class Frame extends MainFrame {
 	 * 
 	 */
 	private static final long serialVersionUID = 474140705036147248L;
-	public static final String NAME = "FIT_8201_Sviridov_Cam";
+	public static final String NAME = "FIT_8201_Sviridov_Quad";
 	public static final String UNTITLED_DOCUMENT = "Untitled";
-	public static final String ABOUT_FILE = "FIT_8201_Sviridov_Cam_About.txt";
+	public static final String ABOUT_FILE = "FIT_8201_Sviridov_Quad_About.txt";
 	private Color pressedColor = Color.lightGray;
 	private Scene scene = new Scene();
 	private boolean modified;
@@ -62,13 +62,8 @@ public final class Frame extends MainFrame {
 	class SettingsDialog extends JDialog {
 
 		private static final long serialVersionUID = -2287400008055325290L;
-		private JSlider znSlider = new JSlider(0, 4000);
-		private JSpinner znSpinner = new JSpinner(new SpinnerNumberModel(0, 0,
-				4000, 10));
-		private JSlider zfSlider = new JSlider(0, 4000);
-		private JSpinner zfSpinner = new JSpinner(new SpinnerNumberModel(0, 0,
-				4000, 10));
-		private JSlider rSlider = new JSlider(0, 100);
+
+                private JSlider rSlider = new JSlider(0, 100);
 		private JSpinner rSpinner = new JSpinner(new SpinnerNumberModel(0.01,
 				0.0, 1.0, 0.01));
 		private JSlider dSlider = new JSlider(0, 100);
@@ -112,38 +107,7 @@ public final class Frame extends MainFrame {
 				}
 			});
 
-			setupSpinner(znSpinner, 5);
-			znSlider.addChangeListener(new ChangeListener() {
-
-				@Override
-				public void stateChanged(ChangeEvent e) {
-					znSpinner.setValue(znSlider.getValue());
-				}
-			});
-			znSpinner.addChangeListener(new ChangeListener() {
-
-				@Override
-				public void stateChanged(ChangeEvent e) {
-					znSlider.setValue((Integer) znSpinner.getValue());
-				}
-			});
-
-			setupSpinner(zfSpinner, 5);
-			zfSlider.addChangeListener(new ChangeListener() {
-
-				@Override
-				public void stateChanged(ChangeEvent e) {
-					zfSpinner.setValue(zfSlider.getValue());
-				}
-			});
-			zfSpinner.addChangeListener(new ChangeListener() {
-
-				@Override
-				public void stateChanged(ChangeEvent e) {
-					zfSlider.setValue((Integer) zfSpinner.getValue());
-				}
-			});
-
+			
 			okButton.addActionListener(new ActionListener() {
 
 				@Override
@@ -186,8 +150,6 @@ public final class Frame extends MainFrame {
 		 */
 		public void showDialog() {
 			// read out values
-			znSpinner.setValue((int) (scene.getZnear() + 0.5));
-			zfSpinner.setValue((int) (scene.getZfar() + 0.5));
 
 			rSpinner.setValue(scene.getRotateCoef());
 			dSpinner.setValue((int) (scene.getRollCoef() + 0.5));
@@ -206,18 +168,8 @@ public final class Frame extends MainFrame {
 		 * Sets parameters and make dialog invisible
 		 */
 		public void confirm() {
-			int znear = (Integer) znSpinner.getValue(), zfar = (Integer) zfSpinner
-					.getValue();
-			if (zfar <= znear) {
-				JOptionPane.showMessageDialog(this,
-						"zFar must be more than zNear", "Error",
-						JOptionPane.ERROR_MESSAGE);
-				return;
-			}
 			scene.setRollCoef((Integer) dSpinner.getValue());
 			scene.setRotateCoef((Double) rSpinner.getValue());
-			scene.setZnear(znear);
-			scene.setZfar(zfar);
 			setVisible(false);
 		}
 
@@ -264,8 +216,6 @@ public final class Frame extends MainFrame {
 		public SettingsDialog(JFrame owner) {
 			super(owner, "Settings dialog");
 			JPanel mainPanel = new JPanel();
-			mainPanel.add(makeSubPanel("zNear", znSlider, znSpinner));
-			mainPanel.add(makeSubPanel("zFar", zfSlider, zfSpinner));
 			mainPanel.add(makeSubPanel("r", rSlider, rSpinner));
 			mainPanel.add(makeSubPanel("d", dSlider, dSpinner));
 			mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
@@ -353,8 +303,6 @@ public final class Frame extends MainFrame {
 
 		JPanel outer1 = new JPanel(new BorderLayout());
 		outer1.setBackground(Color.white);
-		outer1.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		scene.setBorder(new LineBorder(Color.black));
 		outer1.add(scene, BorderLayout.CENTER);
 		add(outer1);
 

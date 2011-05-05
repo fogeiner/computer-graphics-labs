@@ -1,4 +1,4 @@
-package FIT_8201_Sviridov_Cam;
+package FIT_8201_Sviridov_Quad;
 
 import java.awt.Color;
 import java.text.NumberFormat;

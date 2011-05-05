@@ -1,7 +1,7 @@
-package FIT_8201_Sviridov_Cam;
+package FIT_8201_Sviridov_Quad;
 
-import FIT_8201_Sviridov_Cam.primitives.Segment;
-import FIT_8201_Sviridov_Cam.primitives.WireframeShape;
+import FIT_8201_Sviridov_Quad.primitives.Segment;
+import FIT_8201_Sviridov_Quad.primitives.WireframeShape;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -119,24 +119,33 @@ public class Scene extends JPanel {
      * Create scene objects and set their origins in the world coordinate system
      */
     private void initSceneObjects() {
+        // triangle
+
+        Vertex v1 = new Vertex(-300, -300, 300);
+        Vertex v2 = new Vertex(300, -300, 300);
+        Vertex v3 = new Vertex(0, 300, -250);
+        
+        WireframeShape triangle = WireframeShape.triangle(v1, v2, v3);
+        triangle.setOrigin(new Vertex(0, 0, -200));
+        sceneObjects.add(triangle);
         double c = 1 / Math.sqrt(2);
         int sSteps = 30, tSteps = 30;
 
-        WireframeShape sq1 = WireframeShape.superquadric(115, tSteps, sSteps,
+        WireframeShape sq1 = WireframeShape.superquadric(80, tSteps, sSteps,
                 0.5, 0.5);
         sq1.setOrigin(new Vertex(-150, 180, 30));
         sq1.setBasis(new Vector(1, 0, 0), new Vector(0, -c, c), new Vector(0,
                 -c, -c));
         sceneObjects.add(sq1);
 
-        WireframeShape sq2 = WireframeShape.superquadric(150, tSteps, sSteps,
+        WireframeShape sq2 = WireframeShape.superquadric(100, tSteps, sSteps,
                 1, 3);
         sq2.setOrigin(new Vertex(0, 0, 0));
         sq2.setBasis(new Vector(0, c, c), new Vector(-1, 0, 0), new Vector(0,
                 -c, c));
         sceneObjects.add(sq2);
 
-        WireframeShape sq3 = WireframeShape.superquadric(120, tSteps, sSteps,
+        WireframeShape sq3 = WireframeShape.superquadric(90, tSteps, sSteps,
                 2, 1);
         sq3.setOrigin(new Vertex(180, -140, 60));
         sq3.setBasis(new Vector(-1, 0, 0), new Vector(0, -c, -c), new Vector(0,
@@ -312,8 +321,10 @@ public class Scene extends JPanel {
                         ez = endProjected.getZ();
 
                 if (sx > 1 || sx < -1 || ex > 1 || ex < -1 || sy < -1 || sy > 1
-                        || ey < -1 || ey > 1 || sz > 1 || sz < -1 || ez > 1
-                        || ez < -1) {
+                        || ey < -1 || ey > 1 /*|| sz > 1 || sz < -1 || ez > 1
+                        || ez < -1*/) 
+                        
+                {
                     continue;
                 }
 
@@ -410,63 +421,5 @@ public class Scene extends JPanel {
      */
     public void setRotateCoef(double rotateCoef) {
         this.rotateCoef = rotateCoef;
-    }
-
-    /**
-     * Returns initial zfar
-     *
-     * @return initial zfar
-     */
-    public Double getSavedZfar() {
-        return savedZfar;
-    }
-
-    /**
-     * Returns initial znear
-     *
-     * @return initial zfar
-     */
-    public Double getSavedZnear() {
-        return savedZnear;
-    }
-
-    /**
-     * Returns current zfar
-     *
-     * @return current zfar
-     */
-    public double getZfar() {
-        return zfar;
-    }
-
-    /**
-     * Sets current zfar
-     *
-     * @param zfar
-     *            current zfar
-     */
-    public void setZfar(double zfar) {
-        this.zfar = zfar;
-        repaint();
-    }
-
-    /**
-     * Returns current znear
-     *
-     * @return current znear
-     */
-    public double getZnear() {
-        return znear;
-    }
-
-    /**
-     * Sets current znear
-     *
-     * @param znear
-     *            current znear
-     */
-    public void setZnear(double znear) {
-        this.znear = znear;
-        repaint();
     }
 }
