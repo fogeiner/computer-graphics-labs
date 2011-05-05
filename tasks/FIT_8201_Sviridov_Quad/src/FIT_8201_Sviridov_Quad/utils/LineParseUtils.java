@@ -28,7 +28,7 @@ public class LineParseUtils {
 			if (str == null) {
 				return null;
 			}
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder(100);
 
 			str = str.trim();
 
