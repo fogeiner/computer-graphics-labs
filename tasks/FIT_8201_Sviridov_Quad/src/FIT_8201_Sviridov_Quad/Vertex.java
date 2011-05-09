@@ -11,7 +11,7 @@ import java.util.Locale;
 public class Vertex {
 
 	public static final Color DEFAULT_COLOR = Color.black;
-	private double x, y, z, w;
+	private final double x, y, z, w;
 	private Color color;
 	private final static NumberFormat format;
 
@@ -26,6 +26,7 @@ public class Vertex {
 			this.x = v[0];
 			this.y = v[1];
 			this.z = v[2];
+                        this.w = 1.0;
 		} else if (v.length == 4) {
 			this.x = v[0];
 			this.y = v[1];
@@ -91,22 +92,6 @@ public class Vertex {
 
 	public double getZ() {
 		return z;
-	}
-
-	public void setW(double w) {
-		this.w = w;
-	}
-
-	public void setX(double x) {
-		this.x = x;
-	}
-
-	public void setY(double y) {
-		this.y = y;
-	}
-
-	public void setZ(double z) {
-		this.z = z;
 	}
 
 	public void setColor(Color color) {
