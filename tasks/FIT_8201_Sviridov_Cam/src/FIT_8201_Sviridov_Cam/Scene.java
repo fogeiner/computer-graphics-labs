@@ -275,7 +275,6 @@ public class Scene extends JPanel {
         Graphics2D g = (Graphics2D) g1;
 
         double height = getHeight(), width = getWidth(), halfWidth = width / 2, halfHeight = height / 2;
-        double aspectRatio = width / height;
 
         g.translate(halfWidth, halfHeight);
         g.scale(1.0, -1.0);
