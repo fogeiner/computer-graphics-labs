@@ -4,6 +4,7 @@ import FIT_8201_Sviridov_Cam.primitives.Segment;
 import FIT_8201_Sviridov_Cam.primitives.WireframeShape;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -266,6 +267,7 @@ public class Scene extends JPanel {
         objects.add(box);
         return objects;
     }
+    private Integer initialMinSize;
 
     @Override
     protected void paintComponent(Graphics g1) {
@@ -273,6 +275,7 @@ public class Scene extends JPanel {
         Graphics2D g = (Graphics2D) g1;
 
         double height = getHeight(), width = getWidth(), halfWidth = width / 2, halfHeight = height / 2;
+        double aspectRatio = width / height;
 
         g.translate(halfWidth, halfHeight);
         g.scale(1.0, -1.0);
@@ -280,8 +283,16 @@ public class Scene extends JPanel {
         Color oldColor = g.getColor();
         Stroke oldStroke = g.getStroke();
 
-        Transformation projection = Transformation.perspective(-halfWidth,
-                halfWidth, -halfHeight, halfHeight, znear, zfar);
+        if (initialMinSize == null) {
+            Dimension dim = getSize();
+            int minSize = Math.min(dim.height, dim.width);
+            initialMinSize = minSize;
+        }
+
+        Transformation projection = Transformation.perspective(-initialMinSize,
+                initialMinSize, -initialMinSize, initialMinSize, znear, zfar);
+
+
 
         Transformation t = Transformation.compose(worldToCamera, worldTransformation);
         t.compose(projection);
@@ -317,9 +328,11 @@ public class Scene extends JPanel {
                     continue;
                 }
 
-                int x1 = (int) (sx * halfWidth + 0.5), y1 = (int) (sy
-                        * halfHeight + 0.5), x2 = (int) (ex * halfWidth + 0.5), y2 = (int) (ey
-                        * halfHeight + 0.5);
+                double minSize = Math.min(width, height);
+                int x1 = (int) (sx * minSize + 0.5),
+                        y1 = (int) (sy * minSize + 0.5),
+                        x2 = (int) (ex * minSize + 0.5),
+                        y2 = (int) (ey * minSize + 0.5);
 
                 g.drawLine(x1, y1, x2, y2);
             }
