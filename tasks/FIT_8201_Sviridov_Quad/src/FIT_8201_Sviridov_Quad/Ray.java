@@ -94,7 +94,7 @@ interface Renderable {
 
     public Collection<IntersectionInfo> intersect(Ray ray);
 
-    public Color trace(IntersectionInfo intersectionInfo, Collection<LightSource> lights, Collection<Renderable> objects);
+    public Coefficient3D trace(IntersectionInfo intersectionInfo, Collection<LightSource> lights, Collection<Renderable> objects);
 }
 
 class Sphere implements Renderable {
@@ -128,8 +128,14 @@ class Sphere implements Renderable {
                 zc = origin.getZ();
 
         double A = xd * xd + yd * yd + zd * zd,
-                B = 2 * (xd * x0 - xd * xc + yd * y0 - yd * yc + zd * z0 - zd * zc),
-                C = x0 * x0 - 2 * x0 * xc + xc * xc + y0 * y0 - 2 * y0 * yc + yc * yc + z0 * z0 - 2 * z0 * zc + zc * zc;
+                B = 2 * (xd * x0 - xd * xc
+                + yd * y0 - yd * yc
+                + zd * z0 - zd * zc),
+                C = x0 * x0 - 2 * x0 * xc
+                + xc * xc + y0 * y0
+                - 2 * y0 * yc + yc * yc
+                + z0 * z0 - 2 * z0 * zc
+                + zc * zc;
 
         double E = C - r * r;
 
@@ -156,7 +162,8 @@ class Sphere implements Renderable {
     }
 
     @Override
-    public Color trace(IntersectionInfo intersectionInfo, Collection<LightSource> lights, Collection<Renderable> objects) {
+    public Coefficient3D trace(IntersectionInfo intersectionInfo,
+            Collection<LightSource> lights, Collection<Renderable> objects) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
