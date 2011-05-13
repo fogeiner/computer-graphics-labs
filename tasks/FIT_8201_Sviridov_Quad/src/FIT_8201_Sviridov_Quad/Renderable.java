@@ -7,7 +7,7 @@ import java.util.Collection;
  *
  * @author alstein
  */
-public interface Renderable {
+public interface Renderable2 {
 
     public Collection<Vertex> intersect(Ray ray);
 

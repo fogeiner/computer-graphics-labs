@@ -1,6 +1,6 @@
 package FIT_8201_Sviridov_Quad;
 
-import FIT_8201_Sviridov_Quad.primitives.WireframeObject;
+import FIT_8201_Sviridov_Quad.primitives.Wireframe;
 import java.util.List;
 
 /**
@@ -8,10 +8,11 @@ import java.util.List;
  * @author alstein
  */
 public class QuadModel {
-    private WireframeObject box;
-    private List<WireframeObject> orts;
+    private Wireframe box;
+    private List<Wireframe> orts;
     private List<Renderable> objects;
     private List<LightSource> lightSources;
+    private Coefficient3D ambient;
 
     private Transformation world;
     private Transformation camera;

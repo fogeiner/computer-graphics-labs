@@ -11,25 +11,53 @@ public class ColorModel {
     private final Coefficient3D specularCoefficient;
     private final int power;
     private final double transparencyCoefficient;
-    private final double Refraction1;
-    private final double Refraction2;
+    private final double refraction1;
+    private final double refraction2;
 
-    public ColorModel(Coefficient3D ambientCoefficient, Coefficient3D diffuseCoefficient, Coefficient3D specularCoefficient, int power, double transparencyCoefficient, double Refraction1, double Refraction2) {
+    public ColorModel(Coefficient3D ambientCoefficient,
+            Coefficient3D diffuseCoefficient,
+            Coefficient3D specularCoefficient,
+            int power,
+            double transparencyCoefficient,
+            double Refraction1,
+            double Refraction2) {
         this.ambientCoefficient = ambientCoefficient;
         this.diffuseCoefficient = diffuseCoefficient;
         this.specularCoefficient = specularCoefficient;
         this.power = power;
         this.transparencyCoefficient = transparencyCoefficient;
-        this.Refraction1 = Refraction1;
-        this.Refraction2 = Refraction2;
+        this.refraction1 = Refraction1;
+        this.refraction2 = Refraction2;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(50);
+        for (Coefficient3D c : new Coefficient3D[]{
+                    ambientCoefficient,
+                    diffuseCoefficient,
+                    specularCoefficient}) {
+            sb.append(c.getR());
+            sb.append(' ');
+            sb.append(c.getG());
+            sb.append(' ');
+            sb.append(c.getB());
+        }
+
+        sb.append(power);
+        sb.append(' ');
+        sb.append(refraction1);
+        sb.append(' ');
+        sb.append(refraction2);
+        return sb.toString();
     }
 
     public double getRefraction1() {
-        return Refraction1;
+        return refraction1;
     }
 
     public double getRefraction2() {
-        return Refraction2;
+        return refraction2;
     }
 
     public Coefficient3D getAmbientCoefficient() {

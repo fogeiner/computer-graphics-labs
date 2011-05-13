@@ -16,6 +16,14 @@ public class IntersectionInfo {
         this.object = object;
     }
 
+    public Vertex getIntersection(){
+        return intersection;
+    }
+
+    public Vector getNormal(){
+        return normal;
+    }
+
     public double length(){
         return length(new Vertex(0, 0, 0));
     }
@@ -28,8 +36,6 @@ public class IntersectionInfo {
         StringBuilder sb = new StringBuilder(20);
         sb.append("Intersection ");
         sb.append(intersection);
-        sb.append(" ");
-        sb.append(object);
         return sb.toString();
     }
 }

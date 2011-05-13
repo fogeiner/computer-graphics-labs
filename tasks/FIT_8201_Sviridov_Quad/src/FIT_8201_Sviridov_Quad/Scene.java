@@ -1,7 +1,7 @@
 package FIT_8201_Sviridov_Quad;
 
 import FIT_8201_Sviridov_Quad.primitives.Segment;
-import FIT_8201_Sviridov_Quad.primitives.WireframeObject;
+import FIT_8201_Sviridov_Quad.primitives.Wireframe;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -31,11 +31,11 @@ public class Scene extends JPanel {
     private double rollCoef = DEFAULT_ROLL_COEF;
     private double rotateCoef = 1 / 5.0;
     // all scene objects
-    private List<WireframeObject> sceneObjects;
+    private List<Wireframe> sceneObjects;
     // orts
-    private List<WireframeObject> orts;
+    private List<Wireframe> orts;
     // bound box
-    private WireframeObject box;
+    private Wireframe box;
     // projection matrix
     private double znear, zfar;
     private boolean ortsHidden;
@@ -48,8 +48,8 @@ public class Scene extends JPanel {
     private Double savedZnear, savedZfar;
 
     {
-        sceneObjects = new ArrayList<WireframeObject>(3);
-        orts = new ArrayList<WireframeObject>(3);
+        sceneObjects = new ArrayList<Wireframe>(3);
+        orts = new ArrayList<Wireframe>(3);
         mouseHandler = new MouseHandler();
         worldTransformation = Transformation.identity();
     }
@@ -125,27 +125,27 @@ public class Scene extends JPanel {
         Vertex v2 = new Vertex(300, -300, 300);
         Vertex v3 = new Vertex(0, 300, -250);
         
-        WireframeObject triangle = WireframeObject.triangle(v1, v2, v3);
+        Wireframe triangle = Wireframe.triangle(v1, v2, v3);
         triangle.setOrigin(new Vertex(0, 0, -200));
         sceneObjects.add(triangle);
         double c = 1 / Math.sqrt(2);
         int sSteps = 30, tSteps = 30;
 
-        WireframeObject sq1 = WireframeObject.superquadric(80, tSteps, sSteps,
+        Wireframe sq1 = Wireframe.superquadric(80, tSteps, sSteps,
                 0.5, 0.5);
         sq1.setOrigin(new Vertex(-150, 180, 30));
         sq1.setBasis(new Vector(1, 0, 0), new Vector(0, -c, c), new Vector(0,
                 -c, -c));
         sceneObjects.add(sq1);
 
-        WireframeObject sq2 = WireframeObject.superquadric(100, tSteps, sSteps,
+        Wireframe sq2 = Wireframe.superquadric(100, tSteps, sSteps,
                 1, 3);
         sq2.setOrigin(new Vertex(0, 0, 0));
         sq2.setBasis(new Vector(0, c, c), new Vector(-1, 0, 0), new Vector(0,
                 -c, c));
         sceneObjects.add(sq2);
 
-        WireframeObject sq3 = WireframeObject.superquadric(90, tSteps, sSteps,
+        Wireframe sq3 = Wireframe.superquadric(90, tSteps, sSteps,
                 2, 1);
         sq3.setOrigin(new Vertex(180, -140, 60));
         sq3.setBasis(new Vector(-1, 0, 0), new Vector(0, -c, -c), new Vector(0,
@@ -165,7 +165,7 @@ public class Scene extends JPanel {
                 maxZ = Double.NEGATIVE_INFINITY,
                 minZ = Double.POSITIVE_INFINITY;
 
-        for (WireframeObject shape : sceneObjects) {
+        for (Wireframe shape : sceneObjects) {
             for (Segment s : shape.getSegments()) {
                 Vertex start = s.getStartVertex();
                 Vertex end = s.getEndVertex();
@@ -189,7 +189,7 @@ public class Scene extends JPanel {
         double boxX = (maxX + minX) / 2,
                 boxY = (maxY + minY) / 2,
                 boxZ = (maxZ + minZ) / 2;
-        box = WireframeObject.parallelepiped(maxX - minX, maxY - minY, maxZ - minZ);
+        box = Wireframe.parallelepiped(maxX - minX, maxY - minY, maxZ - minZ);
         box.setOrigin(new Vertex(boxX, boxY, boxZ));
     }
 
@@ -199,9 +199,9 @@ public class Scene extends JPanel {
     private void initOrts() {
         Rect3D rect = this.box.getBoundRect3D();
 
-        WireframeObject x = WireframeObject.segment(ORT_COEF * rect.getWidth() / 2, 0, 0),
-                y = WireframeObject.segment(0, ORT_COEF * rect.getHeight() / 2, 0),
-                z = WireframeObject.segment(0, 0, ORT_COEF * rect.getDepth() / 2);
+        Wireframe x = Wireframe.segment(ORT_COEF * rect.getWidth() / 2, 0, 0),
+                y = Wireframe.segment(0, ORT_COEF * rect.getHeight() / 2, 0),
+                z = Wireframe.segment(0, 0, ORT_COEF * rect.getDepth() / 2);
 
         Vertex boxOrigin = box.getOrigin();
         // XYZ -> RGB
@@ -268,8 +268,8 @@ public class Scene extends JPanel {
      *
      * @return all objects on scene
      */
-    private List<WireframeObject> getAllObjects() {
-        List<WireframeObject> objects = new ArrayList<WireframeObject>();
+    private List<Wireframe> getAllObjects() {
+        List<Wireframe> objects = new ArrayList<Wireframe>();
         objects.addAll(sceneObjects);
         objects.addAll(orts);
         objects.add(box);
@@ -295,7 +295,7 @@ public class Scene extends JPanel {
         Transformation t = Transformation.compose(worldToCamera, worldTransformation);
         t.compose(projection);
 
-        for (WireframeObject shape : getAllObjects()) {
+        for (Wireframe shape : getAllObjects()) {
             g.setColor(shape.getColor());
             g.setStroke(new BasicStroke(shape.getWidth()));
 

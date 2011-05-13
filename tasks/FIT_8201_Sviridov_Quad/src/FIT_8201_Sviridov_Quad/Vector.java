@@ -43,11 +43,11 @@ public class Vector {
 
     public Vector cross(Vector other) {
         // (a_z b_y - a_y b_z,\; a_x b_z - a_z b_x,\; a_y b_x - a_x b_y).
-        double x1 = this.getX(), y1 = this.getY(), z1 = this.getZ(),
-                x2 = other.getX(), y2 = other.getY(), z2 = other.getZ();
-        double x = z1 * y2 - y1 * z2,
-                y = x1 + z2 - z1 * x2,
-                z = y1 * x2 - x1 * y2;
+        double ax = this.getX(), ay = this.getY(), az = this.getZ(),
+                bx = other.getX(), by = other.getY(), bz = other.getZ();
+        double x = ay*bz-by*az,
+                y = -(ax * bz - az * bx),
+                z = ax * by - ay * bx;
         return new Vector(x, y, z);
     }
 

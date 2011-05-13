@@ -1,6 +1,6 @@
 package FIT_8201_Sviridov_Quad;
 
-import java.awt.Color;
+import FIT_8201_Sviridov_Quad.primitives.Wireframe;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -11,6 +11,7 @@ import java.util.List;
  */
 public class Ray {
 
+    public static final double EPS = 10e-8;
     private final Vertex origin;
     private final Vector direction;
 
@@ -85,8 +86,22 @@ public class Ray {
             for (IntersectionInfo ii : sphere.intersect(ray)) {
                 System.out.println(ii);
             }
-
         }
+        if (tests.contains(2)) {
+            Ray ray = new Ray(new Vector(0, 0, -1));
+            System.out.println(ray);
+
+            Triangle triangle = new Triangle(
+                    new Vertex(0, 10, -10),
+                    new Vertex(-10, -10, -10),
+                    new Vertex(10, 10, -10));
+
+            for (IntersectionInfo ii : triangle.intersect(ray)) {
+                System.out.println(ii);
+            }
+        }
+
+
     }
 }
 
@@ -97,7 +112,21 @@ interface Renderable {
     public Coefficient3D trace(IntersectionInfo intersectionInfo, Collection<LightSource> lights, Collection<Renderable> objects);
 }
 
-class Sphere implements Renderable {
+abstract class RenderableImpl implements Renderable {
+
+    private ColorModel colorModel;
+    private Wireframe wireframe;
+
+    public ColorModel getColorModel() {
+        return colorModel;
+    }
+
+    public void setColorModel(ColorModel colorModel) {
+        this.colorModel = colorModel;
+    }
+}
+
+class Sphere extends RenderableImpl {
 
     private Vertex origin;
     private double radius;
@@ -169,11 +198,160 @@ class Sphere implements Renderable {
 
     @Override
     public String toString() {
-        return super.toString();
+        StringBuilder sb = new StringBuilder(50);
+        sb.append("SPH\r\n");
+        sb.append(origin);
+        sb.append("\r\n");
+        sb.append(radius);
+        sb.append("\r\n");
+        sb.append(getColorModel());
+        sb.append("\r\n");
+        sb.append("\r\n");
+        return sb.toString();
     }
 }
 
-class Triangle {
+class Triangle extends RenderableImpl {
 
     private Vertex v1, v2, v3;
+
+    public Triangle(Vertex v1, Vertex v2, Vertex v3) {
+        this.v1 = v1;
+        this.v2 = v2;
+        this.v3 = v3;
+    }
+
+    public static double area(Vertex v1, Vertex v2, Vertex v3) {
+        double v1x = v1.getX(),
+                v1y = v1.getY(),
+                v1z = v1.getZ(),
+                v2x = v2.getX(),
+                v2y = v2.getY(),
+                v2z = v2.getZ(),
+                v3x = v3.getX(),
+                v3y = v3.getY(),
+                v3z = v3.getZ();
+
+        double area = 0.5 * ((v2x - v1x) * (v3y - v1y) - (v3x - v1x) * (v2y - v1y));
+
+        return area;
+    }
+
+    @Override
+    public Collection<IntersectionInfo> intersect(Ray ray) {
+        List<IntersectionInfo> intersections = new ArrayList<IntersectionInfo>(1);
+
+        double v1x = v1.getX(),
+                v1y = v1.getY(),
+                v1z = v1.getZ(),
+                v2x = v2.getX(),
+                v2y = v2.getY(),
+                v2z = v2.getZ(),
+                v3x = v3.getX(),
+                v3y = v3.getY(),
+                v3z = v3.getZ();
+
+        System.out.println(v1);
+        System.out.println(v2);
+        System.out.println(v3);
+
+        Vector u1 = new Vector(v2x - v1x, v2y - v1y, v2z - v1z),
+                u2 = new Vector(v3x - v2x, v3y - v2y, v3z - v2z);
+
+        System.out.println(u1);
+        System.out.println(u2);
+
+        Vector n = Vector.cross(u1, u2);
+
+        System.out.println(n);
+
+        n = n.normalize();
+
+        System.out.println(n);
+
+        double A = n.getX(), B = n.getY(), C = n.getZ(),
+                D = -(v1x * A + v1y * B + v1z * C);
+
+        System.out.println(A + "x + " + B + "y + " + C + "z + " + D + " = 0");
+
+        Vector Rd = ray.getDirection();
+
+        System.out.println(Rd);
+
+        Vertex R0 = ray.getOrigin();
+
+        System.out.println(R0);
+
+        double nRd = Vector.dot(Rd, n);
+
+        System.out.println(nRd);
+
+        if (Math.abs(nRd) < Ray.EPS) {
+            return intersections;
+        }
+
+        double nR0 = Vector.dot(n, new Vector(R0));
+        System.out.println(nR0);
+        double t = -(nR0 + D) / nRd;
+        System.out.println(t);
+        if (t < 0) {
+            return intersections;
+        }
+
+
+
+        IntersectionInfo intersectionInfo = new IntersectionInfo(
+                new Vertex(
+                R0.getX() + t * Rd.getX(),
+                R0.getY() + t * Rd.getY(),
+                R0.getZ() + t * Rd.getZ()),
+                n, this);
+
+        Vertex p = intersectionInfo.getIntersection();
+
+        double triangleArea = area(v1, v2, v3);
+
+        double alpha = area(p, v2, v3) / triangleArea,
+                beta = area(v1, p, v3) / triangleArea,
+                gamma = area(v1, v2, p) / triangleArea;
+
+        System.out.println(alpha + " " + beta + " " + gamma);
+
+        if(alpha < 0 || alpha > 1 || beta < 0 || beta > 1
+                || gamma < 0 || gamma > 1 ||
+                (alpha + beta + gamma - 1) > Ray.EPS){
+            return intersections;
+        }
+
+
+        System.out.println(intersectionInfo);
+
+        intersections.add(intersectionInfo);
+
+        return intersections;
+    }
+
+    @Override
+    public Coefficient3D trace(IntersectionInfo intersectionInfo, Collection<LightSource> lights, Collection<Renderable> objects) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(20);
+
+        sb.append("TRG\r\n");
+        for (Vertex v : new Vertex[]{v1, v2, v3}) {
+            sb.append(v.getX());
+            sb.append(' ');
+            sb.append(v.getY());
+            sb.append(' ');
+            sb.append(v.getZ());
+            sb.append("\r\n");
+        }
+        sb.append(getColorModel());
+        sb.append("\r\n");
+
+        return sb.toString();
+    }
 }

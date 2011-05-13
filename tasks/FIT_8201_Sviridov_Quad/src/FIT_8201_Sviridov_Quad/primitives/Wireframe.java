@@ -16,7 +16,7 @@ import java.util.List;
  * 
  * @author admin
  */
-public class WireframeObject {
+public class Wireframe {
 
     private static final Color DEFAULT_COLOR = Color.black;
     private static final int DEFAULT_WIDTH = 1;
@@ -31,7 +31,7 @@ public class WireframeObject {
      *
      * @param segments
      */
-    public WireframeObject(List<Segment> segments) {
+    public Wireframe(List<Segment> segments) {
         this.segments = segments;
         this.coordinateSystem = new CoordinateSystem();
         transformation = this.coordinateSystem.getFrameToCanonicalTransformation();
@@ -86,7 +86,7 @@ public class WireframeObject {
      *            cube edge length
      * @return cube wireframe shape
      */
-    public static WireframeObject cube(double length) {
+    public static Wireframe cube(double length) {
         double p = length / 2;
         double m = -p;
 
@@ -114,7 +114,7 @@ public class WireframeObject {
 
         cube.add(new Segment(pmp, ppp));
 
-        return new WireframeObject(cube);
+        return new Wireframe(cube);
     }
 
     /**
@@ -128,7 +128,7 @@ public class WireframeObject {
      *            parallelepiped depth
      * @return parallelepiped
      */
-    public static WireframeObject parallelepiped(double width, double height,
+    public static Wireframe parallelepiped(double width, double height,
             double depth) {
         double wp = width / 2, wm = -wp, hp = height / 2, hm = -hp, dp = depth / 2, dm = -dp;
 
@@ -157,7 +157,7 @@ public class WireframeObject {
 
         parallelepiped.add(new Segment(pmp, ppp));
 
-        return new WireframeObject(parallelepiped);
+        return new Wireframe(parallelepiped);
     }
 
     /**
@@ -175,7 +175,7 @@ public class WireframeObject {
      *            e2
      * @return superquadric
      */
-    public static WireframeObject superquadric(double size, int tSteps,
+    public static Wireframe superquadric(double size, int tSteps,
             int sSteps, double e1, double e2) {
         List<Segment> segs = new ArrayList<Segment>((tSteps + 1) * (sSteps + 1));
         double tStep = Math.PI / tSteps;
@@ -213,7 +213,7 @@ public class WireframeObject {
                 segs.add(s);
             }
         }
-        return new WireframeObject(segs);
+        return new Wireframe(segs);
     }
 
     /**
@@ -227,10 +227,10 @@ public class WireframeObject {
      *            end z
      * @return segment
      */
-    public static WireframeObject segment(double x, double y, double z) {
+    public static Wireframe segment(double x, double y, double z) {
         List<Segment> segment = new ArrayList<Segment>(1);
         segment.add(new Segment(new Vertex(0, 0, 0), new Vertex(x, y, z)));
-        return new WireframeObject(segment);
+        return new Wireframe(segment);
     }
 
     /**
@@ -240,12 +240,12 @@ public class WireframeObject {
      * @param v3 3rd verticle
      * @return triangle
      */
-    public static WireframeObject triangle(Vertex v1, Vertex v2, Vertex v3){
+    public static Wireframe triangle(Vertex v1, Vertex v2, Vertex v3){
         List<Segment> segment = new ArrayList<Segment>(1);
         segment.add(new Segment(v1, v2));
         segment.add(new Segment(v2, v3));
         segment.add(new Segment(v3, v1));
-        return new WireframeObject(segment);
+        return new Wireframe(segment);
     }
 
     /**
