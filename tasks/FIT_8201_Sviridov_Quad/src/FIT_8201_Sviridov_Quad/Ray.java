@@ -241,91 +241,96 @@ class Triangle extends RenderableImpl {
     public Collection<IntersectionInfo> intersect(Ray ray) {
         List<IntersectionInfo> intersections = new ArrayList<IntersectionInfo>(1);
 
-        double v1x = v1.getX(),
-                v1y = v1.getY(),
-                v1z = v1.getZ(),
-                v2x = v2.getX(),
-                v2y = v2.getY(),
-                v2z = v2.getZ(),
-                v3x = v3.getX(),
-                v3y = v3.getY(),
-                v3z = v3.getZ();
-
-        System.out.println(v1);
-        System.out.println(v2);
-        System.out.println(v3);
+        double v1x = v1.getX(), v1y = v1.getY(), v1z = v1.getZ(),
+                v2x = v2.getX(), v2y = v2.getY(), v2z = v2.getZ(),
+                v3x = v3.getX(), v3y = v3.getY(), v3z = v3.getZ();
 
         Vector u1 = new Vector(v2x - v1x, v2y - v1y, v2z - v1z),
                 u2 = new Vector(v3x - v2x, v3y - v2y, v3z - v2z);
 
-        System.out.println(u1);
-        System.out.println(u2);
-
-        Vector n = Vector.cross(u1, u2);
-
-        System.out.println(n);
-
-        n = n.normalize();
-
-        System.out.println(n);
+        Vector n = Vector.cross(u1, u2).normalize();
 
         double A = n.getX(), B = n.getY(), C = n.getZ(),
                 D = -(v1x * A + v1y * B + v1z * C);
 
-        System.out.println(A + "x + " + B + "y + " + C + "z + " + D + " = 0");
-
         Vector Rd = ray.getDirection();
-
-        System.out.println(Rd);
-
         Vertex R0 = ray.getOrigin();
 
-        System.out.println(R0);
-
         double nRd = Vector.dot(Rd, n);
-
-        System.out.println(nRd);
-
         if (Math.abs(nRd) < Ray.EPS) {
             return intersections;
         }
 
         double nR0 = Vector.dot(n, new Vector(R0));
-        System.out.println(nR0);
+
         double t = -(nR0 + D) / nRd;
-        System.out.println(t);
         if (t < 0) {
             return intersections;
         }
 
-
-
-        IntersectionInfo intersectionInfo = new IntersectionInfo(
-                new Vertex(
+        Vertex p = new Vertex(
                 R0.getX() + t * Rd.getX(),
                 R0.getY() + t * Rd.getY(),
-                R0.getZ() + t * Rd.getZ()),
-                n, this);
+                R0.getZ() + t * Rd.getZ());
 
-        Vertex p = intersectionInfo.getIntersection();
+        // inside triangle?
+        {
+            int maxCoordinate = -1;
+            double max = Double.NEGATIVE_INFINITY;
 
-        double triangleArea = area(v1, v2, v3);
+            if (p.getX() > max) {
+                maxCoordinate = 0;
+                max = p.getX();
+            }
 
-        double alpha = area(p, v2, v3) / triangleArea,
-                beta = area(v1, p, v3) / triangleArea,
-                gamma = area(v1, v2, p) / triangleArea;
+            if (p.getY() > max) {
+                maxCoordinate = 1;
+                max = p.getY();
+            }
 
-        System.out.println(alpha + " " + beta + " " + gamma);
+            if (p.getZ() > max) {
+                maxCoordinate = 2;
+            }
 
-        if(alpha < 0 || alpha > 1 || beta < 0 || beta > 1
-                || gamma < 0 || gamma > 1 ||
-                (alpha + beta + gamma - 1) > Ray.EPS){
-            return intersections;
+            Vertex w1, w2, w3, q;
+            switch (maxCoordinate) {
+                case 0:
+                    w1 = new Vertex(0, v1.getY(), v1.getZ());
+                    w2 = new Vertex(0, v2.getY(), v2.getZ());
+                    w3 = new Vertex(0, v3.getY(), v3.getZ());
+                    q = new Vertex(0, p.getY(), p.getZ());
+                    break;
+                case 1:
+                    w1 = new Vertex(v1.getX(), 0, v1.getZ());
+                    w2 = new Vertex(v2.getX(), 0, v2.getZ());
+                    w3 = new Vertex(v3.getX(), 0, v3.getZ());
+                    q = new Vertex(p.getX(), 0, p.getZ());
+                    break;
+                case 2:
+                    w1 = new Vertex(v1.getX(), v1.getY(), 0);
+                    w2 = new Vertex(v2.getX(), v2.getY(), 0);
+                    w3 = new Vertex(v3.getX(), v3.getY(), 0);
+                    q = new Vertex(p.getX(), p.getY(), 0);
+                    break;
+                default:
+                    throw new IllegalStateException("For a given set of numbers maximum exists always");
+            }
+
+            double triangleArea = area(w1, w2, w3);
+
+            double alpha = area(q, w2, w3) / triangleArea,
+                    beta = area(w1, q, w3) / triangleArea,
+                    gamma = area(w1, w2, q) / triangleArea;
+
+            if (alpha < 0 || alpha > 1 || beta < 0 || beta > 1
+                    || gamma < 0 || gamma > 1
+                    || (alpha + beta + gamma - 1) > Ray.EPS) {
+                return intersections;
+            }
         }
 
 
-        System.out.println(intersectionInfo);
-
+        IntersectionInfo intersectionInfo = new IntersectionInfo(p, n, this);
         intersections.add(intersectionInfo);
 
         return intersections;
