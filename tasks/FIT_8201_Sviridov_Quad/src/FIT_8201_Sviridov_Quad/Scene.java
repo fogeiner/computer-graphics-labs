@@ -2,6 +2,10 @@ package FIT_8201_Sviridov_Quad;
 
 import FIT_8201_Sviridov_Quad.primitives.Segment;
 import FIT_8201_Sviridov_Quad.primitives.Wireframe;
+import FIT_8201_Sviridov_Quad.transformations.PerspectiveProjectionTransformation;
+import FIT_8201_Sviridov_Quad.transformations.RotationTransformation;
+import FIT_8201_Sviridov_Quad.transformations.Transformation;
+import FIT_8201_Sviridov_Quad.transformations.TranslationTransformation;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -18,47 +22,16 @@ import java.util.List;
 import javax.swing.JPanel;
 
 /**
- * Class for scene
- * 
+ *
  * @author alstein
  */
 public class Scene extends JPanel {
-
-    private static final long serialVersionUID = -2311010553599403447L;
-    private static final double DEFAULT_ROTATE_COEF = Math.PI / 32;
-    private static final double DEFAULT_ROLL_COEF = 25.0;
-    private static final double ORT_COEF = 1.1;
-    private double rollCoef = DEFAULT_ROLL_COEF;
-    private double rotateCoef = 1 / 5.0;
-    // all scene objects
-    private List<Wireframe> sceneObjects;
-    // orts
-    private List<Wireframe> orts;
-    // bound box
-    private Wireframe box;
-    // projection matrix
-    private double znear, zfar;
-    private boolean ortsHidden;
-    private boolean boxHidden;
-    private boolean objectsHidden;
-    // mouse handler
-    private MouseHandler mouseHandler;
-    private Transformation worldToCamera;
-    private Transformation worldTransformation;
-    private Double savedZnear, savedZfar;
-
-    {
-        sceneObjects = new ArrayList<Wireframe>(3);
-        orts = new ArrayList<Wireframe>(3);
-        mouseHandler = new MouseHandler();
-        worldTransformation = Transformation.identity();
-    }
 
     /**
      * Class to handle MouseMotion and MouseWheel events, alter settins of the
      * model and schedule repaint procedure
      */
-    class MouseHandler extends MouseAdapter implements MouseMotionListener,
+    private class MouseHandler extends MouseAdapter implements MouseMotionListener,
             MouseWheelListener {
 
         private Point lastPoint;
@@ -77,30 +50,23 @@ public class Scene extends JPanel {
         @Override
         public void mouseDragged(MouseEvent e) {
             Point currentPoint = e.getPoint();
-
             double dx = -(lastPoint.getX() - currentPoint.getX()), dy = -(lastPoint.getY() - currentPoint.getY());
+            lastPoint = currentPoint;
 
             double length = Math.hypot(dx, dy);
+
             if (length == 0) {
                 return;
             }
-            dx = dx / length * rotateCoef * DEFAULT_ROTATE_COEF;
-            dy = dy / length * rotateCoef * DEFAULT_ROTATE_COEF;
 
-            lastPoint = currentPoint;
+            dx = dx / length;
+            dy = dy / length;
 
-            Vertex boxOrigin = worldTransformation.apply(box.getOrigin());
+            Transformation rotation = null;
+            rotation = RotationTransformation.makeRotation(dx, RotationTransformation.Y_AXIS);
+            rotation.compose(RotationTransformation.makeRotation(dy, RotationTransformation.X_AXIS));
 
-            Transformation t = Transformation.identity();
-
-            t.compose(Transformation.translate(-boxOrigin.getX(),
-                    -boxOrigin.getY(), -boxOrigin.getZ()));
-            t.compose(Transformation.rotate(dx, Transformation.Y_AXIS));
-            t.compose(Transformation.rotate(dy, Transformation.X_AXIS));
-            t.compose(Transformation.translate(boxOrigin.getX(),
-                    boxOrigin.getY(), boxOrigin.getZ()));
-
-            worldTransformation.compose(t);
+            model.centralRotation(rotation);
 
             repaint();
         }
@@ -108,180 +74,38 @@ public class Scene extends JPanel {
         @Override
         public void mouseWheelMoved(MouseWheelEvent e) {
             int wheelRotationSign = (int) Math.signum(e.getWheelRotation());
-            Transformation t = Transformation.translate(
-                    0, 0, wheelRotationSign * rollCoef);
-            worldTransformation.compose(t);
+
+            Transformation translation = new TranslationTransformation(0, 0, wheelRotationSign);
+            model.transform(translation);
+
             repaint();
         }
     }
+    private Model model;
+    private boolean boxVisible = true;
+    private boolean ortsVisible = true;
+    private boolean renderablesVisible = true;
+    // TODO
+    private boolean wireframeMode = true;
+    private MouseHandler mouseHandler = new MouseHandler();
 
-    /**
-     * Create scene objects and set their origins in the world coordinate system
-     */
-    private void initSceneObjects() {
-        // triangle
+    public void setModel(Model model) {
+        this.model = model;
+    }
 
-        Vertex v1 = new Vertex(-300, -300, 300);
-        Vertex v2 = new Vertex(300, -300, 300);
-        Vertex v3 = new Vertex(0, 300, -250);
+    public Scene(Model model) {
+        this.model = model;
         
-        Wireframe triangle = Wireframe.triangle(v1, v2, v3);
-        triangle.setOrigin(new Vertex(0, 0, -200));
-        sceneObjects.add(triangle);
-        double c = 1 / Math.sqrt(2);
-        int sSteps = 30, tSteps = 30;
-
-        Wireframe sq1 = Wireframe.superquadric(80, tSteps, sSteps,
-                0.5, 0.5);
-        sq1.setOrigin(new Vertex(-150, 180, 30));
-        sq1.setBasis(new Vector(1, 0, 0), new Vector(0, -c, c), new Vector(0,
-                -c, -c));
-        sceneObjects.add(sq1);
-
-        Wireframe sq2 = Wireframe.superquadric(100, tSteps, sSteps,
-                1, 3);
-        sq2.setOrigin(new Vertex(0, 0, 0));
-        sq2.setBasis(new Vector(0, c, c), new Vector(-1, 0, 0), new Vector(0,
-                -c, c));
-        sceneObjects.add(sq2);
-
-        Wireframe sq3 = Wireframe.superquadric(90, tSteps, sSteps,
-                2, 1);
-        sq3.setOrigin(new Vertex(180, -140, 60));
-        sq3.setBasis(new Vector(-1, 0, 0), new Vector(0, -c, -c), new Vector(0,
-                -c, c));
-        sceneObjects.add(sq3);
-    }
-
-    /**
-     * Based on objects and their coordinates in the world coordinate system
-     * computes the size and location of the bound box
-     */
-    private void initBoundBox() {
-        double maxX = Double.NEGATIVE_INFINITY,
-                minX = Double.POSITIVE_INFINITY,
-                maxY = Double.NEGATIVE_INFINITY,
-                minY = Double.POSITIVE_INFINITY,
-                maxZ = Double.NEGATIVE_INFINITY,
-                minZ = Double.POSITIVE_INFINITY;
-
-        for (Wireframe shape : sceneObjects) {
-            for (Segment s : shape.getSegments()) {
-                Vertex start = s.getStartVertex();
-                Vertex end = s.getEndVertex();
-                double sx = start.getX(),
-                        sy = start.getY(),
-                        sz = start.getZ(),
-                        ex = end.getX(),
-                        ey = end.getY(),
-                        ez = end.getZ();
-
-                maxX = Math.max(maxX, Math.max(sx, ex));
-                maxY = Math.max(maxY, Math.max(sy, ey));
-                maxZ = Math.max(maxZ, Math.max(sz, ez));
-
-                minX = Math.min(minX, Math.min(sx, ex));
-                minY = Math.min(minY, Math.min(sy, ey));
-                minZ = Math.min(minZ, Math.min(sz, ez));
-            }
-        }
-
-        double boxX = (maxX + minX) / 2,
-                boxY = (maxY + minY) / 2,
-                boxZ = (maxZ + minZ) / 2;
-        box = Wireframe.parallelepiped(maxX - minX, maxY - minY, maxZ - minZ);
-        box.setOrigin(new Vertex(boxX, boxY, boxZ));
-    }
-
-    /**
-     * Based on bound box WireframeShape creates 3 orts
-     */
-    private void initOrts() {
-        Rect3D rect = this.box.getBoundRect3D();
-
-        Wireframe x = Wireframe.segment(ORT_COEF * rect.getWidth() / 2, 0, 0),
-                y = Wireframe.segment(0, ORT_COEF * rect.getHeight() / 2, 0),
-                z = Wireframe.segment(0, 0, ORT_COEF * rect.getDepth() / 2);
-
-        Vertex boxOrigin = box.getOrigin();
-        // XYZ -> RGB
-        x.setColor(Color.red);
-        x.setOrigin(boxOrigin);
-        x.setWidth(3);
-
-        y.setColor(Color.green);
-        y.setOrigin(boxOrigin);
-        y.setWidth(3);
-
-        z.setColor(Color.blue);
-        z.setOrigin(boxOrigin);
-        z.setWidth(3);
-
-        orts.add(x);
-        orts.add(y);
-        orts.add(z);
-    }
-
-    /**
-     * Compute coordinates of the camera and translate all points the way camera
-     * is in the center of the world coordinates
-     */
-    private void initCamera() {
-        Vertex boxOrigin = box.getOrigin();
-        Rect3D boxSizes = box.getBoundRect3D();
-        double d = (boxSizes.getWidth() / 2) / Math.tan(Math.toRadians(15));
-        double cameraX = boxOrigin.getX(),
-                cameraY = boxOrigin.getY(),
-                cameraZ = boxOrigin.getZ() + boxSizes.getDepth() / 2 + d + 1;
-
-        worldToCamera = Transformation.translate(-cameraX, -cameraY, -cameraZ);
-
-        znear = d;
-        zfar = znear + 2.5 * boxSizes.getDepth();
-
-        if (savedZnear == null) {
-            savedZnear = znear;
-        }
-        if (savedZfar == null) {
-            savedZfar = zfar;
-        }
-    }
-
-    /**
-     * Default ctor Sets event handlers and inits the Scene
-     */
-    public Scene() {
         setBackground(Color.white);
-
         addMouseListener(mouseHandler);
         addMouseMotionListener(mouseHandler);
         addMouseWheelListener(mouseHandler);
-
-        initSceneObjects();
-        initBoundBox();
-        initOrts();
-        initCamera();
     }
 
-    /**
-     * Returns all objects on scene
-     *
-     * @return all objects on scene
-     */
-    private List<Wireframe> getAllObjects() {
-        List<Wireframe> objects = new ArrayList<Wireframe>();
-        objects.addAll(sceneObjects);
-        objects.addAll(orts);
-        objects.add(box);
-        return objects;
-    }
+    private void paintWireframe(Graphics2D g) {
 
-    @Override
-    protected void paintComponent(Graphics g1) {
-        super.paintComponent(g1);
-        Graphics2D g = (Graphics2D) g1;
-
-        double height = getHeight(), width = getWidth(), halfWidth = width / 2, halfHeight = height / 2;
+        double height = getHeight(), width = getWidth(),
+                halfWidth = width / 2, halfHeight = height / 2;
 
         g.translate(halfWidth, halfHeight);
         g.scale(1.0, -1.0);
@@ -289,29 +113,33 @@ public class Scene extends JPanel {
         Color oldColor = g.getColor();
         Stroke oldStroke = g.getStroke();
 
-        Transformation projection = Transformation.perspective(-halfWidth,
-                halfWidth, -halfHeight, halfHeight, znear, zfar);
+        Transformation projection = new PerspectiveProjectionTransformation(
+                -halfWidth, halfWidth, -halfHeight, halfHeight, model.getZnear(), model.getZfar());
 
-        Transformation t = Transformation.compose(worldToCamera, worldTransformation);
-        t.compose(projection);
+        List<Wireframe> wireframes = new ArrayList<Wireframe>(10);
 
-        for (Wireframe shape : getAllObjects()) {
-            g.setColor(shape.getColor());
-            g.setStroke(new BasicStroke(shape.getWidth()));
+        if (boxVisible) {
+            wireframes.add(model.getBox());
+        }
+        if (ortsVisible) {
+            wireframes.addAll(model.getOrts());
+        }
+        if (renderablesVisible) {
+            wireframes.addAll(model.getRenderablesWireframes());
+        }
 
-            if ((orts.contains(shape) && ortsHidden)
-                    || (shape == box && boxHidden)
-                    || (sceneObjects.contains(shape) && objectsHidden)) {
-                continue;
-            }
+        for (Wireframe wireframe : wireframes) {
+            g.setColor(wireframe.getColor());
+            g.setStroke(new BasicStroke(wireframe.getWidth()));
 
-            for (Segment s : shape.getSegments()) {
+
+            for (Segment s : wireframe.getSegments()) {
 
                 Vertex start = s.getStartVertex(),
                         end = s.getEndVertex();
 
-                Vertex startProjected = t.apply(start).normalize();
-                Vertex endProjected = t.apply(end).normalize();
+                Vertex startProjected = projection.apply(start).normalize();
+                Vertex endProjected = projection.apply(end).normalize();
 
                 double sx = startProjected.getX(),
                         sy = startProjected.getY(),
@@ -321,10 +149,7 @@ public class Scene extends JPanel {
                         ez = endProjected.getZ();
 
                 if (sx > 1 || sx < -1 || ex > 1 || ex < -1 || sy < -1 || sy > 1
-                        || ey < -1 || ey > 1 /*|| sz > 1 || sz < -1 || ez > 1
-                        || ez < -1*/) 
-                        
-                {
+                        || ey < -1 || ey > 1) {
                     continue;
                 }
 
@@ -342,84 +167,50 @@ public class Scene extends JPanel {
         g.translate(-halfWidth, -halfHeight);
     }
 
-    /**
-     * Returns all object to initial state
-     */
-    public void init() {
-        worldTransformation = Transformation.identity();
-        zfar = savedZfar;
-        znear = savedZnear;
-        repaint();
+    private void paintRender(Graphics2D g) {
     }
 
-    /**
-     * Sets orts visibility to value
-     *
-     * @param value
-     *            boolean value
-     */
-    public void setOrtsVisible(boolean value) {
-        ortsHidden = !value;
-        repaint();
+    @Override
+    protected void paintComponent(Graphics g1) {
+        super.paintComponent(g1);
+        Graphics2D g = (Graphics2D) g1;
+
+        if (wireframeMode) {
+            paintWireframe(g);
+        } else {
+            paintRender(g);
+        }
     }
 
-    /**
-     * Sets box visibility to value
-     *
-     * @param value
-     *            boolean value
-     */
-    public void setBoxVisible(boolean value) {
-        boxHidden = !value;
-        repaint();
+    public boolean isBoxVisible() {
+        return boxVisible;
     }
 
-    /**
-     * Sets objects visibility to value
-     *
-     * @param value
-     *            boolean value
-     */
-    public void setObjectsVisible(boolean value) {
-        objectsHidden = !value;
-        repaint();
+    public void setBoxVisible(boolean boxVisible) {
+        this.boxVisible = boxVisible;
     }
 
-    /**
-     * Returns roll coefficient
-     *
-     * @return roll coefficient
-     */
-    public double getRollCoef() {
-        return rollCoef;
+    public boolean isRenderablesVisible() {
+        return renderablesVisible;
     }
 
-    /**
-     * Sets roll coefficient
-     *
-     * @param rollCoef
-     *            roll coefficient
-     */
-    public void setRollCoef(double rollCoef) {
-        this.rollCoef = rollCoef;
+    public void setRenderablesVisible(boolean objectsVisible) {
+        this.renderablesVisible = objectsVisible;
     }
 
-    /**
-     * Returns rotate coefficient
-     *
-     * @return rotate coefficient
-     */
-    public double getRotateCoef() {
-        return rotateCoef;
+    public boolean isOrtsVisible() {
+        return ortsVisible;
     }
 
-    /**
-     * Sets rotate coefficient
-     *
-     * @param rotateCoef
-     *            rotate coefficient
-     */
-    public void setRotateCoef(double rotateCoef) {
-        this.rotateCoef = rotateCoef;
+    public void setOrtsVisible(boolean ortsVisible) {
+        this.ortsVisible = ortsVisible;
+    }
+
+    public boolean isWireframeMode() {
+        return wireframeMode;
+    }
+
+    public void setWireframeMode(boolean wireframeMode) {
+        this.wireframeMode = wireframeMode;
     }
 }

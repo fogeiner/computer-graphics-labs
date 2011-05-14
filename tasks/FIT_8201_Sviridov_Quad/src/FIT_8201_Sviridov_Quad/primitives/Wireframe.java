@@ -2,13 +2,13 @@ package FIT_8201_Sviridov_Quad.primitives;
 
 import FIT_8201_Sviridov_Quad.CoordinateSystem;
 import FIT_8201_Sviridov_Quad.Rect3D;
-import FIT_8201_Sviridov_Quad.Transformation;
+import FIT_8201_Sviridov_Quad.SceneObject;
 import FIT_8201_Sviridov_Quad.Vector;
 import FIT_8201_Sviridov_Quad.Vertex;
+import FIT_8201_Sviridov_Quad.transformations.Transformation;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -16,15 +16,16 @@ import java.util.List;
  * 
  * @author admin
  */
-public class Wireframe {
+public class Wireframe implements SceneObject {
 
-    private static final Color DEFAULT_COLOR = Color.black;
-    private static final int DEFAULT_WIDTH = 1;
-    private List<Segment> segments;
-    private CoordinateSystem coordinateSystem;
-    private Transformation transformation;
+    public static final Vertex DEFAULT_ORIGIN = new Vertex(0, 0, 0);
+    
+    public static final Color DEFAULT_COLOR = Color.black;
+    public static final int DEFAULT_WIDTH = 1;
     private int width = DEFAULT_WIDTH;
     private Color color = DEFAULT_COLOR;
+    private final List<Segment> segments;
+    private Vertex origin = DEFAULT_ORIGIN;
 
     /**
      * Default ctor with given segments given in local WireframeShape model
@@ -33,9 +34,38 @@ public class Wireframe {
      */
     public Wireframe(List<Segment> segments) {
         this.segments = segments;
-        this.coordinateSystem = new CoordinateSystem();
-        transformation = this.coordinateSystem.getFrameToCanonicalTransformation();
     }
+
+    public Wireframe(List<Segment> segments, Vertex origin) {
+        this.segments = segments;
+        CoordinateSystem cs = new CoordinateSystem(origin);
+        Transformation frameToWorld = cs.getFrameToWorldTransformation();
+        for (Segment segment : segments) {
+            segment.transform(frameToWorld);
+        }
+    }
+
+    /**
+     * Ctor with basis and origin for given wireframe shape
+     *
+     * @param v1 1st vector
+     * @param v2 2nd vector
+     * @param v3 3rd vector
+     */
+    public Wireframe(List<Segment> segments, Vector v1, Vector v2, Vector v3, Vertex origin) {
+        this.segments = segments;
+        CoordinateSystem cs = new CoordinateSystem(origin, v1, v2, v3);
+        Transformation frameToWorld = cs.getFrameToWorldTransformation();
+        for (Segment segment : segments) {
+            segment.transform(frameToWorld);
+        }
+    }
+
+    public Vertex getOrigin() {
+        return origin;
+    }
+
+
 
     /**
      * Returns segments of the shape after Transformation application
@@ -43,12 +73,7 @@ public class Wireframe {
      * @return segments
      */
     public List<Segment> getSegments() {
-        List<Segment> result = new ArrayList<Segment>(this.segments.size());
-        for (Segment s : segments) {
-            Segment newSegment = new Segment(transformation.apply(s.getStartVertex()), transformation.apply(s.getEndVertex()));
-            result.add(newSegment);
-        }
-        return Collections.unmodifiableList(result);
+        return segments;
     }
 
     /**
@@ -86,35 +111,35 @@ public class Wireframe {
      *            cube edge length
      * @return cube wireframe shape
      */
-    public static Wireframe cube(double length) {
+    public static List<Segment> cube(double length) {
         double p = length / 2;
         double m = -p;
 
-        List<Segment> cube = new ArrayList<Segment>(12);
+        List<Segment> segs = new ArrayList<Segment>(12);
 
         Vertex mmm = new Vertex(m, m, m), mmp = new Vertex(m, m, p), mpm = new Vertex(
                 m, p, m), mpp = new Vertex(m, p, p), pmm = new Vertex(p, m, m), pmp = new Vertex(
                 p, m, p), ppm = new Vertex(p, p, m), ppp = new Vertex(p, p, p);
 
-        cube.add(new Segment(mmm, mmp));
-        cube.add(new Segment(mmm, pmm));
-        cube.add(new Segment(mmm, mpm));
+        segs.add(new Segment(mmm, mmp));
+        segs.add(new Segment(mmm, pmm));
+        segs.add(new Segment(mmm, mpm));
 
-        cube.add(new Segment(pmm, ppm));
-        cube.add(new Segment(pmm, pmp));
+        segs.add(new Segment(pmm, ppm));
+        segs.add(new Segment(pmm, pmp));
 
-        cube.add(new Segment(mmp, mpp));
-        cube.add(new Segment(mmp, pmp));
+        segs.add(new Segment(mmp, mpp));
+        segs.add(new Segment(mmp, pmp));
 
-        cube.add(new Segment(mpm, ppm));
-        cube.add(new Segment(mpm, mpp));
+        segs.add(new Segment(mpm, ppm));
+        segs.add(new Segment(mpm, mpp));
 
-        cube.add(new Segment(mpp, ppp));
-        cube.add(new Segment(ppm, ppp));
+        segs.add(new Segment(mpp, ppp));
+        segs.add(new Segment(ppm, ppp));
 
-        cube.add(new Segment(pmp, ppp));
+        segs.add(new Segment(pmp, ppp));
 
-        return new Wireframe(cube);
+        return segs;
     }
 
     /**
@@ -128,7 +153,7 @@ public class Wireframe {
      *            parallelepiped depth
      * @return parallelepiped
      */
-    public static Wireframe parallelepiped(double width, double height,
+    public static List<Segment> box(double width, double height,
             double depth) {
         double wp = width / 2, wm = -wp, hp = height / 2, hm = -hp, dp = depth / 2, dm = -dp;
 
@@ -137,27 +162,27 @@ public class Wireframe {
                 hm, dm), pmp = new Vertex(wp, hm, dp), ppm = new Vertex(wp, hp,
                 dm), ppp = new Vertex(wp, hp, dp);
 
-        List<Segment> parallelepiped = new ArrayList<Segment>(12);
+        List<Segment> segs = new ArrayList<Segment>(12);
 
-        parallelepiped.add(new Segment(mmm, mmp));
-        parallelepiped.add(new Segment(mmm, pmm));
-        parallelepiped.add(new Segment(mmm, mpm));
+        segs.add(new Segment(mmm, mmp));
+        segs.add(new Segment(mmm, pmm));
+        segs.add(new Segment(mmm, mpm));
 
-        parallelepiped.add(new Segment(pmm, ppm));
-        parallelepiped.add(new Segment(pmm, pmp));
+        segs.add(new Segment(pmm, ppm));
+        segs.add(new Segment(pmm, pmp));
 
-        parallelepiped.add(new Segment(mmp, mpp));
-        parallelepiped.add(new Segment(mmp, pmp));
+        segs.add(new Segment(mmp, mpp));
+        segs.add(new Segment(mmp, pmp));
 
-        parallelepiped.add(new Segment(mpm, ppm));
-        parallelepiped.add(new Segment(mpm, mpp));
+        segs.add(new Segment(mpm, ppm));
+        segs.add(new Segment(mpm, mpp));
 
-        parallelepiped.add(new Segment(mpp, ppp));
-        parallelepiped.add(new Segment(ppm, ppp));
+        segs.add(new Segment(mpp, ppp));
+        segs.add(new Segment(ppm, ppp));
 
-        parallelepiped.add(new Segment(pmp, ppp));
+        segs.add(new Segment(pmp, ppp));
 
-        return new Wireframe(parallelepiped);
+        return segs;
     }
 
     /**
@@ -175,8 +200,9 @@ public class Wireframe {
      *            e2
      * @return superquadric
      */
-    public static Wireframe superquadric(double size, int tSteps,
+    public static List<Segment> superquadric(double size, int tSteps,
             int sSteps, double e1, double e2) {
+
         List<Segment> segs = new ArrayList<Segment>((tSteps + 1) * (sSteps + 1));
         double tStep = Math.PI / tSteps;
         double sStep = 2 * Math.PI / sSteps;
@@ -213,75 +239,10 @@ public class Wireframe {
                 segs.add(s);
             }
         }
-        return new Wireframe(segs);
+
+        return segs;
     }
 
-    /**
-     * Returns segment
-     *
-     * @param x
-     *            end x
-     * @param y
-     *            end y
-     * @param z
-     *            end z
-     * @return segment
-     */
-    public static Wireframe segment(double x, double y, double z) {
-        List<Segment> segment = new ArrayList<Segment>(1);
-        segment.add(new Segment(new Vertex(0, 0, 0), new Vertex(x, y, z)));
-        return new Wireframe(segment);
-    }
-
-    /**
-     * Returns triangle
-     * @param v1 1st verticle
-     * @param v2 2nd verticle
-     * @param v3 3rd verticle
-     * @return triangle
-     */
-    public static Wireframe triangle(Vertex v1, Vertex v2, Vertex v3){
-        List<Segment> segment = new ArrayList<Segment>(1);
-        segment.add(new Segment(v1, v2));
-        segment.add(new Segment(v2, v3));
-        segment.add(new Segment(v3, v1));
-        return new Wireframe(segment);
-    }
-
-    /**
-     * Sets basis for given wireframe shape
-     *
-     * @param v1
-     *            1st vector
-     * @param v2
-     *            2nd vector
-     * @param v3
-     *            3rd vector
-     */
-    public void setBasis(Vector v1, Vector v2, Vector v3) {
-        coordinateSystem.setBasis(v1, v2, v3);
-        transformation = coordinateSystem.getFrameToCanonicalTransformation();
-    }
-
-    /**
-     * Sets origin of the shape
-     *
-     * @param origin
-     *            origin
-     */
-    public void setOrigin(Vertex origin) {
-        coordinateSystem.setOrigin(origin);
-        transformation = coordinateSystem.getFrameToCanonicalTransformation();
-    }
-
-    /**
-     * Returns initial origin
-     *
-     * @return initial origin
-     */
-    public Vertex getOrigin() {
-        return coordinateSystem.getOrigin();
-    }
 
     /**
      * Returns color
@@ -333,5 +294,13 @@ public class Wireframe {
             sb.append('\n');
         }
         return sb.toString();
+    }
+
+    @Override
+    public void transform(Transformation transformation) {
+        for (Segment s : segments) {
+            s.transform(transformation);
+        }
+
     }
 }

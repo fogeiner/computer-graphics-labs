@@ -53,7 +53,7 @@ import java.io.Reader;
  */
 public class QuadPersistence {
 
-    public static QuadModel loadFromFile(File file) throws FileNotFoundException, IOException {
+    public static Model loadFromFile(File file) throws FileNotFoundException, IOException {
         Reader reader = new FileReader(file);
         BufferedReader bufferedRedeader = new BufferedReader(reader);
         String str = null;
@@ -208,6 +208,6 @@ public class QuadPersistence {
         return els;
     }
 
-    public static void saveToFile(File file, QuadModel sceneModel) {
+    public static void saveToFile(File file, Model sceneModel) {
     }
 }

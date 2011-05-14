@@ -1,5 +1,7 @@
 package FIT_8201_Sviridov_Quad;
 
+import FIT_8201_Sviridov_Quad.primitives.Renderable;
+
 /**
  *
  * @author alstein

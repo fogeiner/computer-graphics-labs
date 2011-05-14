@@ -1,5 +1,8 @@
 package FIT_8201_Sviridov_Quad;
 
+import FIT_8201_Sviridov_Quad.primitives.RenderableImpl;
+import FIT_8201_Sviridov_Quad.primitives.Sphere;
+import FIT_8201_Sviridov_Quad.primitives.Triangle;
 import FIT_8201_Sviridov_Quad.utils.LineParseUtils;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -52,9 +55,9 @@ public final class Frame extends MainFrame {
     public static final String UNTITLED_DOCUMENT = "Untitled";
     public static final String ABOUT_FILE = "FIT_8201_Sviridov_Quad_About.txt";
     private Color pressedColor = Color.lightGray;
-    private Scene scene = new Scene();
+    private Scene scene;
     private boolean modified;
-    private SettingsDialog settingsDialog = new SettingsDialog(this);
+    private SettingsDialog settingsDialog = null;// new SettingsDialog(this);
 
     /**
      * Class for settings dialog
@@ -296,6 +299,52 @@ public final class Frame extends MainFrame {
                 onExit();
             }
         });
+
+        Model model = new Model();
+
+        model.addLight(new Light(new Vertex(100, 100, 100), new Coefficient3D(1.0, 1.0, 1.0)));
+
+        Vertex v1 = new Vertex(0, 100, 0),
+                v2 = new Vertex(0, 0, 100),
+                v3 = new Vertex(100, 0, 0),
+                v4 = new Vertex(0, 0, 0);
+
+        model.addRenderable(
+                new Triangle(v1, v2, v4,
+                new ColorModel(
+                new Coefficient3D(0.5, 0.5, 0.5),
+                new Coefficient3D(0.2, 0.2, 0.2),
+                new Coefficient3D(0.5, 0.5, 0.5),
+                2, 0, 0, 0)));
+
+        model.addRenderable(
+                new Triangle(v1, v4, v3,
+                new ColorModel(
+                new Coefficient3D(0.6, 0.3, 0.0),
+                new Coefficient3D(0.0, 0.5, 0.7),
+                new Coefficient3D(0.6, 0.3, 0.2),
+                2, 0, 0, 0)));
+
+        model.addRenderable(
+                new Triangle(v4, v2, v3,
+                new ColorModel(
+                new Coefficient3D(0.8, 0.8, 0.8),
+                new Coefficient3D(0.2, 0.2, 0.1),
+                new Coefficient3D(0.6, 0.6, 0.7),
+                2, 0, 0, 0)));
+
+        model.addRenderable(
+                new Sphere(new Vertex(50, 50, 50),
+                40,
+                new ColorModel(
+                new Coefficient3D(0.8, 0.8, 0.8),
+                new Coefficient3D(0.2, 0.2, 0.1),
+                new Coefficient3D(0.6, 0.6, 0.7),
+                2, 0, 0, 0)));
+
+        model.setAmbient(new Coefficient3D(1.0, 1.0, 1.0));
+        model.finishModel();
+        scene = new Scene(model);
 
         JPanel outer1 = new JPanel(new BorderLayout());
         outer1.setBackground(Color.white);
