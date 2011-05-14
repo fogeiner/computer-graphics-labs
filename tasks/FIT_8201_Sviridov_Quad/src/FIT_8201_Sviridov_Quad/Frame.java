@@ -51,7 +51,7 @@ public final class Frame extends MainFrame {
     private Color pressedColor = Color.lightGray;
     private Scene scene;
     private boolean modified;
-    private SettingsDialog settingsDialog =  new SettingsDialog(this);
+    private SettingsDialog settingsDialog = new SettingsDialog(this);
 
     /**
      * Class for settings dialog
@@ -255,6 +255,8 @@ public final class Frame extends MainFrame {
                     KeyEvent.VK_B, "box.gif", "onBox");
             addMenuItem("Edit/Show or hide objects", "Show/hide objects",
                     KeyEvent.VK_S, "obj.gif", "onObjects");
+            addMenuItem("Edit/Render", "Start rendering proccess",
+                    KeyEvent.VK_R, "render.gif", "onRender");
             addMenuItem("Edit/Settings", "Show settings dialog", KeyEvent.VK_S,
                     "settings.gif", "onSettings");
 
@@ -271,6 +273,7 @@ public final class Frame extends MainFrame {
             addToolBarButton("Edit/Show or hide orts");
             addToolBarButton("Edit/Show or hide box");
             addToolBarButton("Edit/Show or hide objects");
+            addToolBarButton("Edit/Render");
             addToolBarButton("Edit/Settings");
             addToolBarSeparator();
             addToolBarButton("Help/About");
@@ -407,6 +410,9 @@ public final class Frame extends MainFrame {
             but.setBackground(pressedColor);
             scene.setRenderablesVisible(true);
         }
+    }
+
+    public void onRender() {
     }
 
     /**
@@ -562,7 +568,7 @@ public final class Frame extends MainFrame {
                     return;
                 }
             }
-   
+
             QuadPersistence.saveToFile(file, scene.getModel());
 
             setTitle(file.getName());
