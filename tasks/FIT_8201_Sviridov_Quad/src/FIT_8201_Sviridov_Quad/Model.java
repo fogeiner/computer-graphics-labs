@@ -150,7 +150,12 @@ public class Model {
             savedState.backgroundColor = this.backgroundColor;
             savedState.gamma = this.gamma;
             savedState.ntree = this.ntree;
-            savedState.box = (Wireframe)this.box.clone();
+            savedState.box = (Wireframe) this.box.clone();
+
+            for (Wireframe ort : orts) {
+                savedState.orts.add((Wireframe) ort.clone());
+            }
+
             for (Renderable renderable : renderables) {
                 savedState.renderables.add((Renderable) renderable.clone());
             }
@@ -262,7 +267,7 @@ public class Model {
         return savedState.box.getBoundRect3D();
     }
 
-    public Vertex getInitialModelCenter(){
+    public Vertex getInitialModelCenter() {
         return savedState.box.getOrigin();
     }
 
@@ -271,13 +276,18 @@ public class Model {
         this.backgroundColor = savedState.backgroundColor;
         this.gamma = savedState.gamma;
         this.ntree = savedState.ntree;
-        this.box = (Wireframe)savedState.box.clone();
-        
+        this.box = (Wireframe) savedState.box.clone();
+
+        this.orts.clear();
+        for (Wireframe ort : savedState.orts) {
+            this.orts.add((Wireframe) ort.clone());
+        }
+
         this.renderables.clear();
         for (Renderable renderable : savedState.renderables) {
             this.renderables.add((Renderable) renderable.clone());
         }
-        
+
         this.lights.clear();
         for (Light light : savedState.lights) {
             this.lights.add((Light) light.clone());

@@ -51,7 +51,7 @@ public final class Frame extends MainFrame {
     private Color pressedColor = Color.lightGray;
     private Scene scene;
     private boolean modified;
-    private SettingsDialog settingsDialog = null;// new SettingsDialog(this);
+    private SettingsDialog settingsDialog =  new SettingsDialog(this);
 
     /**
      * Class for settings dialog
@@ -144,8 +144,6 @@ public final class Frame extends MainFrame {
         public void showDialog() {
             // read out values
 
-            rSpinner.setValue(scene.getRotateCoef());
-            dSpinner.setValue((int) (scene.getRollCoef() + 0.5));
 
             setVisible(true);
         }
@@ -161,8 +159,6 @@ public final class Frame extends MainFrame {
          * Sets parameters and make dialog invisible
          */
         public void confirm() {
-            scene.setRollCoef((Integer) dSpinner.getValue());
-            scene.setRotateCoef((Double) rSpinner.getValue());
             setVisible(false);
         }
 

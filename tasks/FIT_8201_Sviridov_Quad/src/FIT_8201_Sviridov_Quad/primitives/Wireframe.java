@@ -69,6 +69,8 @@ public class Wireframe implements SceneObject, Cloneable {
         }
         Wireframe wireframe = new Wireframe(segmentsCopy);
         wireframe.origin = origin;
+        wireframe.color = color;
+        wireframe.width = width;
         return wireframe;
     }
 

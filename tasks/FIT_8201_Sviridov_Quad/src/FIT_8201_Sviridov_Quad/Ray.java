@@ -84,7 +84,7 @@ public class Ray {
         if (tests.contains(1)) {
             Ray ray = new Ray(new Vector(0.1, 0.1, -1));
             System.out.println(ray);
-            Sphere sphere = new Sphere(new Vertex(0, 0, -50), 20);
+            Sphere sphere = new Sphere(new Vertex(0, 0, -50), 20, null);
             for (IntersectionInfo ii : sphere.intersect(ray)) {
                 System.out.println(ii);
             }
@@ -96,7 +96,7 @@ public class Ray {
             Triangle triangle = new Triangle(
                     new Vertex(0, 10, -10),
                     new Vertex(-10, -10, -10),
-                    new Vertex(10, 10, -10));
+                    new Vertex(10, 10, -10), null);
 
             for (IntersectionInfo ii : triangle.intersect(ray)) {
                 System.out.println(ii);
