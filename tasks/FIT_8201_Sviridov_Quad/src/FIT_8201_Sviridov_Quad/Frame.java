@@ -339,11 +339,10 @@ public final class Frame extends MainFrame {
                 2, 0, 0, 0)));
 
         model.setAmbient(new Coefficient3D(1.0, 1.0, 1.0));
-        model.saveModel();
         model.finishModel();
-        
+
         scene = new Scene(model);
-       
+
         JPanel outer1 = new JPanel(new BorderLayout());
         outer1.setBackground(Color.white);
         outer1.add(scene, BorderLayout.CENTER);
@@ -364,7 +363,8 @@ public final class Frame extends MainFrame {
      * Method called when user chooses "Init" in menu or on toolbar
      */
     public void onInit() {
-        scene.setModel(scene.getModel().getSavedModel());
+        scene.getModel().resetModel();
+        scene.repaint();
     }
 
     /**
@@ -445,7 +445,7 @@ public final class Frame extends MainFrame {
 
             Model model = QuadPersistence.loadFromFile(file);
             scene.setModel(model);
-            
+
             setTitle(file.getName());
             setModified(false);
         } catch (IllegalArgumentException ex) {

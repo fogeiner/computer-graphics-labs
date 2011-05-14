@@ -64,6 +64,9 @@ public class Rect3D {
 		return width;
 	}
 
+        public double getMax(){
+            return Math.max(Math.max(width, height), depth);
+        }
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();

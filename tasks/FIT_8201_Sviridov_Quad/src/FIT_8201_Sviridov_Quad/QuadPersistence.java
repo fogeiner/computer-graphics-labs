@@ -123,7 +123,6 @@ public class QuadPersistence {
             }
         }
 
-        model.saveModel();
         model.finishModel();
 
         return model;

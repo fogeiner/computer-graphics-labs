@@ -59,12 +59,14 @@ public class Scene extends JPanel {
                 return;
             }
 
-            dx = dx / length / 100;
-            dy = dy / length / 100;
+            double step = 2*Math.PI/(128+256);
+
+            dx = dx / length;
+            dy = dy / length;
 
             Transformation rotation = null;
-            rotation = RotationTransformation.makeRotation(dx, RotationTransformation.Y_AXIS);
-            rotation.compose(RotationTransformation.makeRotation(dy, RotationTransformation.X_AXIS));
+            rotation = RotationTransformation.makeRotation(dx * step, RotationTransformation.Y_AXIS);
+            rotation.compose(RotationTransformation.makeRotation(dy * step, RotationTransformation.X_AXIS));
 
             model.centralRotation(rotation);
 
@@ -75,7 +77,9 @@ public class Scene extends JPanel {
         public void mouseWheelMoved(MouseWheelEvent e) {
             int wheelRotationSign = (int) Math.signum(e.getWheelRotation());
 
-            Transformation translation = new TranslationTransformation(0, 0, wheelRotationSign);
+            double step = model.getInitialBoxRect3D().getMax()/40;
+
+            Transformation translation = new TranslationTransformation(0, 0, step*wheelRotationSign);
             model.transform(translation);
 
             repaint();
@@ -115,8 +119,7 @@ public class Scene extends JPanel {
         Color oldColor = g.getColor();
         Stroke oldStroke = g.getStroke();
 
-        Wireframe box = model.getSavedModel().getBox();
-        Rect3D boxSize = box.getBoundRect3D();
+        Rect3D boxSize = model.getInitialBoxRect3D();
         double sw, sh;
         sw = sh = Math.max(boxSize.getHeight(), boxSize.getWidth())*2;
 
