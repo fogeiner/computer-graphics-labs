@@ -24,6 +24,17 @@ public class Triangle extends RenderableImpl {
                 colorModel);
     }
 
+    @Override
+    public Renderable clone() {
+        List<Segment> segments = getSegments();
+        
+        Vertex v1 = segments.get(0).getStartVertex(),
+                v2 = segments.get(1).getStartVertex(),
+                v3 = segments.get(2).getStartVertex();
+
+        return new Triangle(v1, v2, v3, getColorModel());
+    }
+
     public static double area(Vertex v1, Vertex v2, Vertex v3) {
         double v1x = v1.getX(),
                 v1y = v1.getY(),

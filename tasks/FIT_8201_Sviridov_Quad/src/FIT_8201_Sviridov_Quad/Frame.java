@@ -1,9 +1,7 @@
 package FIT_8201_Sviridov_Quad;
 
-import FIT_8201_Sviridov_Quad.primitives.RenderableImpl;
 import FIT_8201_Sviridov_Quad.primitives.Sphere;
 import FIT_8201_Sviridov_Quad.primitives.Triangle;
-import FIT_8201_Sviridov_Quad.utils.LineParseUtils;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
@@ -14,13 +12,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -300,13 +294,15 @@ public final class Frame extends MainFrame {
             }
         });
 
+
         Model model = new Model();
 
         model.addLight(new Light(new Vertex(100, 100, 100), new Coefficient3D(1.0, 1.0, 1.0)));
+        double triangleSideLength = 150;
 
-        Vertex v1 = new Vertex(0, 100, 0),
-                v2 = new Vertex(0, 0, 100),
-                v3 = new Vertex(100, 0, 0),
+        Vertex v1 = new Vertex(0, triangleSideLength, 0),
+                v2 = new Vertex(0, 0, triangleSideLength),
+                v3 = new Vertex(triangleSideLength, 0, 0),
                 v4 = new Vertex(0, 0, 0);
 
         model.addRenderable(
@@ -343,9 +339,11 @@ public final class Frame extends MainFrame {
                 2, 0, 0, 0)));
 
         model.setAmbient(new Coefficient3D(1.0, 1.0, 1.0));
+        model.saveModel();
         model.finishModel();
+        
         scene = new Scene(model);
-
+       
         JPanel outer1 = new JPanel(new BorderLayout());
         outer1.setBackground(Color.white);
         outer1.add(scene, BorderLayout.CENTER);
@@ -366,7 +364,7 @@ public final class Frame extends MainFrame {
      * Method called when user chooses "Init" in menu or on toolbar
      */
     public void onInit() {
-        scene.init();
+        scene.setModel(scene.getModel().getSavedModel());
     }
 
     /**
@@ -408,10 +406,10 @@ public final class Frame extends MainFrame {
         Color butColor = but.getBackground();
         if (butColor == pressedColor) {
             but.setBackground(null);
-            scene.setObjectsVisible(false);
+            scene.setRenderablesVisible(false);
         } else {
             but.setBackground(pressedColor);
-            scene.setObjectsVisible(true);
+            scene.setRenderablesVisible(true);
         }
     }
 
@@ -445,19 +443,9 @@ public final class Frame extends MainFrame {
                 return;
             }
 
-            FileInputStream fstream = new FileInputStream(file);
-            DataInputStream in = new DataInputStream(fstream);
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));
-
-            String str = LineParseUtils.nextNormalizedLine(br);
-            String strs[] = str.split(" ");
-            Double r = Double.parseDouble(strs[0]),
-                    d = Double.parseDouble(strs[1]);
-
-            scene.setRotateCoef(r);
-            scene.setRollCoef(d);
-
-            br.close();
+            Model model = QuadPersistence.loadFromFile(file);
+            scene.setModel(model);
+            
             setTitle(file.getName());
             setModified(false);
         } catch (IllegalArgumentException ex) {

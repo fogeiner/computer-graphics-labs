@@ -32,6 +32,13 @@ public class Sphere extends RenderableImpl {
     }
 
     @Override
+    public Renderable clone() {
+        return new Sphere(origin, radius, getColorModel());
+    }
+
+
+
+    @Override
     public Collection<IntersectionInfo> intersect(Ray ray) {
         Vector rayDirection = ray.getDirection();
         Vertex rayOrigin = ray.getOrigin();

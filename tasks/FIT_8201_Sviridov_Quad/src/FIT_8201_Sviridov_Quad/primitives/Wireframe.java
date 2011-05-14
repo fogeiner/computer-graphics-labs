@@ -16,10 +16,9 @@ import java.util.List;
  * 
  * @author admin
  */
-public class Wireframe implements SceneObject {
+public class Wireframe implements SceneObject, Cloneable {
 
     public static final Vertex DEFAULT_ORIGIN = new Vertex(0, 0, 0);
-    
     public static final Color DEFAULT_COLOR = Color.black;
     public static final int DEFAULT_WIDTH = 1;
     private int width = DEFAULT_WIDTH;
@@ -38,6 +37,7 @@ public class Wireframe implements SceneObject {
 
     public Wireframe(List<Segment> segments, Vertex origin) {
         this.segments = segments;
+        this.origin = origin;
         CoordinateSystem cs = new CoordinateSystem(origin);
         Transformation frameToWorld = cs.getFrameToWorldTransformation();
         for (Segment segment : segments) {
@@ -61,11 +61,19 @@ public class Wireframe implements SceneObject {
         }
     }
 
+    @Override
+    public Object clone() {
+        List<Segment> segmentsCopy = new ArrayList<Segment>(segments.size());
+        for (Segment s : segments) {
+            segmentsCopy.add(s.clone());
+        }
+        Wireframe wireframe = new Wireframe(segmentsCopy, origin);
+        return wireframe;
+    }
+
     public Vertex getOrigin() {
         return origin;
     }
-
-
 
     /**
      * Returns segments of the shape after Transformation application
@@ -243,7 +251,6 @@ public class Wireframe implements SceneObject {
         return segs;
     }
 
-
     /**
      * Returns color
      *
@@ -301,6 +308,6 @@ public class Wireframe implements SceneObject {
         for (Segment s : segments) {
             s.transform(transformation);
         }
-
+        origin = transformation.apply(origin);
     }
 }

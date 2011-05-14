@@ -46,4 +46,5 @@ public abstract class RenderableImpl extends Wireframe implements Renderable {
         super(segments);
         this.colorModel = colorModel;
     }
+
 }

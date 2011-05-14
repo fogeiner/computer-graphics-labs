@@ -9,7 +9,7 @@ public class ColorModel {
     private final Coefficient3D ambientCoefficient;
     private final Coefficient3D diffuseCoefficient;
     private final Coefficient3D specularCoefficient;
-    private final int power;
+    private final double power;
     private final double transparencyCoefficient;
     private final double refraction1;
     private final double refraction2;
@@ -17,7 +17,7 @@ public class ColorModel {
     public ColorModel(Coefficient3D ambientCoefficient,
             Coefficient3D diffuseCoefficient,
             Coefficient3D specularCoefficient,
-            int power,
+            double power,
             double transparencyCoefficient,
             double Refraction1,
             double Refraction2) {
@@ -42,6 +42,7 @@ public class ColorModel {
             sb.append(c.getG());
             sb.append(' ');
             sb.append(c.getB());
+            sb.append(' ');
         }
 
         sb.append(power);
@@ -68,7 +69,7 @@ public class ColorModel {
         return diffuseCoefficient;
     }
 
-    public int getPower() {
+    public double getPower() {
         return power;
     }
 

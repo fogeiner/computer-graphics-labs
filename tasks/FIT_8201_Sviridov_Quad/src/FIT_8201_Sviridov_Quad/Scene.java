@@ -59,8 +59,8 @@ public class Scene extends JPanel {
                 return;
             }
 
-            dx = dx / length;
-            dy = dy / length;
+            dx = dx / length / 100;
+            dy = dy / length / 100;
 
             Transformation rotation = null;
             rotation = RotationTransformation.makeRotation(dx, RotationTransformation.Y_AXIS);
@@ -91,12 +91,14 @@ public class Scene extends JPanel {
 
     public void setModel(Model model) {
         this.model = model;
+        setBackground(model.getBackgroundColor());
+        repaint();
     }
 
     public Scene(Model model) {
         this.model = model;
-        
-        setBackground(Color.white);
+
+        setBackground(model.getBackgroundColor());
         addMouseListener(mouseHandler);
         addMouseMotionListener(mouseHandler);
         addMouseWheelListener(mouseHandler);
@@ -113,8 +115,15 @@ public class Scene extends JPanel {
         Color oldColor = g.getColor();
         Stroke oldStroke = g.getStroke();
 
+        Wireframe box = model.getSavedModel().getBox();
+        Rect3D boxSize = box.getBoundRect3D();
+        double sw, sh;
+        sw = sh = Math.max(boxSize.getHeight(), boxSize.getWidth())*2;
+
         Transformation projection = new PerspectiveProjectionTransformation(
-                -halfWidth, halfWidth, -halfHeight, halfHeight, model.getZnear(), model.getZfar());
+                sw, sh, model.getZnear(), model.getZfar());
+
+        double maxHalfSize = Math.max(halfHeight, halfWidth);
 
         List<Wireframe> wireframes = new ArrayList<Wireframe>(10);
 
@@ -148,14 +157,10 @@ public class Scene extends JPanel {
                         ey = endProjected.getY(),
                         ez = endProjected.getZ();
 
-                if (sx > 1 || sx < -1 || ex > 1 || ex < -1 || sy < -1 || sy > 1
-                        || ey < -1 || ey > 1) {
-                    continue;
-                }
-
-                int x1 = (int) (sx * halfWidth + 0.5), y1 = (int) (sy
-                        * halfHeight + 0.5), x2 = (int) (ex * halfWidth + 0.5), y2 = (int) (ey
-                        * halfHeight + 0.5);
+                int x1 = (int) (sx * maxHalfSize + 0.5),
+                        y1 = (int) (sy * maxHalfSize + 0.5),
+                        x2 = (int) (ex * maxHalfSize + 0.5),
+                        y2 = (int) (ey * maxHalfSize + 0.5);
 
                 g.drawLine(x1, y1, x2, y2);
             }
@@ -188,6 +193,7 @@ public class Scene extends JPanel {
 
     public void setBoxVisible(boolean boxVisible) {
         this.boxVisible = boxVisible;
+        repaint();
     }
 
     public boolean isRenderablesVisible() {
@@ -196,6 +202,7 @@ public class Scene extends JPanel {
 
     public void setRenderablesVisible(boolean objectsVisible) {
         this.renderablesVisible = objectsVisible;
+        repaint();
     }
 
     public boolean isOrtsVisible() {
@@ -204,6 +211,7 @@ public class Scene extends JPanel {
 
     public void setOrtsVisible(boolean ortsVisible) {
         this.ortsVisible = ortsVisible;
+        repaint();
     }
 
     public boolean isWireframeMode() {
@@ -212,5 +220,9 @@ public class Scene extends JPanel {
 
     public void setWireframeMode(boolean wireframeMode) {
         this.wireframeMode = wireframeMode;
+    }
+
+    public Model getModel() {
+        return model;
     }
 }

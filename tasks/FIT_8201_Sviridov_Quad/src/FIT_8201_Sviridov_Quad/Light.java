@@ -29,4 +29,9 @@ public class Light implements SceneObject {
         origin = transformation.apply(origin);
     }
 
+    public Light clone(){
+        Light light = new Light(origin, color);
+        return light;
+    }
+
 }

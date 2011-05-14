@@ -14,17 +14,23 @@ import java.util.List;
  *
  * @author alstein
  */
-public class Model {
+public class Model implements Cloneable {
 
     public static final Coefficient3D DEFAULT_AMBIENT = new Coefficient3D(1.0, 1.0, 1.0);
+    public static final Color DEFAULT_BACKGROUND_COLOR = Color.white;
+    public static final double DEFAULT_GAMMA = 1.0;
     private Coefficient3D ambient = DEFAULT_AMBIENT;
     private Wireframe box;
     private List<Wireframe> orts = new ArrayList<Wireframe>(3);
     private List<Renderable> renderables = new ArrayList<Renderable>(5);
     private List<Light> lights = new ArrayList<Light>(5);
+    private Color backgroundColor = DEFAULT_BACKGROUND_COLOR;
     private boolean finished;
+    private double gamma;
+    private int ntree;
     private double znear;
     private double zfar;
+    private Model savedModel;
 
     public List<Wireframe> getRenderablesWireframes() {
         if (!finished) {
@@ -79,10 +85,13 @@ public class Model {
             }
         }
 
+        // box
+
         box = new Wireframe(
                 Wireframe.box(maxX - minX, maxY - minY, maxZ - minZ),
                 new Vertex((maxX + minX) / 2, (maxY + minY) / 2, (maxZ + minZ) / 2));
 
+        // orts
         Vertex boxOrigin = box.getOrigin();
         Rect3D boxSize = this.box.getBoundRect3D();
 
@@ -107,6 +116,7 @@ public class Model {
         orts.add(ortY);
         orts.add(ortZ);
 
+        // znear/zfar
         double d = (boxSize.getWidth() / 2) / Math.tan(Math.toRadians(15.0));
         double cameraX = boxOrigin.getX(),
                 cameraY = boxOrigin.getY(),
@@ -116,6 +126,26 @@ public class Model {
 
         znear = d;
         zfar = znear + 2.5 * boxSize.getDepth();
+    }
+
+    @Override
+    public Object clone() {
+        // saving backup coty of the model
+        Model model = new Model();
+        model.setAmbient(ambient);
+        model.setBackgroundColor(backgroundColor);
+        model.setGamma(gamma);
+        model.setNtree(ntree);
+        for (Renderable renderable : renderables) {
+            model.addRenderable((Renderable) renderable.clone());
+        }
+        for (Light light : lights) {
+            model.addLight(light.clone());
+        }
+
+        model.finishModel();
+
+        return model;
     }
 
     public void setAmbient(Coefficient3D ambient) {
@@ -148,6 +178,8 @@ public class Model {
         centralRotation = new TranslationTransformation(-boxOrigin.getX(), -boxOrigin.getY(), -boxOrigin.getZ());
         centralRotation.compose(rotation);
         centralRotation.compose(new TranslationTransformation(boxOrigin.getX(), boxOrigin.getY(), boxOrigin.getZ()));
+
+        transform(centralRotation);
     }
 
     public Wireframe getBox() {
@@ -185,5 +217,38 @@ public class Model {
 
     public double getZnear() {
         return znear;
+    }
+
+    public Color getBackgroundColor() {
+        return backgroundColor;
+    }
+
+    public void setBackgroundColor(Color backgroundColor) {
+        this.backgroundColor = backgroundColor;
+    }
+
+    public double getGamma() {
+        return gamma;
+    }
+
+    public void setGamma(double gamma) {
+        this.gamma = gamma;
+    }
+
+    public int getNtree() {
+        return ntree;
+    }
+
+    public void setNtree(int ntree) {
+        this.ntree = ntree;
+    }
+
+    public Model getSavedModel() {
+        savedModel.savedModel = (Model) this.clone();
+        return savedModel;
+    }
+
+    public void saveModel() {
+        savedModel = (Model) this.clone();
     }
 }

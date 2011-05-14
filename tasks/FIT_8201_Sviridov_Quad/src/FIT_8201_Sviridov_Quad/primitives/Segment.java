@@ -58,4 +58,9 @@ public class Segment {
         startVertex = transformation.apply(startVertex);
         endVertex = transformation.apply(endVertex);
     }
+
+    @Override
+    public Segment clone(){
+        return new Segment(startVertex, endVertex);
+    }
 }
