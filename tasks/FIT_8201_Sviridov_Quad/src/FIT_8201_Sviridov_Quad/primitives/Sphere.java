@@ -33,7 +33,17 @@ public class Sphere extends RenderableImpl {
 
     @Override
     public Renderable clone() {
-        return new Sphere(origin, radius, getColorModel());
+        Sphere sphere = new Sphere(origin, radius, getColorModel());
+        List<Segment> segments = getSegments();
+        List<Segment> segmentsCopy = new ArrayList<Segment>(segments.size());
+        for(Segment s: segments){
+            segmentsCopy.add(s.clone());
+        }
+
+        sphere.origin = this.origin;
+        sphere.segments = segmentsCopy;
+        sphere.radius = this.radius;
+        return sphere;
     }
 
 
@@ -107,7 +117,6 @@ public class Sphere extends RenderableImpl {
         sb.append(radius);
         sb.append("\r\n");
         sb.append(getColorModel());
-        sb.append("\r\n");
         sb.append("\r\n");
         return sb.toString();
     }

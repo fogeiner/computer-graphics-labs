@@ -18,16 +18,21 @@ import java.util.List;
  */
 public class Triangle extends RenderableImpl {
 
+    private Vertex initialV1, initialV2, initialV3;
+
     public Triangle(Vertex v1, Vertex v2, Vertex v3, ColorModel colorModel) {
         super(Arrays.asList(
                 new Segment[]{new Segment(v1, v2), new Segment(v2, v3), new Segment(v3, v1)}),
                 colorModel);
+        initialV1 = v1;
+        initialV2 = v2;
+        initialV3 = v3;
     }
 
     @Override
     public Renderable clone() {
         List<Segment> segments = getSegments();
-        
+
         Vertex v1 = segments.get(0).getStartVertex(),
                 v2 = segments.get(1).getStartVertex(),
                 v3 = segments.get(2).getStartVertex();
@@ -171,7 +176,7 @@ public class Triangle extends RenderableImpl {
                 v3 = segments.get(2).getStartVertex();
 
         sb.append("TRG\r\n");
-        for (Vertex v : new Vertex[]{v1, v2, v3}) {
+        for (Vertex v : new Vertex[]{initialV1, initialV2, initialV3}) {
             sb.append(v.getX());
             sb.append(' ');
             sb.append(v.getY());

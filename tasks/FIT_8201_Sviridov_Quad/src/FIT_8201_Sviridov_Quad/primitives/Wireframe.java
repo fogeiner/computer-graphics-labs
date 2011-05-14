@@ -23,8 +23,8 @@ public class Wireframe implements SceneObject, Cloneable {
     public static final int DEFAULT_WIDTH = 1;
     private int width = DEFAULT_WIDTH;
     private Color color = DEFAULT_COLOR;
-    private final List<Segment> segments;
-    private Vertex origin = DEFAULT_ORIGIN;
+    protected List<Segment> segments;
+    protected Vertex origin = DEFAULT_ORIGIN;
 
     /**
      * Default ctor with given segments given in local WireframeShape model
@@ -67,7 +67,8 @@ public class Wireframe implements SceneObject, Cloneable {
         for (Segment s : segments) {
             segmentsCopy.add(s.clone());
         }
-        Wireframe wireframe = new Wireframe(segmentsCopy, origin);
+        Wireframe wireframe = new Wireframe(segmentsCopy);
+        wireframe.origin = origin;
         return wireframe;
     }
 

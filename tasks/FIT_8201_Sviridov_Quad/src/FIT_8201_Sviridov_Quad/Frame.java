@@ -566,12 +566,9 @@ public final class Frame extends MainFrame {
                     return;
                 }
             }
-            FileWriter fw = new FileWriter(file);
-            fw.append(new Double(scene.getRotateCoef()).toString());
-            fw.append(" ");
-            fw.append(new Double(scene.getRollCoef()).toString());
-            fw.append("\r\n");
-            fw.close();
+   
+            QuadPersistence.saveToFile(file, scene.getModel());
+
             setTitle(file.getName());
             setModified(false);
         } catch (Exception e) {

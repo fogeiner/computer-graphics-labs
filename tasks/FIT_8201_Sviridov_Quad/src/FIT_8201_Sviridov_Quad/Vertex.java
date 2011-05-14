@@ -52,17 +52,15 @@ public class Vertex {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append('(');
+		
 		sb.append(format.format(x));
-		sb.append(';');
+		sb.append(' ');
 		sb.append(format.format(y));
-		sb.append(';');
+		sb.append(' ');
 		sb.append(format.format(z));
-		if (w != 1.0) {
-			sb.append(';');
-			sb.append(format.format(w));
-		}
-		sb.append(')');
+		
+                // if w!=1.0 it's better to return w as well, alas!
+
 		return sb.toString();
 	}
 

@@ -47,4 +47,11 @@ public abstract class RenderableImpl extends Wireframe implements Renderable {
         this.colorModel = colorModel;
     }
 
+    @Override
+    public Object clone() {
+        return super.clone();
+    }
+
+
+
 }

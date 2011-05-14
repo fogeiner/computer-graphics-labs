@@ -38,4 +38,11 @@ public class Coefficient3D {
     public double getZ() {
         return c3;
     }
+
+    @Override
+    public String toString() {
+        return c1 + " " + c2 + " " + c3;
+    }
+
+
 }

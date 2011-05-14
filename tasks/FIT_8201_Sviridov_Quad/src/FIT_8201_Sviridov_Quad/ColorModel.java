@@ -47,6 +47,8 @@ public class ColorModel {
 
         sb.append(power);
         sb.append(' ');
+        sb.append(transparencyCoefficient);
+        sb.append(' ');
         sb.append(refraction1);
         sb.append(' ');
         sb.append(refraction2);

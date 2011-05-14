@@ -34,4 +34,9 @@ public class Light implements SceneObject {
         return light;
     }
 
+    @Override
+    public String toString() {
+        return origin + " " + color;
+    }
+
 }
