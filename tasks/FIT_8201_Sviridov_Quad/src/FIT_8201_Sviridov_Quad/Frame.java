@@ -296,58 +296,99 @@ public final class Frame extends MainFrame {
 
         Model model = new Model();
 
-        model.addLight(new Light(new Vertex(2, 2, -2), new Coefficient3D(0.0, 1.0, 1.0)));
-        model.addLight(new Light(new Vertex(1.0, 2, 1.0), new Coefficient3D(1.0, 1.0, 0.0)));
-        model.addLight(new Light(new Vertex(-2, 1.0, 2), new Coefficient3D(1.0, 0.0, 1.0)));
-//        model.addLight(new Light(new Vertex(0, 150, 0), new Coefficient3D(0.1, 0.9, 0.2)));
-//        model.addLight(new Light(new Vertex(0, -150, 0), new Coefficient3D(0.8, 0.3, 0.3)));
-        double triangleSideLength = 1;
+        double lightDistance = 2.5;
+        model.addLight(new Light(
+                new Vertex(lightDistance, lightDistance, lightDistance),
+                new Coefficient3D(1.0, 1.0, 1.0)));
+
+        model.addLight(new Light(
+                new Vertex(lightDistance, 0.0, 0.0),
+                new Coefficient3D(1.0, 0.0, 0.0)));
+
+        model.addLight(new Light(
+                new Vertex(0.0, 0.0, lightDistance),
+                new Coefficient3D(0.0, 1.0, 0.0)));
+
+        model.addLight(new Light(
+                new Vertex(lightDistance, 0.0, lightDistance),
+                new Coefficient3D(0.0, 0.0, 1.0)));
+
+        model.addLight(new Light(
+                new Vertex(0.0, lightDistance, 0.0),
+                new Coefficient3D(0.0, 0.0, 1.0)));
+
+        model.setAmbient(new Coefficient3D(0.5, 0.5, 0.5));
+        model.setGamma(1.5);
+        
+        double triangleSideLength = 2;
 
         Vertex v1 = new Vertex(0, triangleSideLength, 0),
                 v2 = new Vertex(0, 0, triangleSideLength),
                 v3 = new Vertex(triangleSideLength, 0, 0),
                 v4 = new Vertex(0, 0, 0);
 
-//                model.addRenderable(
-//                new Triangle(v1, v2, v3,
-//                new ColorModel(
-//                new Coefficient3D(1.0, 0.5, 0.0),
-//                new Coefficient3D(0.9, 0.4, 0.0),
-//                new Coefficient3D(0.8, 0.3, 0.0),
-//                200, 0, 0, 0)));
 
         model.addRenderable(
                 new Triangle(v1, v2, v4,
                 new ColorModel(
-                new Coefficient3D(0.6, 0.6, 0.6),
-                new Coefficient3D(0.5, 0.2, 0.9),
-                new Coefficient3D(0.5, 0.5, 0.1),
-                100, 0, 0, 0)));
+                new Coefficient3D(0.5, 0.0, 0.0),
+                new Coefficient3D(0.5, 0.2, 0.0),
+                new Coefficient3D(0.5, 0.5, 1.0),
+                500, 0, 0, 0)));
 
         model.addRenderable(
                 new Triangle(v1, v4, v3,
                 new ColorModel(
-                new Coefficient3D(0.6, 0.3, 1.0),
-                new Coefficient3D(0.3, 0.7, 0.8),
-                new Coefficient3D(0.6, 0.3, 0.2),
-                100, 0, 0, 0)));
+                new Coefficient3D(0.0, 0.5, 0.0),
+                new Coefficient3D(0.3, 0.3, 0.2),
+                new Coefficient3D(0.7, 0.7, 0.8),
+                500, 0, 0, 0)));
 
         model.addRenderable(
                 new Triangle(v4, v2, v3,
                 new ColorModel(
-                new Coefficient3D(0.4, 0.5, 0.1),
+                new Coefficient3D(0.0, 0.0, 0.5),
                 new Coefficient3D(0.4, 0.4, 0.3),
                 new Coefficient3D(0.6, 0.6, 0.7),
-                100, 0, 0, 0)));
+                500, 0, 0, 0)));
 
         model.addRenderable(
                 new Sphere(new Vertex(0.5, 0.5, 0.5),
                 0.3,
                 new ColorModel(
-                new Coefficient3D(0.8, 0.8, 1.0),
-                new Coefficient3D(0.4, 0.1, 0.8),
-                new Coefficient3D(0.6, 0.9, 0.2),
-                60, 0, 0, 0)));
+                new Coefficient3D(0.5, 0.5, 0.5),
+                new Coefficient3D(0.5, 0.5, 0.5),
+                new Coefficient3D(0.5, 0.5, 0.5),
+                100, 0, 0, 0)));
+
+        model.addRenderable(
+                new Sphere(new Vertex(0.1, 0.1, 0.6),
+                0.1,
+                new ColorModel(
+                new Coefficient3D(1.0, 1.0, 1.0),
+                new Coefficient3D(0.1, 0.1, 0.1),
+                new Coefficient3D(0.9, 0.9, 0.9),
+                50, 0, 0, 0)));
+
+
+        model.addRenderable(
+                new Sphere(new Vertex(0.6, 0.1, 0.1),
+                0.1,
+                new ColorModel(
+                new Coefficient3D(0.1, 0.9, 0.2),
+                new Coefficient3D(0.9, 0.9, 0.9),
+                new Coefficient3D(0.1, 0.1, 0.1),
+                20, 0, 0, 0)));
+
+
+        model.addRenderable(
+                new Sphere(new Vertex(0.1, 0.6, 0.1),
+                0.1,
+                new ColorModel(
+                new Coefficient3D(0.9, 0.2, 0.1),
+                new Coefficient3D(1.0, 1.0, 1.0),
+                new Coefficient3D(0.0, 0.0, 0.0),
+                50, 0, 0, 0)));
 
         model.setAmbient(new Coefficient3D(0.6, 0.6, 0.6));
         model.finishModel();

@@ -77,8 +77,8 @@ public abstract class RenderableImpl extends Wireframe implements Renderable {
 
         lightCycle:
         for (Light light : lights) {
-
             Vector l = new Vector(p, light.getOrigin());
+
             double distanceToLight = l.length();
             l = l.normalize();
             double nl = n.dot(l);
@@ -92,19 +92,20 @@ public abstract class RenderableImpl extends Wireframe implements Renderable {
             // check all the objects (except current one!) if they intersect
             // ray from p to l and if so if there's at least one object
             // that's closer to point than light source -- it's hidden
-            Ray ray = new Ray(origin, l);
-            Collection<IntersectionInfo> intersections = new ArrayList<IntersectionInfo>();
+            Ray ray = new Ray(p, l);
             for (Renderable renderable : objects) {
                 if (renderable == this) {
                     continue;
                 }
-                intersections.addAll(renderable.intersect(ray));
-            }
 
-            for (IntersectionInfo ii : intersections) {
-                double distance = new Vector(p, ii.getIntersection()).length();
-                if (distance < distanceToLight) {
-                    continue lightCycle;
+                Collection<IntersectionInfo> intersections = renderable.intersect(ray);
+
+                for (IntersectionInfo ii : intersections) {
+                    double distance = new Vector(p, ii.getIntersection()).length();
+
+                    if (distance < distanceToLight) {
+                        continue lightCycle;
+                    }
                 }
             }
 
@@ -117,6 +118,7 @@ public abstract class RenderableImpl extends Wireframe implements Renderable {
                     2 * nl * n.getX() - l.getX(),
                     2 * nl * n.getY() - l.getY(),
                     2 * nl * n.getZ() - l.getZ()).normalize();
+            
             Vector h = new Vector(
                     l.getX() + e.getX(),
                     l.getY() + e.getY(),
@@ -131,6 +133,7 @@ public abstract class RenderableImpl extends Wireframe implements Renderable {
             B += fatt * I.getB() * (diffuseCoefficient.getB() * nl
                     + specularCoefficient.getB() * nhpow);
         }
+
         return new Coefficient3D(R, G, B);
     }
 }
