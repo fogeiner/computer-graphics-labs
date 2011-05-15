@@ -70,6 +70,9 @@ public class Triangle extends RenderableImpl {
                 v2 = segments.get(1).getStartVertex(),
                 v3 = segments.get(2).getStartVertex();
 
+        Vector Rd = ray.getDirection();
+        Vertex R0 = ray.getOrigin();
+
         double v1x = v1.getX(), v1y = v1.getY(), v1z = v1.getZ(),
                 v2x = v2.getX(), v2y = v2.getY(), v2z = v2.getZ(),
                 v3x = v3.getX(), v3y = v3.getY(), v3z = v3.getZ();
@@ -79,11 +82,17 @@ public class Triangle extends RenderableImpl {
 
         Vector n = Vector.cross(u1, u2).normalize();
 
+        if (Rd.dot(n) > 0.0) {
+            n = new Vector(-n.getX(), -n.getY(), -n.getZ());
+        }
+
         double A = n.getX(), B = n.getY(), C = n.getZ(),
                 D = -(v1x * A + v1y * B + v1z * C);
 
-        Vector Rd = ray.getDirection();
-        Vertex R0 = ray.getOrigin();
+
+
+
+
 
         double nRd = Vector.dot(Rd, n);
         if (Math.abs(nRd) < Ray.EPS) {

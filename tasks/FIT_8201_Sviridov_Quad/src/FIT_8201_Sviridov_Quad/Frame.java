@@ -296,30 +296,36 @@ public final class Frame extends MainFrame {
 
         Model model = new Model();
 
-        double lightDistance = 2.5;
-        model.addLight(new Light(
-                new Vertex(lightDistance, lightDistance, lightDistance),
-                new Coefficient3D(1.0, 1.0, 1.0)));
+        double lightDistance0 = 1.0,
+                lightDistance1 = 2.0,
+                lightDistance2 = 2.5,
+                lightDistance3 = 3.0;
 
         model.addLight(new Light(
-                new Vertex(lightDistance, 0.0, 0.0),
+                new Vertex(lightDistance3, lightDistance3, lightDistance3),
+                new Coefficient3D(1.0, 1.0, 1.0)));
+
+
+        model.addLight(new Light(
+                new Vertex(lightDistance0, lightDistance0, lightDistance3),
+                new Coefficient3D(0.0, 0.0, 1.0)));
+
+        model.addLight(new Light(
+                new Vertex(lightDistance0, lightDistance3, lightDistance0),
                 new Coefficient3D(1.0, 0.0, 0.0)));
 
         model.addLight(new Light(
-                new Vertex(0.0, 0.0, lightDistance),
+                new Vertex(lightDistance3, lightDistance0, lightDistance0),
                 new Coefficient3D(0.0, 1.0, 0.0)));
 
         model.addLight(new Light(
-                new Vertex(lightDistance, 0.0, lightDistance),
-                new Coefficient3D(0.0, 0.0, 1.0)));
+                new Vertex(lightDistance2, lightDistance2, -lightDistance2),
+                new Coefficient3D(1.0, 1.0, 1.0)));
 
-        model.addLight(new Light(
-                new Vertex(0.0, lightDistance, 0.0),
-                new Coefficient3D(0.0, 0.0, 1.0)));
 
         model.setAmbient(new Coefficient3D(0.5, 0.5, 0.5));
-        model.setGamma(1.5);
-        
+        model.setGamma(1.0);
+
         double triangleSideLength = 2;
 
         Vertex v1 = new Vertex(0, triangleSideLength, 0),
@@ -334,7 +340,7 @@ public final class Frame extends MainFrame {
                 new Coefficient3D(0.5, 0.0, 0.0),
                 new Coefficient3D(0.5, 0.2, 0.0),
                 new Coefficient3D(0.5, 0.5, 1.0),
-                500, 0, 0, 0)));
+                5, 0, 0, 0)));
 
         model.addRenderable(
                 new Triangle(v1, v4, v3,
@@ -342,7 +348,7 @@ public final class Frame extends MainFrame {
                 new Coefficient3D(0.0, 0.5, 0.0),
                 new Coefficient3D(0.3, 0.3, 0.2),
                 new Coefficient3D(0.7, 0.7, 0.8),
-                500, 0, 0, 0)));
+                5, 0, 0, 0)));
 
         model.addRenderable(
                 new Triangle(v4, v2, v3,
@@ -350,47 +356,46 @@ public final class Frame extends MainFrame {
                 new Coefficient3D(0.0, 0.0, 0.5),
                 new Coefficient3D(0.4, 0.4, 0.3),
                 new Coefficient3D(0.6, 0.6, 0.7),
-                500, 0, 0, 0)));
+                5, 0, 0, 0)));
 
         model.addRenderable(
-                new Sphere(new Vertex(0.5, 0.5, 0.5),
-                0.3,
+                new Sphere(new Vertex(0.7, 0.7, 0.7),
+                0.5,
                 new ColorModel(
                 new Coefficient3D(0.5, 0.5, 0.5),
+                new Coefficient3D(0.3, 0.3, 0.3),
+                new Coefficient3D(0.7, 0.7, 0.7),
+                100, 0, 0, 0)));
+
+        model.addRenderable(
+                new Sphere(new Vertex(0.3, 0.3, 1.5),
+                0.25,
+                new ColorModel(
+                new Coefficient3D(1.0, 1.0, 1.0),
+                new Coefficient3D(0.4, 0.4, 0.9),
+                new Coefficient3D(0.6, 0.6, 0.1),
+                100, 0, 0, 0)));
+
+
+        model.addRenderable(
+                new Sphere(new Vertex(1.5, 0.3, 0.3),
+                0.25,
+                new ColorModel(
+                new Coefficient3D(0.1, 0.9, 0.2),
                 new Coefficient3D(0.5, 0.5, 0.5),
                 new Coefficient3D(0.5, 0.5, 0.5),
                 100, 0, 0, 0)));
 
-        model.addRenderable(
-                new Sphere(new Vertex(0.1, 0.1, 0.6),
-                0.1,
-                new ColorModel(
-                new Coefficient3D(1.0, 1.0, 1.0),
-                new Coefficient3D(0.1, 0.1, 0.1),
-                new Coefficient3D(0.9, 0.9, 0.9),
-                50, 0, 0, 0)));
-
 
         model.addRenderable(
-                new Sphere(new Vertex(0.6, 0.1, 0.1),
-                0.1,
-                new ColorModel(
-                new Coefficient3D(0.1, 0.9, 0.2),
-                new Coefficient3D(0.9, 0.9, 0.9),
-                new Coefficient3D(0.1, 0.1, 0.1),
-                20, 0, 0, 0)));
-
-
-        model.addRenderable(
-                new Sphere(new Vertex(0.1, 0.6, 0.1),
-                0.1,
+                new Sphere(new Vertex(0.3, 1.5, 0.3),
+                0.25,
                 new ColorModel(
                 new Coefficient3D(0.9, 0.2, 0.1),
                 new Coefficient3D(1.0, 1.0, 1.0),
                 new Coefficient3D(0.0, 0.0, 0.0),
-                50, 0, 0, 0)));
+                200, 0, 0, 0)));
 
-        model.setAmbient(new Coefficient3D(0.6, 0.6, 0.6));
         model.finishModel();
 
         scene = new Scene(model);
@@ -416,6 +421,7 @@ public final class Frame extends MainFrame {
      */
     public void onInit() {
         scene.getModel().resetModel();
+        scene.setWireframeMode(true);
         scene.repaint();
     }
 
@@ -503,6 +509,8 @@ public final class Frame extends MainFrame {
 
             Model model = QuadPersistence.loadFromFile(file);
             scene.setModel(model);
+            scene.setWireframeMode(true);
+            scene.repaint();
 
             setTitle(file.getName());
             setModified(false);
