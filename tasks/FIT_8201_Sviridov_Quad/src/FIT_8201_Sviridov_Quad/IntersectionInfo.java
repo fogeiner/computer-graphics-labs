@@ -35,8 +35,8 @@ public class IntersectionInfo {
         return new Vector(intersection, start).length();
     }
 
-    public Coefficient3D trace(Collection<Light> lights, Collection<Renderable> objects) {
-        return object.trace(this, lights, objects);
+    public Coefficient3D trace(Collection<Renderable> objects, Collection<Light> lights, Coefficient3D ambient) {
+        return object.trace(this, objects, lights, ambient);
     }
 
     @Override

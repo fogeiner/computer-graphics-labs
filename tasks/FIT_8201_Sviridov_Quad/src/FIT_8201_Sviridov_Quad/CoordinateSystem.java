@@ -2,6 +2,7 @@ package FIT_8201_Sviridov_Quad;
 
 import FIT_8201_Sviridov_Quad.transformations.FrameToWorldTransformation;
 import FIT_8201_Sviridov_Quad.transformations.Transformation;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
 
@@ -21,6 +22,9 @@ public class CoordinateSystem {
 
     static {
         format = NumberFormat.getInstance(Locale.ENGLISH);
+        if (format instanceof DecimalFormat) {
+            ((DecimalFormat) format).setGroupingUsed(false);
+        }
         format.setMaximumFractionDigits(2);
         format.setMinimumFractionDigits(2);
     }

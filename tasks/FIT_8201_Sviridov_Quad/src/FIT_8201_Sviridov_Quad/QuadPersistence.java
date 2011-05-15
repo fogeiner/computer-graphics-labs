@@ -1,6 +1,5 @@
 package FIT_8201_Sviridov_Quad;
 
-import FIT_8201_Sviridov_Quad.Light;
 import FIT_8201_Sviridov_Quad.primitives.Renderable;
 import FIT_8201_Sviridov_Quad.primitives.Sphere;
 import FIT_8201_Sviridov_Quad.primitives.Triangle;

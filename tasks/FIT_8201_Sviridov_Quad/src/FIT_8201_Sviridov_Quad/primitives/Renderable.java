@@ -15,7 +15,7 @@ public interface Renderable extends SceneObject, Cloneable {
 
     public Collection<IntersectionInfo> intersect(Ray ray);
 
-    public Coefficient3D trace(IntersectionInfo intersectionInfo, Collection<Light> lights, Collection<Renderable> objects);
+    public abstract Coefficient3D trace(IntersectionInfo intersectionInfo, Collection<Renderable> objects, Collection<Light> lights, Coefficient3D ambient);
 
     public Wireframe getWireframe();
 

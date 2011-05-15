@@ -59,7 +59,6 @@ public class Triangle extends RenderableImpl {
     @Override
     public Collection<IntersectionInfo> intersect(Ray ray) {
         List<IntersectionInfo> intersections = new ArrayList<IntersectionInfo>(1);
-        List<Segment> segments = getSegments();
 
         Vertex v1 = segments.get(0).getStartVertex(),
                 v2 = segments.get(1).getStartVertex(),
@@ -102,17 +101,17 @@ public class Triangle extends RenderableImpl {
             int maxCoordinate = -1;
             double max = Double.NEGATIVE_INFINITY;
 
-            if (p.getX() > max) {
+            if (Math.abs(p.getX()) > max) {
                 maxCoordinate = 0;
-                max = p.getX();
+                max = Math.abs(p.getX());
             }
 
-            if (p.getY() > max) {
+            if (Math.abs(p.getY()) > max) {
                 maxCoordinate = 1;
-                max = p.getY();
+                max = Math.abs(p.getY());
             }
 
-            if (p.getZ() > max) {
+            if (Math.abs(p.getZ()) > max) {
                 maxCoordinate = 2;
             }
 
@@ -161,7 +160,7 @@ public class Triangle extends RenderableImpl {
     }
 
     @Override
-    public Coefficient3D trace(IntersectionInfo intersectionInfo, Collection<Light> lights, Collection<Renderable> objects) {
+    public Coefficient3D trace(IntersectionInfo intersectionInfo, Collection<Renderable> objects, Collection<Light> lights, Coefficient3D ambient) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

@@ -37,7 +37,7 @@ public class Sphere extends RenderableImpl {
         Sphere sphere = new Sphere(origin, radius, getColorModel());
         List<Segment> segments = getSegments();
         List<Segment> segmentsCopy = new ArrayList<Segment>(segments.size());
-        for(Segment s: segments){
+        for (Segment s : segments) {
             segmentsCopy.add(s.clone());
         }
 
@@ -46,8 +46,6 @@ public class Sphere extends RenderableImpl {
         sphere.radius = this.radius;
         return sphere;
     }
-
-
 
     @Override
     public Collection<IntersectionInfo> intersect(Ray ray) {
@@ -104,9 +102,39 @@ public class Sphere extends RenderableImpl {
     }
 
     @Override
-    public Coefficient3D trace(IntersectionInfo intersectionInfo,
-            Collection<Light> lights, Collection<Renderable> objects) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public Coefficient3D trace(IntersectionInfo intersectionInfo, Collection<Renderable> objects, Collection<Light> lights, Coefficient3D ambient) {
+
+        Vector n = intersectionInfo.getNormal();
+        Vertex p = intersectionInfo.getIntersection();
+        Vector e = new Vector(p, new Vertex(0, 0, 0));
+
+        ColorModel cm = getColorModel();
+
+        Coefficient3D ambientCoefficient = cm.getAmbientCoefficient(),
+                diffuseCoefficient = cm.getDiffuseCoefficient(),
+                specularCoefficient = cm.getSpecularCoefficient();
+
+        double R = ambient.getR() * ambientCoefficient.getR(),
+                G = ambient.getG() * ambientCoefficient.getG(),
+                B = ambient.getB() * ambientCoefficient.getB();
+
+        for (Light light : lights) {
+
+
+            Vector l = new Vector(p, light.getOrigin()).normalize();
+
+            double nl = n.dot(l);
+
+            Vector r = new Vector(
+                    2 * nl * n.getX() - l.getX(),
+                    2 * nl * n.getY() - l.getY(),
+                    2 * nl * n.getZ() - l.getZ());
+            Vector h = new Vector(
+                    l.getX() + e.getX(),
+                    l.getY() + e.getY(),
+                    l.getZ() + e.getZ());
+        }
+        return new Coefficient3D(R, G, B);
     }
 
     @Override

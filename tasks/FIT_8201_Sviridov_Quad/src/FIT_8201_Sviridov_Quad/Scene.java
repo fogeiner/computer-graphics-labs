@@ -2,7 +2,6 @@ package FIT_8201_Sviridov_Quad;
 
 import FIT_8201_Sviridov_Quad.primitives.Renderable;
 import FIT_8201_Sviridov_Quad.primitives.Segment;
-import FIT_8201_Sviridov_Quad.primitives.Sphere;
 import FIT_8201_Sviridov_Quad.primitives.Wireframe;
 import FIT_8201_Sviridov_Quad.transformations.PerspectiveProjectionTransformation;
 import FIT_8201_Sviridov_Quad.transformations.RotationTransformation;
@@ -206,6 +205,7 @@ public class Scene extends JPanel {
 
         List<Renderable> renderables = model.getRenderables();
         List<Light> lights = model.getLights();
+        Coefficient3D ambientColor = model.getAmbient();
 
         double R[][] = new double[(int) (width + 0.5)][(int) (height + 0.5)],
                 G[][] = new double[(int) (width + 0.5)][(int) (height + 0.5)],
@@ -254,7 +254,7 @@ public class Scene extends JPanel {
                         }
                     }
                     // ask object to define its color
-                    Coefficient3D objColor = closestIntersection.trace(lights, renderables);
+                    Coefficient3D objColor = closestIntersection.trace(renderables, lights, ambientColor);
                     
                     // set color to array
                     R[j][i] = objColor.getR();

@@ -303,31 +303,31 @@ public final class Frame extends MainFrame {
                 v2 = new Vertex(0, 0, triangleSideLength),
                 v3 = new Vertex(triangleSideLength, 0, 0),
                 v4 = new Vertex(0, 0, 0);
-
-        model.addRenderable(
-                new Triangle(v1, v2, v4,
-                new ColorModel(
-                new Coefficient3D(0.5, 0.5, 0.5),
-                new Coefficient3D(0.2, 0.2, 0.2),
-                new Coefficient3D(0.5, 0.5, 0.5),
-                2, 0, 0, 0)));
-
-        model.addRenderable(
-                new Triangle(v1, v4, v3,
-                new ColorModel(
-                new Coefficient3D(0.6, 0.3, 0.0),
-                new Coefficient3D(0.0, 0.5, 0.7),
-                new Coefficient3D(0.6, 0.3, 0.2),
-                2, 0, 0, 0)));
-
-        model.addRenderable(
-                new Triangle(v4, v2, v3,
-                new ColorModel(
-                new Coefficient3D(0.8, 0.8, 0.8),
-                new Coefficient3D(0.2, 0.2, 0.1),
-                new Coefficient3D(0.6, 0.6, 0.7),
-                2, 0, 0, 0)));
-
+//
+//        model.addRenderable(
+//                new Triangle(v1, v2, v4,
+//                new ColorModel(
+//                new Coefficient3D(0.5, 0.5, 0.5),
+//                new Coefficient3D(0.2, 0.2, 0.2),
+//                new Coefficient3D(0.5, 0.5, 0.5),
+//                2, 0, 0, 0)));
+//
+//        model.addRenderable(
+//                new Triangle(v1, v4, v3,
+//                new ColorModel(
+//                new Coefficient3D(0.6, 0.3, 0.0),
+//                new Coefficient3D(0.0, 0.5, 0.7),
+//                new Coefficient3D(0.6, 0.3, 0.2),
+//                2, 0, 0, 0)));
+//
+//        model.addRenderable(
+//                new Triangle(v4, v2, v3,
+//                new ColorModel(
+//                new Coefficient3D(0.8, 0.8, 0.8),
+//                new Coefficient3D(0.2, 0.2, 0.1),
+//                new Coefficient3D(0.6, 0.6, 0.7),
+//                2, 0, 0, 0)));
+//
         model.addRenderable(
                 new Sphere(new Vertex(50, 50, 50),
                 40,
