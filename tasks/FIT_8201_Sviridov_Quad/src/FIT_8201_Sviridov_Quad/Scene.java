@@ -38,16 +38,21 @@ public class Scene extends JPanel {
             MouseWheelListener {
 
         private Point lastPoint;
+        private int buttonsPressed = 0;
 
         @Override
         public void mousePressed(MouseEvent e) {
             Point currentPoint = e.getPoint();
             lastPoint = currentPoint;
+            buttonsPressed++;
         }
 
         @Override
         public void mouseReleased(MouseEvent e) {
-            lastPoint = null;
+            buttonsPressed--;
+            if (buttonsPressed == 0) {
+                lastPoint = null;
+            }
         }
 
         @Override
@@ -255,7 +260,7 @@ public class Scene extends JPanel {
                     }
                     // ask object to define its color
                     Coefficient3D objColor = closestIntersection.trace(renderables, lights, ambientColor);
-                    
+
                     // set color to array
                     R[j][i] = objColor.getR();
                     G[j][i] = objColor.getG();

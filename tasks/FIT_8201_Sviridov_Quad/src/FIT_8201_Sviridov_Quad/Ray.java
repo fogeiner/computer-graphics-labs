@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class Ray {
 
-    public static final double EPS = 10e-8;
+    public static final double EPS = 10e-12;
     private final Vertex origin;
     private final Vector direction;
 

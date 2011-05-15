@@ -101,8 +101,6 @@ public class Model {
                 }
             }
 
-            // box
-
             box = new Wireframe(
                     Wireframe.box(maxX - minX, maxY - minY, maxZ - minZ),
                     new Vertex((maxX + minX) / 2, (maxY + minY) / 2, (maxZ + minZ) / 2));

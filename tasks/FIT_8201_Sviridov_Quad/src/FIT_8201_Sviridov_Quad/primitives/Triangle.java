@@ -1,12 +1,12 @@
 package FIT_8201_Sviridov_Quad.primitives;
 
-import FIT_8201_Sviridov_Quad.Coefficient3D;
 import FIT_8201_Sviridov_Quad.ColorModel;
 import FIT_8201_Sviridov_Quad.IntersectionInfo;
-import FIT_8201_Sviridov_Quad.Light;
 import FIT_8201_Sviridov_Quad.Ray;
 import FIT_8201_Sviridov_Quad.Vector;
 import FIT_8201_Sviridov_Quad.Vertex;
+import FIT_8201_Sviridov_Quad.transformations.PlaneProjectionTransformation;
+import FIT_8201_Sviridov_Quad.transformations.Transformation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -19,6 +19,11 @@ import java.util.List;
 public class Triangle extends RenderableImpl {
 
     private Vertex initialV1, initialV2, initialV3;
+    private static Transformation planeProjectionTransformation;
+
+    static {
+        planeProjectionTransformation = PlaneProjectionTransformation.makePlaneProjectionTransformation(new Vector(1, 1, 1));
+    }
 
     public Triangle(Vertex v1, Vertex v2, Vertex v3, ColorModel colorModel) {
         super(Arrays.asList(
@@ -58,6 +63,7 @@ public class Triangle extends RenderableImpl {
 
     @Override
     public Collection<IntersectionInfo> intersect(Ray ray) {
+
         List<IntersectionInfo> intersections = new ArrayList<IntersectionInfo>(1);
 
         Vertex v1 = segments.get(0).getStartVertex(),
@@ -98,46 +104,11 @@ public class Triangle extends RenderableImpl {
 
         // inside triangle?
         {
-            int maxCoordinate = -1;
-            double max = Double.NEGATIVE_INFINITY;
 
-            if (Math.abs(p.getX()) > max) {
-                maxCoordinate = 0;
-                max = Math.abs(p.getX());
-            }
-
-            if (Math.abs(p.getY()) > max) {
-                maxCoordinate = 1;
-                max = Math.abs(p.getY());
-            }
-
-            if (Math.abs(p.getZ()) > max) {
-                maxCoordinate = 2;
-            }
-
-            Vertex w1, w2, w3, q;
-            switch (maxCoordinate) {
-                case 0:
-                    w1 = new Vertex(0, v1.getY(), v1.getZ());
-                    w2 = new Vertex(0, v2.getY(), v2.getZ());
-                    w3 = new Vertex(0, v3.getY(), v3.getZ());
-                    q = new Vertex(0, p.getY(), p.getZ());
-                    break;
-                case 1:
-                    w1 = new Vertex(v1.getX(), 0, v1.getZ());
-                    w2 = new Vertex(v2.getX(), 0, v2.getZ());
-                    w3 = new Vertex(v3.getX(), 0, v3.getZ());
-                    q = new Vertex(p.getX(), 0, p.getZ());
-                    break;
-                case 2:
-                    w1 = new Vertex(v1.getX(), v1.getY(), 0);
-                    w2 = new Vertex(v2.getX(), v2.getY(), 0);
-                    w3 = new Vertex(v3.getX(), v3.getY(), 0);
-                    q = new Vertex(p.getX(), p.getY(), 0);
-                    break;
-                default:
-                    throw new IllegalStateException("For a given set of numbers maximum exists always");
-            }
+            Vertex w1 = planeProjectionTransformation.apply(v1),
+                    w2 = planeProjectionTransformation.apply(v2),
+                    w3 = planeProjectionTransformation.apply(v3),
+                    q = planeProjectionTransformation.apply(p);
 
             double triangleArea = area(w1, w2, w3);
 
@@ -147,7 +118,7 @@ public class Triangle extends RenderableImpl {
 
             if (alpha < 0 || alpha > 1 || beta < 0 || beta > 1
                     || gamma < 0 || gamma > 1
-                    || (alpha + beta + gamma - 1) > Ray.EPS) {
+                    || (alpha + beta + gamma - 1.0) > Ray.EPS) {
                 return intersections;
             }
         }
@@ -160,15 +131,8 @@ public class Triangle extends RenderableImpl {
     }
 
     @Override
-    public Coefficient3D trace(IntersectionInfo intersectionInfo, Collection<Renderable> objects, Collection<Light> lights, Coefficient3D ambient) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(20);
-
-        List<Segment> segments = getSegments();
 
         Vertex v1 = segments.get(0).getStartVertex(),
                 v2 = segments.get(1).getStartVertex(),
