@@ -204,13 +204,6 @@ public class Scene extends JPanel {
         double stepWidth = sw / (minSize + 1);
         double stepHeight = sh / (minSize + 1);
 
-
-        int minHalfSizeIntUp = (int) (halfMinSize + 0.5);
-        int minHalfSizeIntDown = (int) (halfMinSize);
-
-        int widthOffset = (int) ((width - minSize) / 2 + 0.5),
-                heightOffset = (int) ((height - minSize) / 2 + 0.5);
-
         List<Renderable> renderables = model.getRenderables();
 
         double R[][] = new double[(int) (width + 0.5)][(int) (height + 0.5)],
@@ -225,23 +218,28 @@ public class Scene extends JPanel {
             }
         }
 
-        for (int w = -minHalfSizeIntUp; w < minHalfSizeIntDown; ++w) {
-            for (int h = -minHalfSizeIntUp; h < minHalfSizeIntDown; ++h) {
-                int j = w + minHalfSizeIntUp + widthOffset,
-                        i = h + minHalfSizeIntUp + heightOffset;
+        int halfWidthIntUp = (int)(halfWidth + 0.5),
+                halfWidthIntDown = (int)(halfWidth),
+                 halfHeightIntUp = (int)(halfHeight + 0.5),
+                 halfHeightIntDown = (int)(halfHeight);
+
+        for (int w = -halfWidthIntUp; w < halfWidthIntDown; ++w) {
+            for (int h = -halfHeightIntUp; h < halfHeightIntDown; ++h) {
+                int j = w + halfWidthIntUp,
+                        i = h + halfHeightIntUp;
                 double y = h * stepHeight, x = w * stepWidth;
 
                 Ray ray = new Ray(new Vector(x, y, -znear));
 
                 List<IntersectionInfo> intersections = new ArrayList<IntersectionInfo>();
                 for (Renderable renderable : renderables) {
-                    if (renderable instanceof Sphere) {
-                        Collection<IntersectionInfo> ii = renderable.intersect(ray);
-                        intersections.addAll(ii);
+                    if(renderable instanceof Sphere){
+                    Collection<IntersectionInfo> ii = renderable.intersect(ray);
+                    intersections.addAll(ii);
                     }
                 }
 
-                if (intersections.isEmpty()) {
+                if (!intersections.isEmpty()) {
                     R[j][i] = G[j][i] = B[j][i] = 0.0;
                 }
 
@@ -251,14 +249,14 @@ public class Scene extends JPanel {
         double maxValue = Double.NEGATIVE_INFINITY;
         for (int j = 0; j < R.length; ++j) {
             for (int i = 0; i < R[0].length; ++i) {
-                if (R[j][i] < maxValue) {
+                if (R[j][i] > maxValue) {
                     maxValue = R[j][i];
                 }
-                if (B[j][i] < maxValue) {
-                    maxValue = R[j][i];
+                if (B[j][i] > maxValue) {
+                    maxValue = B[j][i];
                 }
-                if (G[j][i] < maxValue) {
-                    maxValue = R[j][i];
+                if (G[j][i] > maxValue) {
+                    maxValue = G[j][i];
                 }
             }
         }
@@ -280,7 +278,7 @@ public class Scene extends JPanel {
         }
 
         renderedImage = new BufferedImage((int) (width + 0.5),
-                (int) (height + 0.5), BufferedImage.TYPE_INT_RGB);
+                (int) (height + 0.5), BufferedImage.TYPE_INT_ARGB);
 
         for (int j = 0; j < R.length; ++j) {
             for (int i = 0; i < R[0].length; ++i) {
@@ -293,7 +291,9 @@ public class Scene extends JPanel {
     }
 
     private void paintRenderedImage(Graphics2D g) {
-        g.drawImage(renderedImage, 0, 0, null);
+        g.scale(1.0, -1.0);
+        g.drawImage(renderedImage, 0, -getHeight(), null);
+        g.scale(1.0, -1.0);
     }
 
     @Override

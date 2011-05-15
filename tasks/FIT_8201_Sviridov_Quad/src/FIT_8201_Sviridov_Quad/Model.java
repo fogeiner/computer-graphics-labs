@@ -26,7 +26,7 @@ public class Model {
     private List<Light> lights = new ArrayList<Light>(5);
     private Color backgroundColor = DEFAULT_BACKGROUND_COLOR;
     private boolean finished;
-    private double gamma;
+    private double gamma = DEFAULT_GAMMA;
     private int ntree;
     private double znear;
     private double zfar;
