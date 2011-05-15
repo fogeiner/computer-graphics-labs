@@ -21,13 +21,14 @@ import java.util.List;
  */
 public class Sphere extends RenderableImpl {
 
-    private Vertex origin;
+    private Vertex initialOrigin;
     private double radius;
 
     public Sphere(Vertex origin, double radius, ColorModel colorModel) {
         super(Wireframe.superquadric(radius, 20, 20, 1, 1),
                 origin, colorModel);
         this.origin = origin;
+        this.initialOrigin = origin;
         this.radius = radius;
     }
 
@@ -112,7 +113,7 @@ public class Sphere extends RenderableImpl {
     public String toString() {
         StringBuilder sb = new StringBuilder(50);
         sb.append("SPH\r\n");
-        sb.append(origin);
+        sb.append(initialOrigin);
         sb.append("\r\n");
         sb.append(radius);
         sb.append("\r\n");

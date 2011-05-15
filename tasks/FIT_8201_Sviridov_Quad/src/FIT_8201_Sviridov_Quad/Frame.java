@@ -413,6 +413,9 @@ public final class Frame extends MainFrame {
     }
 
     public void onRender() {
+        boolean wireframe = scene.isWireframeMode();
+        scene.setWireframeMode(!wireframe);
+        scene.repaint();
     }
 
     /**

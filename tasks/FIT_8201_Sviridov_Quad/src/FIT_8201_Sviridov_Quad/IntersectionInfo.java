@@ -35,9 +35,13 @@ public class IntersectionInfo {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder(20);
+        StringBuilder sb = new StringBuilder(200);
         sb.append("Intersection ");
         sb.append(intersection);
+        sb.append(' ');
+        sb.append(normal);
+        sb.append("\r\n");
+        sb.append(object);
         return sb.toString();
     }
 }
