@@ -296,7 +296,9 @@ public final class Frame extends MainFrame {
 
         Model model = new Model();
 
-        model.addLight(new Light(new Vertex(100, 100, 100), new Coefficient3D(1.0, 1.0, 1.0)));
+        model.addLight(new Light(new Vertex(150, 0, 0), new Coefficient3D(0.6, 0.7, 0.8)));
+        model.addLight(new Light(new Vertex(0, 150, 0), new Coefficient3D(0.1, 0.9, 0.2)));
+        model.addLight(new Light(new Vertex(0, -150, 0), new Coefficient3D(0.8, 0.3, 0.3)));
         double triangleSideLength = 150;
 
         Vertex v1 = new Vertex(0, triangleSideLength, 0),
@@ -333,11 +335,11 @@ public final class Frame extends MainFrame {
                 40,
                 new ColorModel(
                 new Coefficient3D(0.8, 0.8, 0.8),
-                new Coefficient3D(0.2, 0.2, 0.1),
+                new Coefficient3D(0.7, 0.5, 0.9),
                 new Coefficient3D(0.6, 0.6, 0.7),
                 2, 0, 0, 0)));
 
-        model.setAmbient(new Coefficient3D(1.0, 1.0, 1.0));
+        model.setAmbient(new Coefficient3D(0.6, 0.6, 0.6));
         model.finishModel();
 
         scene = new Scene(model);

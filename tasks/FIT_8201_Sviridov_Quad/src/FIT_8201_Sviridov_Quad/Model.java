@@ -66,6 +66,7 @@ public class Model {
         sceneObjects.add(box);
         sceneObjects.addAll(orts);
         sceneObjects.addAll(getRenderablesWireframes());
+        sceneObjects.addAll(lights);
         return sceneObjects;
     }
 

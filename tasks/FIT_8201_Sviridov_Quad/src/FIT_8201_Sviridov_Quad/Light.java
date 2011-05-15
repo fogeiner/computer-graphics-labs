@@ -8,11 +8,13 @@ import FIT_8201_Sviridov_Quad.transformations.Transformation;
  */
 public class Light implements SceneObject {
 
+    private Vertex initialOrigin;
     private Vertex origin;
     private final Coefficient3D color;
 
     public Light(Vertex origin, Coefficient3D color) {
         this.origin = origin;
+        this.initialOrigin = origin;
         this.color = color;
     }
 
@@ -29,6 +31,7 @@ public class Light implements SceneObject {
         origin = transformation.apply(origin);
     }
 
+    @Override
     public Light clone(){
         Light light = new Light(origin, color);
         return light;
@@ -36,7 +39,7 @@ public class Light implements SceneObject {
 
     @Override
     public String toString() {
-        return origin + " " + color;
+        return initialOrigin + " " + color;
     }
 
 }
