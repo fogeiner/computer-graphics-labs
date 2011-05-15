@@ -70,7 +70,7 @@ public class Scene extends JPanel {
                 return;
             }
 
-            double step = 2 * Math.PI / (128 + 256);
+            double step = rotateCoef * 2 * Math.PI / (128 + 256);
 
             dx = dx / length;
             dy = dy / length;
@@ -91,7 +91,7 @@ public class Scene extends JPanel {
             }
             int wheelRotationSign = (int) Math.signum(e.getWheelRotation());
 
-            double step = model.getInitialBoxRect3D().getMax() / 40;
+            double step = rollCoef * model.getInitialBoxRect3D().getMax() / 40;
 
             Transformation translation = new TranslationTransformation(0, 0, step * wheelRotationSign);
             model.transform(translation);
@@ -107,6 +107,8 @@ public class Scene extends JPanel {
     private boolean wireframeMode = true;
     private BufferedImage renderedImage;
     private MouseHandler mouseHandler = new MouseHandler();
+    private double rollCoef = 1.0;
+    private double rotateCoef = 1.0;
 
     public void setModel(Model model) {
         this.model = model;
@@ -374,5 +376,21 @@ public class Scene extends JPanel {
 
     public Model getModel() {
         return model;
+    }
+
+    public double getRollCoef() {
+        return rollCoef;
+    }
+
+    public void setRollCoef(double rollCoef) {
+        this.rollCoef = rollCoef;
+    }
+
+    public double getRotateCoef() {
+        return rotateCoef;
+    }
+
+    public void setRotateCoef(double rotateCoef) {
+        this.rotateCoef = rotateCoef;
     }
 }

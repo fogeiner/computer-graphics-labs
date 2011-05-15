@@ -10,19 +10,22 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JColorChooser;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFormattedTextField;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -59,47 +62,65 @@ public final class Frame extends MainFrame {
     class SettingsDialog extends JDialog {
 
         private static final long serialVersionUID = -2287400008055325290L;
-        private JSlider rSlider = new JSlider(0, 100);
-        private JSpinner rSpinner = new JSpinner(new SpinnerNumberModel(0.01,
-                0.0, 1.0, 0.01));
-        private JSlider dSlider = new JSlider(0, 100);
-        private JSpinner dSpinner = new JSpinner(new SpinnerNumberModel(0, 0,
-                100, 1));
+        private JLabel background = new JLabel("Color sample");
+        private JLabel ambient = new JLabel("Color sample");
+        private JSlider rotateSlider = new JSlider(0, 100);
+        private JSlider rollSlider = new JSlider(0, 100);
+        private JSlider gammaSlider = new JSlider(0, 100);
+        private JSpinner rotateSpinner = new JSpinner(new SpinnerNumberModel(0.0, 0.0, 10.0, 0.1));
+        private JSpinner rollSpinner = new JSpinner(new SpinnerNumberModel(0.0, 0.0, 10.0, 0.1));
+        private JSpinner gammaSpinner = new JSpinner(new SpinnerNumberModel(0.0, 0.0, 10.0, 0.1));
         private JButton okButton = new JButton("OK");
         private JButton cancelButton = new JButton("Cancel");
 
         {
-            setupSpinner(rSpinner, 5);
-            rSlider.addChangeListener(new ChangeListener() {
+            setupSpinner(rollSpinner);
+            setupSpinner(rotateSpinner);
+            setupSpinner(gammaSpinner);
+
+            rotateSlider.addChangeListener(new ChangeListener() {
 
                 @Override
                 public void stateChanged(ChangeEvent e) {
-                    rSpinner.setValue(rSlider.getValue() / 100.0);
-                }
-            });
-            rSpinner.addChangeListener(new ChangeListener() {
-
-                @Override
-                public void stateChanged(ChangeEvent e) {
-                    rSlider.setValue((int) ((Double) (rSpinner.getValue()) * 100 + 0.5));
-                    setModified(true);
+                    rotateSpinner.setValue(rotateSlider.getValue() / 10.0);
                 }
             });
 
-            setupSpinner(dSpinner, 5);
-            dSlider.addChangeListener(new ChangeListener() {
+            rotateSpinner.addChangeListener(new ChangeListener() {
 
                 @Override
                 public void stateChanged(ChangeEvent e) {
-                    dSpinner.setValue(dSlider.getValue());
+                    rotateSlider.setValue((int) ((Double) (rotateSpinner.getValue()) * 10 + 0.5));
                 }
             });
-            dSpinner.addChangeListener(new ChangeListener() {
+
+            rollSlider.addChangeListener(new ChangeListener() {
 
                 @Override
                 public void stateChanged(ChangeEvent e) {
-                    dSlider.setValue((Integer) dSpinner.getValue());
-                    setModified(true);
+                    rollSpinner.setValue(rollSlider.getValue() / 10.0);
+                }
+            });
+            rollSpinner.addChangeListener(new ChangeListener() {
+
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    rollSlider.setValue((int) ((Double) (rollSpinner.getValue()) * 10 + 0.5));
+                }
+            });
+
+            gammaSlider.addChangeListener(new ChangeListener() {
+
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    gammaSpinner.setValue(gammaSlider.getValue() / 10.0);
+                }
+            });
+            gammaSpinner.addChangeListener(new ChangeListener() {
+
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    gammaSlider.setValue((int) ((Double) (gammaSpinner.getValue()) * 10 + 0.5));
                 }
             });
 
@@ -111,11 +132,43 @@ public final class Frame extends MainFrame {
                     confirm();
                 }
             });
+
             cancelButton.addActionListener(new ActionListener() {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     cancel();
+                }
+            });
+
+            background.setOpaque(true);
+            ambient.setOpaque(true);
+
+            background.setAlignmentX(JComponent.CENTER_ALIGNMENT);
+            ambient.setAlignmentX(JComponent.CENTER_ALIGNMENT);
+
+            background.addMouseListener(new MouseAdapter() {
+
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    super.mouseClicked(e);
+                    Color c = JColorChooser.showDialog(SettingsDialog.this, "Choose background color", null);
+                    if (c != null) {
+                        background.setBackground(c);
+                    }
+                }
+            });
+
+
+            ambient.addMouseListener(new MouseAdapter() {
+
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    super.mouseClicked(e);
+                    Color c = JColorChooser.showDialog(SettingsDialog.this, "Choose ambient color", null);
+                    if (c != null) {
+                        ambient.setBackground(c);
+                    }
                 }
             });
         }
@@ -125,17 +178,14 @@ public final class Frame extends MainFrame {
          *
          * @param spinner
          *            spinner
-         * @param columns
-         *            number of columns
          */
-        private void setupSpinner(JSpinner spinner, int columns) {
+        private void setupSpinner(JSpinner spinner) {
             JComponent editor = spinner.getEditor();
             JFormattedTextField textfield = ((JSpinner.DefaultEditor) editor).getTextField();
             NumberFormatter nFormat = (NumberFormatter) textfield.getFormatter();
             nFormat.setCommitsOnValidEdit(true);
             nFormat.setAllowsInvalid(false);
 
-            ((JSpinner.DefaultEditor) rSpinner.getEditor()).getTextField().setColumns(columns);
         }
 
         /**
@@ -143,8 +193,18 @@ public final class Frame extends MainFrame {
          */
         public void showDialog() {
             // read out values
+            Model model = scene.getModel();
+            background.setBackground(model.getBackgroundColor());
 
-
+            Coefficient3D ambientColorModel = model.getAmbient();
+            Color ambientColor = new Color(
+                    (float) ambientColorModel.getR(),
+                    (float) ambientColorModel.getG(),
+                    (float) ambientColorModel.getB());
+            ambient.setBackground(ambientColor);
+            gammaSpinner.setValue(model.getGamma());
+            rollSpinner.setValue(scene.getRollCoef());
+            rotateSpinner.setValue(scene.getRotateCoef());
             setVisible(true);
         }
 
@@ -159,6 +219,26 @@ public final class Frame extends MainFrame {
          * Sets parameters and make dialog invisible
          */
         public void confirm() {
+            Model model = scene.getModel();
+
+            model.setBackgroundColor(background.getBackground());
+            scene.setBackground(background.getBackground());
+
+            Color ambientColor = ambient.getBackground();
+
+            Coefficient3D ambientColorModel =
+                    new Coefficient3D(ambientColor.getRed() / 255.0,
+                    ambientColor.getGreen() / 255.0,
+                    ambientColor.getBlue() / 255.0);
+            model.setAmbient(ambientColorModel);
+            model.setGamma((Double) gammaSpinner.getValue());
+
+            scene.setRollCoef((Double) rollSpinner.getValue());
+            scene.setRotateCoef((Double) rotateSpinner.getValue());
+
+            scene.repaint();
+
+            setModified(true);
             setVisible(false);
         }
 
@@ -173,13 +253,20 @@ public final class Frame extends MainFrame {
          *            spinner
          * @return new subpanel
          */
-        private JPanel makeSubPanel(String title, JSlider slider,
+        private JPanel makeSpinnerSliperSubPanel(String title, JSlider slider,
                 JSpinner spinner) {
             JPanel p = new JPanel(new BorderLayout(5, 5));
             p.setBorder(BorderFactory.createTitledBorder(title));
             p.add(slider, BorderLayout.CENTER);
             p.add(spinner, BorderLayout.LINE_END);
             return p;
+        }
+
+        private JPanel makeTitledPanel(String title, JComponent component) {
+            JPanel panel = new JPanel(new BorderLayout());
+            panel.setBorder(BorderFactory.createTitledBorder(title));
+            panel.add(component, BorderLayout.CENTER);
+            return panel;
         }
 
         /**
@@ -205,9 +292,14 @@ public final class Frame extends MainFrame {
         public SettingsDialog(JFrame owner) {
             super(owner, "Settings dialog");
             JPanel mainPanel = new JPanel();
-            mainPanel.add(makeSubPanel("r", rSlider, rSpinner));
-            mainPanel.add(makeSubPanel("d", dSlider, dSpinner));
             mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+
+            mainPanel.add(makeTitledPanel("Background", background));
+            mainPanel.add(makeTitledPanel("Ambient", ambient));
+            mainPanel.add(makeSpinnerSliperSubPanel("Gamma", gammaSlider, gammaSpinner));
+            mainPanel.add(makeSpinnerSliperSubPanel("Rotate", rotateSlider, rotateSpinner));
+            mainPanel.add(makeSpinnerSliperSubPanel("Roll", rollSlider, rollSpinner));
+
             setLayout(new BorderLayout(5, 5));
             add(mainPanel, BorderLayout.CENTER);
             add(makeButtonsPanel(), BorderLayout.SOUTH);
@@ -280,7 +372,6 @@ public final class Frame extends MainFrame {
             addToolBarSeparator();
             addToolBarButton("File/Exit");
         } catch (NoSuchMethodException e) {
-            e.printStackTrace();
         }
 
         toolBar.setFloatable(false);
