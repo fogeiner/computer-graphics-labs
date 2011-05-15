@@ -205,23 +205,29 @@ public class Scene extends JPanel {
         double stepHeight = sh / (minSize + 1);
 
         List<Renderable> renderables = model.getRenderables();
+        List<Light> lights = model.getLights();
 
         double R[][] = new double[(int) (width + 0.5)][(int) (height + 0.5)],
                 G[][] = new double[(int) (width + 0.5)][(int) (height + 0.5)],
                 B[][] = new double[(int) (width + 0.5)][(int) (height + 0.5)];
         // fill with background color
+        Color backgroundColor = getBackground();
+        double backgroundRed = backgroundColor.getRed() / 255.0,
+                backgroundGreen = backgroundColor.getGreen() / 255.0,
+                backgroundBlue = backgroundColor.getBlue() / 255.0;
+
         for (int j = 0; j < R.length; ++j) {
             for (int i = 0; i < R[0].length; ++i) {
-                R[j][i] = 1.0;
-                G[j][i] = 1.0;
-                B[j][i] = 1.0;
+                R[j][i] = backgroundRed;
+                G[j][i] = backgroundGreen;
+                B[j][i] = backgroundBlue;
             }
         }
 
-        int halfWidthIntUp = (int)(halfWidth + 0.5),
-                halfWidthIntDown = (int)(halfWidth),
-                 halfHeightIntUp = (int)(halfHeight + 0.5),
-                 halfHeightIntDown = (int)(halfHeight);
+        int halfWidthIntUp = (int) (halfWidth + 0.5),
+                halfWidthIntDown = (int) (halfWidth),
+                halfHeightIntUp = (int) (halfHeight + 0.5),
+                halfHeightIntDown = (int) (halfHeight);
 
         for (int w = -halfWidthIntUp; w < halfWidthIntDown; ++w) {
             for (int h = -halfHeightIntUp; h < halfHeightIntDown; ++h) {
@@ -233,16 +239,28 @@ public class Scene extends JPanel {
 
                 List<IntersectionInfo> intersections = new ArrayList<IntersectionInfo>();
                 for (Renderable renderable : renderables) {
-                    if(renderable instanceof Sphere){
                     Collection<IntersectionInfo> ii = renderable.intersect(ray);
                     intersections.addAll(ii);
-                    }
                 }
 
                 if (!intersections.isEmpty()) {
-                    R[j][i] = G[j][i] = B[j][i] = 0.0;
+                    // find closest intersection
+                    IntersectionInfo closestIntersection = null;
+                    double closestDistance = Double.POSITIVE_INFINITY;
+                    for (IntersectionInfo ii : intersections) {
+                        if (ii.length() < closestDistance) {
+                            closestIntersection = ii;
+                            closestDistance = ii.length();
+                        }
+                    }
+                    // ask object to define its color
+                    Coefficient3D objColor = closestIntersection.trace(lights, renderables);
+                    
+                    // set color to array
+                    R[j][i] = objColor.getR();
+                    G[j][i] = objColor.getG();
+                    B[j][i] = objColor.getB();
                 }
-
             }
         }
 

@@ -1,6 +1,7 @@
 package FIT_8201_Sviridov_Quad;
 
 import FIT_8201_Sviridov_Quad.primitives.Renderable;
+import java.util.Collection;
 
 /**
  *
@@ -8,9 +9,9 @@ import FIT_8201_Sviridov_Quad.primitives.Renderable;
  */
 public class IntersectionInfo {
 
-    public final Vertex intersection;
-    public final Vector normal;
-    public final Renderable object;
+    private final Vertex intersection;
+    private final Vector normal;
+    private final Renderable object;
 
     public IntersectionInfo(Vertex intersection, Vector normal, Renderable object) {
         this.intersection = intersection;
@@ -18,19 +19,24 @@ public class IntersectionInfo {
         this.object = object;
     }
 
-    public Vertex getIntersection(){
+    public Vertex getIntersection() {
         return intersection;
     }
 
-    public Vector getNormal(){
+    public Vector getNormal() {
         return normal;
     }
 
-    public double length(){
+    public double length() {
         return length(new Vertex(0, 0, 0));
     }
-    public double length(Vertex start){
+
+    public double length(Vertex start) {
         return new Vector(intersection, start).length();
+    }
+
+    public Coefficient3D trace(Collection<Light> lights, Collection<Renderable> objects) {
+        return object.trace(this, lights, objects);
     }
 
     @Override
