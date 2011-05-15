@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- *
+ * Class represent scene model
  * @author alstein
  */
 public class Model {
@@ -31,6 +31,10 @@ public class Model {
     private double znear;
     private double zfar;
 
+    /**
+     * Class for data backup
+     * @author admin
+     */
     private class ModelSavedState {
 
         private Coefficient3D ambient = DEFAULT_AMBIENT;
@@ -45,8 +49,12 @@ public class Model {
         private double znear;
         private double zfar;
     }
+    
     private ModelSavedState savedState = new ModelSavedState();
 
+    /**
+     * @return wireframes of all Renderables
+     */
     public List<Wireframe> getRenderablesWireframes() {
         if (!finished) {
             throw new IllegalStateException("Model is not finished");
@@ -58,7 +66,12 @@ public class Model {
         return wireframes;
     }
 
-    private List<SceneObject> getAllSceneObjects() {
+	/**
+	 * Returns all scene objects
+	 * 
+	 * @return all scene objects
+	 */
+	private List<SceneObject> getAllSceneObjects() {
         if (!finished) {
             throw new IllegalStateException("Model is not finished");
         }
@@ -70,6 +83,9 @@ public class Model {
         return sceneObjects;
     }
 
+	/**
+	 * Marks model as finished and saves copy of it for future restore
+	 */
     public void finishModel() {
         finished = true;
         {// {max, min} {x,y,z} coordinates of objects
@@ -167,18 +183,34 @@ public class Model {
         }
     }
 
+    /**
+     * Sets ambient
+     * @param ambient ambient
+     */
     public void setAmbient(Coefficient3D ambient) {
         this.ambient = ambient;
     }
 
+    /**
+     * Adds Renderable
+     * @param renderable renderable
+     */
     public void addRenderable(Renderable renderable) {
         renderables.add(renderable);
     }
 
+    /**
+     * Adds light
+     * @param light light
+     */
     public void addLight(Light light) {
         lights.add(light);
     }
 
+    /**
+     * Transforms all objects
+     * @param transformation transformation to apply
+     */
     public void transform(Transformation transformation) {
         if (!finished) {
             throw new IllegalStateException("Model is not finished");
@@ -188,6 +220,10 @@ public class Model {
         }
     }
 
+    /**
+     * Rorate model around its center
+     * @param rotation rotation transformation
+     */
     public void centralRotation(Transformation rotation) {
         if (!finished) {
             throw new IllegalStateException("Model is not finished");
@@ -201,6 +237,10 @@ public class Model {
         transform(centralRotation);
     }
 
+    /**
+     * Returns model box
+     * @return box
+     */
     public Wireframe getBox() {
         if (!finished) {
             throw new IllegalStateException("Model is not finished");
@@ -208,6 +248,10 @@ public class Model {
         return box;
     }
 
+    /**
+     * Returns orts
+     * @return orts
+     */
     public List<Wireframe> getOrts() {
         if (!finished) {
             throw new IllegalStateException("Model is not finished");
@@ -215,6 +259,10 @@ public class Model {
         return orts;
     }
 
+    /**
+     * Returns renderables
+     * @return renderables
+     */
     public List<Renderable> getRenderables() {
         if (!finished) {
             throw new IllegalStateException("Model is not finished");
@@ -222,54 +270,105 @@ public class Model {
         return renderables;
     }
 
+    /**
+     * Returns ambient
+     * @return ambient
+     */
     public Coefficient3D getAmbient() {
         return ambient;
     }
 
+    /**
+     * Returns lights
+     * @return lights
+     */
     public List<Light> getLights() {
         return lights;
     }
 
+    /**
+     * Returns zfar
+     * @return zfar
+     */
     public double getZfar() {
         return zfar;
     }
 
+    /**
+     * Returns znear
+     * @return znear
+     */
     public double getZnear() {
         return znear;
     }
 
+    /**
+     * Returns background color
+     * @return background color
+     */
     public Color getBackgroundColor() {
         return backgroundColor;
     }
 
+    /**
+     * Sets background color
+     * @param backgroundColor background color
+     */
     public void setBackgroundColor(Color backgroundColor) {
         this.backgroundColor = backgroundColor;
     }
 
+    /**
+     * Returns gamma
+     * @return gamma
+     */
     public double getGamma() {
         return gamma;
     }
 
+    /**
+     * Sets gamma 
+     * @param gamma gamma
+     */
     public void setGamma(double gamma) {
         this.gamma = gamma;
     }
 
+    /**
+     * Returns ntree
+     * @return ntree
+     */
     public int getNtree() {
         return ntree;
     }
 
+    /**
+     * Sets ntree
+     * @param ntree ntree
+     */
     public void setNtree(int ntree) {
         this.ntree = ntree;
     }
 
+    /**
+     * Returns initial box's Rect3D
+     * @return initial box's Rect3D
+     */
     public Rect3D getInitialBoxRect3D() {
         return savedState.box.getBoundRect3D();
     }
 
+    /**
+     * Returns initial model center
+     * @return initial model center
+     */
     public Vertex getInitialModelCenter() {
         return savedState.box.getOrigin();
     }
 
+    /**
+     * Restores model to initial state
+     */
     public void resetModel() {
         this.ambient = savedState.ambient;
         this.backgroundColor = savedState.backgroundColor;

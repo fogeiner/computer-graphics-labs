@@ -68,6 +68,10 @@ public class Rect3D {
         return width;
     }
 
+    /**
+     * Ruturns max of width, height, depth
+     * @return max of width, height, depth
+     */
     public double getMax() {
         return Math.max(Math.max(width, height), depth);
     }

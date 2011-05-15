@@ -6,14 +6,13 @@ import java.text.NumberFormat;
 import java.util.Locale;
 
 /**
- * 
+ * Class represents vertex
  * @author alstein
  */
 public class Vertex {
 
     public static final Color DEFAULT_COLOR = Color.black;
     private final double x, y, z, w;
-    private Color color;
     private final static NumberFormat format;
 
     static {
@@ -25,6 +24,10 @@ public class Vertex {
         format.setMinimumFractionDigits(2);
     }
 
+    /**
+     * Ctor
+     * @param v array of x,y,z{,w}
+     */
     public Vertex(double v[]) {
         if (v.length == 3) {
             this.x = v[0];
@@ -42,6 +45,13 @@ public class Vertex {
         }
     }
 
+    /**
+     * Ctor
+     * @param x x
+     * @param y y
+     * @param z z
+     * @param w w
+     */
     public Vertex(double x, double y, double z, double w) {
         this.x = x;
         this.y = y;
@@ -49,6 +59,12 @@ public class Vertex {
         this.w = w;
     }
 
+    /**
+     * Ctor w == 1.0
+     * @param x x
+     * @param y y 
+     * @param z z
+     */
     public Vertex(double x, double y, double z) {
         this(x, y, z, 1.0);
     }
@@ -68,35 +84,52 @@ public class Vertex {
         return sb.toString();
     }
 
+    /**
+     * Returns normalized vertex
+     * @return normalized vertex
+     */
     public Vertex normalize() {
         return new Vertex(this.x / this.w, this.y / this.w, this.z / this.w);
     }
 
+    /**
+     * Returns array with x, y, z, w
+     * @return array with x, y, z, w
+     */
     public double[] getV() {
         return new double[]{x, y, z, w};
     }
 
-    public Color getColor() {
-        return color;
-    }
-
+   
+    /**
+     * Returns w
+     * @return w
+     */
     public double getW() {
         return w;
     }
 
+    /**
+     * Returns x
+     * @return x
+     */
     public double getX() {
         return x;
     }
 
+    /**
+     * Returns y
+     * @return y
+     */
     public double getY() {
         return y;
     }
 
+    /**
+     * Returns z
+     * @return z
+     */
     public double getZ() {
         return z;
-    }
-
-    public void setColor(Color color) {
-        this.color = color;
     }
 }

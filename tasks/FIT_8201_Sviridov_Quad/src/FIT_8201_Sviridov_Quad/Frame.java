@@ -144,8 +144,8 @@ public final class Frame extends MainFrame {
             background.setOpaque(true);
             ambient.setOpaque(true);
 
-            background.setAlignmentX(JComponent.CENTER_ALIGNMENT);
-            ambient.setAlignmentX(JComponent.CENTER_ALIGNMENT);
+            background.setHorizontalAlignment(JLabel.HORIZONTAL);
+            ambient.setHorizontalAlignment(JLabel.HORIZONTAL);
 
             background.addMouseListener(new MouseAdapter() {
 
@@ -262,6 +262,12 @@ public final class Frame extends MainFrame {
             return p;
         }
 
+        /**
+         * Creates titled subpanel
+         * @param title title
+         * @param component component
+         * @return titled panel
+         */
         private JPanel makeTitledPanel(String title, JComponent component) {
             JPanel panel = new JPanel(new BorderLayout());
             panel.setBorder(BorderFactory.createTitledBorder(title));
@@ -388,29 +394,28 @@ public final class Frame extends MainFrame {
         Model model = new Model();
 
         double lightDistance0 = 1.0,
-                lightDistance1 = 2.0,
-                lightDistance2 = 2.5,
-                lightDistance3 = 3.0;
+                lightDistance1 = 2.5,
+                lightDistance2 = 3.0;
 
         model.addLight(new Light(
-                new Vertex(lightDistance3, lightDistance3, lightDistance3),
+                new Vertex(lightDistance2, lightDistance2, lightDistance2),
                 new Coefficient3D(1.0, 1.0, 1.0)));
 
 
         model.addLight(new Light(
-                new Vertex(lightDistance0, lightDistance0, lightDistance3),
+                new Vertex(lightDistance0, lightDistance0, lightDistance2),
                 new Coefficient3D(0.0, 0.0, 1.0)));
 
         model.addLight(new Light(
-                new Vertex(lightDistance0, lightDistance3, lightDistance0),
+                new Vertex(lightDistance0, lightDistance2, lightDistance0),
                 new Coefficient3D(1.0, 0.0, 0.0)));
 
         model.addLight(new Light(
-                new Vertex(lightDistance3, lightDistance0, lightDistance0),
+                new Vertex(lightDistance2, lightDistance0, lightDistance0),
                 new Coefficient3D(0.0, 1.0, 0.0)));
 
         model.addLight(new Light(
-                new Vertex(lightDistance2, lightDistance2, -lightDistance2),
+                new Vertex(lightDistance1, lightDistance1, -lightDistance1),
                 new Coefficient3D(1.0, 1.0, 1.0)));
 
 
@@ -561,7 +566,10 @@ public final class Frame extends MainFrame {
             scene.setRenderablesVisible(true);
         }
     }
-
+    /**
+     * Method called when user chooses "Render" in menu or on toolbar
+     */
+    
     public void onRender() {
         boolean wireframe = scene.isWireframeMode();
         scene.setWireframeMode(!wireframe);
@@ -760,7 +768,8 @@ public final class Frame extends MainFrame {
 
             @Override
             public void run() {
-                Frame frame = new Frame(900, 700);
+                Frame frame = new Frame(800, 600);
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setVisible(true);
             }
         });

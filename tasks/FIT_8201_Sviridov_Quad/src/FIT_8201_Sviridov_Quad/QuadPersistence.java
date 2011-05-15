@@ -15,279 +15,332 @@ import java.io.Reader;
 import java.util.List;
 
 /**
- *
-РЎС‚СЂРѕРєРё С„Р°Р№Р»Р°:
-1) Rb Gb Bb вЂ“ С†РІРµС‚ С„РѕРЅР° РІ С„РѕСЂРјР°С‚Рµ (0-255)
-2) gamma вЂ“ РµСЃР»Рё 1.0, С‚Рѕ Р±РµР· РіР°РјРјР°-РєРѕСЂСЂРµРєС†РёРё, РёРЅР°С‡Рµ СЌС‚Рѕ Р·РЅР°С‡РµРЅРёРµ РіР°РјРјС‹
-3) ntree вЂ“ РіР»СѓР±РёРЅР° РґРµСЂРµРІР° С‚СЂР°СЃСЃРёСЂРѕРІРєРё. Р—РґРµСЃСЊ Р·РЅР°С‡РµРЅРёРµ 1. Р•СЃР»Рё РґСЂСѓРіРѕРµ, С‚Рѕ СЃС‡РёС‚Р°С‚СЊ = 1
-4) Ar Ag Ab вЂ“ СЂР°СЃСЃРµСЏРЅРЅС‹Р№ СЃРІРµС‚, С‡РёСЃР»Р° РІ С„РѕСЂРјР°С‚Рµ [0,1], РЅР°РїСЂРёРјРµСЂ, (0.2, 0.3, 0.0). РћР±С‹С‡РЅРѕ СЂР°РІРЅС‹Рµ - (0.3, 0.3, 0.3)
-5) nl вЂ“ С‡РёСЃР»Рѕ РёСЃС‚РѕС‡РЅРёРєРѕРІ СЃРІРµС‚Р°. Р”РѕСЃС‚Р°С‚РѕС‡РЅРѕ 1. Р•СЃР»Рё Р±РѕР»СЊС€Рµ, Р° РІР°С€Р° РїСЂРѕРі РЅРµ СѓРјРµРµС‚, С‚Рѕ РЅР°РґРѕ РІР·СЏС‚СЊ РѕРґРёРЅ, Р° РѕСЃС‚Р°Р»СЊРЅС‹Рµ РїСЂРѕСЃС‚Рѕ РїСЂРѕРїСѓСЃС‚РёС‚СЊ РїСЂРё С‡С‚РµРЅРёРё С„Р°Р№Р»Р°
-6) Р”Р°Р»РµРµ nl СЃС‚СЂРѕРє С‚РёРїР° "Lxi Lyi Lzi Ri Gi Bi" СЃ РєРѕРѕСЂРґРёРЅР°С‚Р°РјРё Рё РёРЅС‚РµРЅСЃРёРІРЅРѕСЃС‚СЏРјРё (РѕС‚ 0 РґРѕ 1 РїРѕ С†РІРµС‚Р°Рј). РћРЅРё РѕРїРёСЃС‹РІР°СЋС‚ С‚РѕС‡РµС‡РЅС‹Рµ РёСЃС‚РѕС‡РЅРёРєРё СЃРІРµС‚Р°.
-7) N вЂ“ С‡РёСЃР»Рѕ РїСЂРёРјРёС‚РёРІРѕРІ. Р—РґРµСЃСЊ СЃС‚Р°РІРёС‚СЊ С‡РёСЃР»Рѕ РїСЂРёРјРёС‚РёРІРѕРІ: СЃСѓРјРјР° С‡РёСЃР»Р° С‚СЂРі Рё СЃС„РµСЂ.
-8) Р”Р°Р»РµРµ РёРґСѓС‚ СЃС‚СЂРѕРєРё СЃ РѕРїРёСЃР°РЅРёСЏРјРё РїСЂРёРјРёС‚РёРІРѕРІ.
-
-РњРѕРіСѓС‚ Р±С‹С‚СЊ СЃР»РµРґСѓСЋС‰РёРµ РїСЂРёРјРёС‚РёРІС‹
-1. РўСЂРµСѓРіРѕР»СЊРЅРёРє
-1) TRG
-2) POINT1x POINT1y POINT1z // РєРѕРѕСЂРґРёРЅР°С‚С‹ РѕРґРЅРѕР№ РёР· РІРµСЂС€РёРЅ
-3) POINT2x POINT2y POINT2z // РєРѕРѕСЂРґРёРЅР°С‚С‹ РІС‚РѕСЂРѕР№
-4) POINT3x POINT3y POINT3z // РєРѕРѕСЂРґРёРЅР°С‚С‹ РїРѕСЃР»РµРґРЅРµР№ РІРµСЂС€РёРЅС‹
-5) Kar Kag Kab Kdr Kdg Kdb Ksr Ksg Ksb Power Kt N1 N2
-
-2. РљРІР°РґСЂРёРє // РѕСЃС‚Р°РІР»СЏРµРј РґР»СЏ Р¶РµР»Р°СЋС‰РёС…. РћСЃС‚Р°Р»СЊРЅС‹Рµ РґРѕР»Р¶РЅС‹ РїСЂРѕСЃС‚Рѕ РїСЂРѕРїСѓСЃС‚РёС‚СЊ РїСЂРё С‡С‚РµРЅРёРё С„Р°Р№Р»Р°. РљР°РєРёРµ - Р±РµСЂРµС‚Рµ СЃР°РјРё РїРѕ РІРєСѓСЃСѓ. РќР• РћР‘РЇР—РђРўР•Р›Р¬РќРћ.
-Р—Р°РґР°РЅРёРµ РІ С„Р°Р№Р»Рµ
-1) QDR
-2) A E H B C F D G I J // РєРѕСЌС„С„РёС†РёРµРЅС‚С‹
-3) POINT1x POINT1y POINT1z // РіР°Р±Р°СЂРёС‚РЅС‹Р№ Р±РѕРєСЃ
-4) POINT2x POINT2y POINT2z // РіР°Р±Р°СЂРёС‚РЅС‹Р№ Р±РѕРєСЃ
-5) Kar Kag Kab Kdr Kdg Kdb Ksr Ksg Ksb Power Kt N1 N2 // РґР»СЏ РІРЅРµС€РЅРµР№ СЃС‚РѕСЂРѕРЅС‹
-6) Kar Kag Kab Kdr Kdg Kdb Ksr Ksg Ksb Power Kt N1 N2 // РґР»СЏ РІРЅСѓС‚СЂРµРЅРЅРµР№ СЃС‚РѕСЂРѕРЅС‹
-Рў.Рµ. Р±РµСЂРµС‚СЃСЏ Рё СѓС‡РёС‚С‹РІР°РµС‚СЃСЏ С‚РѕР»СЊРєРѕ С‚Р° С‡Р°СЃС‚СЊ РєРІР°РґСЂРёРєР°, РєРѕС‚РѕСЂР°СЏ РЅР°С…РѕРґРёС‚СЃСЏ РІРЅСѓС‚СЂРё
-РіР°Р±Р°СЂРёС‚РЅРѕРіРѕ Р±РѕРєСЃР°. РЎРЅР°С‡Р°Р»Р° СЃС‚СЂРѕРёС‚СЃСЏ РєРІР°РґСЂРёРє, Р·Р°С‚РµРј РІСЃСЏ СЃС†РµРЅР° РіСЂСѓРїРїРёСЂСѓРµС‚СЃСЏ . Р•СЃР»Рё СЌС‚Рѕ
-Р·Р°РјРєРЅСѓС‚Р°СЏ С„РёРіСѓСЂР°, С‚Рѕ РіР°Р±Р°СЂРёС‚РЅС‹Р№ Р±РѕРєСЃ РІС‹Р±РёСЂР°РµС‚СЃСЏ С‚Р°Рє, С‡С‚РѕР±С‹ РѕРЅ РѕР±СЂРµР·Р°Р» РµРµ С‡Р°СЃС‚СЊ, РІРёРґРЅС‹ Рё
-РІРЅРµС€РЅСЏСЏ Рё РІРЅСѓС‚СЂРµРЅРЅСЏСЏ РїРѕРІРµСЂС…РЅРѕСЃС‚Рё
-
-3. РЎС„РµСЂР°
-Р—Р°РґР°РЅРёРµ РІ С„Р°Р№Р»Рµ
-1) SPH
-2) POINT1x POINT1y POINT1z // РєРѕРѕСЂРґРёРЅР°С‚С‹ С†РµРЅС‚СЂР°
-3) r // СЂР°РґРёСѓСЃ СЃС„РµСЂС‹
-4) Kar Kag Kab Kdr Kdg Kdb Ksr Ksg Ksb Power Kt N1 N2 // С†РІРµС‚ РґР»СЏ РІРЅРµС€РЅРµР№ СЃС‚РѕСЂРѕРЅС‹
-
+ * Class for model persistence
+ * 
  * @author alstein
  */
 public class QuadPersistence {
 
-    public static Model loadFromFile(File file) throws FileNotFoundException, IOException {
-        Reader reader = new FileReader(file);
-        BufferedReader bufferedReader = new BufferedReader(reader);
-        String str = null;
-        String strs[] = null;
-        double ds[] = null;
-        int is[] = null;
+	/**
+	 * Returns model read from file
+	 * 
+	 * @param file
+	 *            file
+	 * @return model
+	 * @throws FileNotFoundException
+	 *             if file not found
+	 * @throws IOException
+	 *             if I/O occurs
+	 */
+	public static Model loadFromFile(File file) throws FileNotFoundException,
+			IOException {
+		Reader reader = new FileReader(file);
+		BufferedReader bufferedReader = new BufferedReader(reader);
+		String str = null;
+		String strs[] = null;
+		double ds[] = null;
+		int is[] = null;
 
-        Model model = new Model();
+		Model model = new Model();
 
-        // 1) Rb Gb Bb вЂ“ С†РІРµС‚ С„РѕРЅР° РІ С„РѕСЂРјР°С‚Рµ (0-255)
-        strs = LineParseUtils.nextNormalizedLine(bufferedReader).split(" ");
-        is = strsToInts(strs, 3);
-        Color bgColor = new Color(is[0], is[1], is[2]);
+		// 1) Rb Gb Bb – цвет фона в формате (0-255)
+		strs = LineParseUtils.nextNormalizedLine(bufferedReader).split(" ");
+		is = strsToInts(strs, 3);
+		Color bgColor = new Color(is[0], is[1], is[2]);
 
-        model.setBackgroundColor(bgColor);
+		model.setBackgroundColor(bgColor);
 
-        // 2) gamma вЂ“ РµСЃР»Рё 1.0, С‚Рѕ Р±РµР· РіР°РјРјР°-РєРѕСЂСЂРµРєС†РёРё, РёРЅР°С‡Рµ СЌС‚Рѕ Р·РЅР°С‡РµРЅРёРµ РіР°РјРјС‹
-        str = LineParseUtils.nextNormalizedLine(bufferedReader);
-        double gamma = Double.parseDouble(str);
+		// 2) gamma – если 1.0, то без гамма-коррекции, иначе это значение гаммы
+		str = LineParseUtils.nextNormalizedLine(bufferedReader);
+		double gamma = Double.parseDouble(str);
 
-        model.setGamma(gamma);
+		model.setGamma(gamma);
 
-        // 3) ntree вЂ“ РіР»СѓР±РёРЅР° РґРµСЂРµРІР° С‚СЂР°СЃСЃРёСЂРѕРІРєРё. Р—РґРµСЃСЊ Р·РЅР°С‡РµРЅРёРµ 1. Р•СЃР»Рё РґСЂСѓРіРѕРµ, С‚Рѕ СЃС‡РёС‚Р°С‚СЊ = 1
-        str = LineParseUtils.nextNormalizedLine(bufferedReader);
-        int ntree = Integer.parseInt(str);
-        if (ntree != 1) {
-            ntree = 1;
-        }
+		// 3) ntree – глубина дерева трассировки. Здесь значение 1. Если другое,
+		// то считать = 1
+		str = LineParseUtils.nextNormalizedLine(bufferedReader);
+		int ntree = Integer.parseInt(str);
+		if (ntree != 1) {
+			ntree = 1;
+		}
 
-        model.setNtree(ntree);
+		model.setNtree(ntree);
 
-        // 4) Ar Ag Ab вЂ“ СЂР°СЃСЃРµСЏРЅРЅС‹Р№ СЃРІРµС‚, С‡РёСЃР»Р° РІ С„РѕСЂРјР°С‚Рµ [0,1], РЅР°РїСЂРёРјРµСЂ, (0.2, 0.3, 0.0). РћР±С‹С‡РЅРѕ СЂР°РІРЅС‹Рµ - (0.3, 0.3, 0.3)
-        strs = LineParseUtils.nextNormalizedLine(bufferedReader).split(" ");
-        ds = strsToDoubles(strs, 3);
-        Coefficient3D ambient = new Coefficient3D(ds[0], ds[1], ds[2]);
+		// 4) Ar Ag Ab – рассеянный свет, числа в формате [0,1], например, (0.2,
+		// 0.3, 0.0). Обычно равные - (0.3, 0.3, 0.3)
+		strs = LineParseUtils.nextNormalizedLine(bufferedReader).split(" ");
+		ds = strsToDoubles(strs, 3);
+		Coefficient3D ambient = new Coefficient3D(ds[0], ds[1], ds[2]);
 
-        model.setAmbient(ambient);
+		model.setAmbient(ambient);
 
-        // 5) nl вЂ“ С‡РёСЃР»Рѕ РёСЃС‚РѕС‡РЅРёРєРѕРІ СЃРІРµС‚Р°. Р”РѕСЃС‚Р°С‚РѕС‡РЅРѕ 1. Р•СЃР»Рё Р±РѕР»СЊС€Рµ, Р° РІР°С€Р° РїСЂРѕРі РЅРµ СѓРјРµРµС‚, С‚Рѕ РЅР°РґРѕ РІР·СЏС‚СЊ РѕРґРёРЅ, Р° РѕСЃС‚Р°Р»СЊРЅС‹Рµ РїСЂРѕСЃС‚Рѕ РїСЂРѕРїСѓСЃС‚РёС‚СЊ РїСЂРё С‡С‚РµРЅРёРё С„Р°Р№Р»Р°
-        // 6) Р”Р°Р»РµРµ nl СЃС‚СЂРѕРє С‚РёРїР° "Lxi Lyi Lzi Ri Gi Bi" СЃ РєРѕРѕСЂРґРёРЅР°С‚Р°РјРё Рё РёРЅС‚РµРЅСЃРёРІРЅРѕСЃС‚СЏРјРё (РѕС‚ 0 РґРѕ 1 РїРѕ С†РІРµС‚Р°Рј). РћРЅРё РѕРїРёСЃС‹РІР°СЋС‚ С‚РѕС‡РµС‡РЅС‹Рµ РёСЃС‚РѕС‡РЅРёРєРё СЃРІРµС‚Р°.
-        str = LineParseUtils.nextNormalizedLine(bufferedReader);
-        int lightSourcesCount = Integer.parseInt(str);
-        for (int i = 0; i < lightSourcesCount; ++i) {
-            // coordinates color
-            strs = LineParseUtils.nextNormalizedLine(bufferedReader).split(" ");
-            ds = strsToDoubles(strs, 6);
-            Vertex origin = new Vertex(ds[0], ds[1], ds[2]);
-            Coefficient3D color = new Coefficient3D(ds[3], ds[4], ds[5]);
+		// 5) nl – число источников света. Достаточно 1. Если больше, а ваша
+		// прог не умеет, то надо взять один, а остальные просто пропустить при
+		// чтении файла
+		// 6) Далее nl строк типа "Lxi Lyi Lzi Ri Gi Bi" с координатами и
+		// интенсивностями (от 0 до 1 по цветам). Они описывают точечные
+		// источники света.
+		str = LineParseUtils.nextNormalizedLine(bufferedReader);
+		int lightSourcesCount = Integer.parseInt(str);
+		for (int i = 0; i < lightSourcesCount; ++i) {
+			// coordinates color
+			strs = LineParseUtils.nextNormalizedLine(bufferedReader).split(" ");
+			ds = strsToDoubles(strs, 6);
+			Vertex origin = new Vertex(ds[0], ds[1], ds[2]);
+			Coefficient3D color = new Coefficient3D(ds[3], ds[4], ds[5]);
 
-            Light light = new Light(origin, color);
-            model.addLight(light);
-        }
+			Light light = new Light(origin, color);
+			model.addLight(light);
+		}
 
-        // 7) N вЂ“ С‡РёСЃР»Рѕ РїСЂРёРјРёС‚РёРІРѕРІ. Р—РґРµСЃСЊ СЃС‚Р°РІРёС‚СЊ С‡РёСЃР»Рѕ РїСЂРёРјРёС‚РёРІРѕРІ: СЃСѓРјРјР° С‡РёСЃР»Р° С‚СЂРі Рё СЃС„РµСЂ.
-        str = LineParseUtils.nextNormalizedLine(bufferedReader);
-        int objectsCount = Integer.parseInt(str);
+		// 7) N – число примитивов. Здесь ставить число примитивов: сумма числа
+		// трг и сфер.
+		str = LineParseUtils.nextNormalizedLine(bufferedReader);
+		int objectsCount = Integer.parseInt(str);
 
-        // 8) Р”Р°Р»РµРµ РёРґСѓС‚ СЃС‚СЂРѕРєРё СЃ РѕРїРёСЃР°РЅРёСЏРјРё РїСЂРёРјРёС‚РёРІРѕРІ.
+		// 8) Далее идут строки с описаниями примитивов.
 
-        for (int i = 0; i < objectsCount; ++i) {
-            Renderable renderable = parseRenderable(bufferedReader);
-            if (renderable != null) {
-                model.addRenderable(renderable);
-            }
-        }
+		for (int i = 0; i < objectsCount; ++i) {
+			Renderable renderable = parseRenderable(bufferedReader);
+			if (renderable != null) {
+				model.addRenderable(renderable);
+			}
+		}
 
-        model.finishModel();
-        
-        bufferedReader.close();
-        return model;
-    }
+		model.finishModel();
 
-    private static Renderable parseRenderable(BufferedReader bufferedReader) throws IOException {
-        String strs[] = null;
-        String str = null;
-        double ds[] = null;
-        String obj = LineParseUtils.nextNormalizedLine(bufferedReader);
-        // РњРѕРіСѓС‚ Р±С‹С‚СЊ СЃР»РµРґСѓСЋС‰РёРµ РїСЂРёРјРёС‚РёРІС‹
-        Renderable renderable = null;
-        // 1. РўСЂРµСѓРіРѕР»СЊРЅРёРє
-        // 1) TRG
-        if (obj.equals("TRG")) {
-            // 2) POINT1x POINT1y POINT1z // РєРѕРѕСЂРґРёРЅР°С‚С‹ РѕРґРЅРѕР№ РёР· РІРµСЂС€РёРЅ
-            // 3) POINT2x POINT2y POINT2z // РєРѕРѕСЂРґРёРЅР°С‚С‹ РІС‚РѕСЂРѕР№
-            // 4) POINT3x POINT3y POINT3z // РєРѕРѕСЂРґРёРЅР°С‚С‹ РїРѕСЃР»РµРґРЅРµР№ РІРµСЂС€РёРЅС‹
-            Vertex v[] = new Vertex[3];
-            for (int i = 0; i < 3; ++i) {
-                strs = LineParseUtils.nextNormalizedLine(bufferedReader).split(" ");
-                ds = strsToDoubles(strs, 3);
-                Vertex vertex = new Vertex(ds[0], ds[1], ds[2]);
-                v[i] = vertex;
-            }
-            // 5) Kar Kag Kab Kdr Kdg Kdb Ksr Ksg Ksb Power Kt N1 N2
-            ColorModel colorModel = parseColorModel(bufferedReader);
+		bufferedReader.close();
+		return model;
+	}
 
-            renderable = new Triangle(v[0], v[1], v[2], colorModel);
+	/**
+	 * Reads Renderable from file
+	 * 
+	 * @param bufferedReader
+	 *            source
+	 * @return Renderable
+	 * @throws IOException
+	 *             if I/O occurs
+	 */
+	private static Renderable parseRenderable(BufferedReader bufferedReader)
+			throws IOException {
+		String strs[] = null;
+		String str = null;
+		double ds[] = null;
+		String obj = LineParseUtils.nextNormalizedLine(bufferedReader);
+		// Могут быть следующие примитивы
+		Renderable renderable = null;
+		// 1. Треугольник
+		// 1) TRG
+		if (obj.equals("TRG")) {
+			// 2) POINT1x POINT1y POINT1z // координаты одной из вершин
+			// 3) POINT2x POINT2y POINT2z // координаты второй
+			// 4) POINT3x POINT3y POINT3z // координаты последней вершины
+			Vertex v[] = new Vertex[3];
+			for (int i = 0; i < 3; ++i) {
+				strs = LineParseUtils.nextNormalizedLine(bufferedReader).split(
+						" ");
+				ds = strsToDoubles(strs, 3);
+				Vertex vertex = new Vertex(ds[0], ds[1], ds[2]);
+				v[i] = vertex;
+			}
+			// 5) Kar Kag Kab Kdr Kdg Kdb Ksr Ksg Ksb Power Kt N1 N2
+			ColorModel colorModel = parseColorModel(bufferedReader);
 
-            // 2. РљРІР°РґСЂРёРє // РѕСЃС‚Р°РІР»СЏРµРј РґР»СЏ Р¶РµР»Р°СЋС‰РёС…. РћСЃС‚Р°Р»СЊРЅС‹Рµ РґРѕР»Р¶РЅС‹ РїСЂРѕСЃС‚Рѕ РїСЂРѕРїСѓСЃС‚РёС‚СЊ РїСЂРё С‡С‚РµРЅРёРё С„Р°Р№Р»Р°.
-            // РљР°РєРёРµ - Р±РµСЂРµС‚Рµ СЃР°РјРё РїРѕ РІРєСѓСЃСѓ. РќР• РћР‘РЇР—РђРўР•Р›Р¬РќРћ.
-            // 1) QDR
-        } else if (obj.equals("QDR")) {
-            // wtf!?
-            // 2) A E H B C F D G I J // РєРѕСЌС„С„РёС†РёРµРЅС‚С‹
-            strs = LineParseUtils.nextNormalizedLine(bufferedReader).split(" ");
-            // 3) POINT1x POINT1y POINT1z // РіР°Р±Р°СЂРёС‚РЅС‹Р№ Р±РѕРєСЃ
-            strs = LineParseUtils.nextNormalizedLine(bufferedReader).split(" ");
-            // 4) POINT2x POINT2y POINT2z // РіР°Р±Р°СЂРёС‚РЅС‹Р№ Р±РѕРєСЃ
-            strs = LineParseUtils.nextNormalizedLine(bufferedReader).split(" ");
-            // 5) Kar Kag Kab Kdr Kdg Kdb Ksr Ksg Ksb Power Kt N1 N2 // РґР»СЏ РІРЅРµС€РЅРµР№ СЃС‚РѕСЂРѕРЅС‹
-            strs = LineParseUtils.nextNormalizedLine(bufferedReader).split(" ");
-            // 6) Kar Kag Kab Kdr Kdg Kdb Ksr Ksg Ksb Power Kt N1 N2 // РґР»СЏ РІРЅСѓС‚СЂРµРЅРЅРµР№ СЃС‚РѕСЂРѕРЅС‹
-            ColorModel colorModel = parseColorModel(bufferedReader);
-            // Рў.Рµ. Р±РµСЂРµС‚СЃСЏ Рё СѓС‡РёС‚С‹РІР°РµС‚СЃСЏ С‚РѕР»СЊРєРѕ С‚Р° С‡Р°СЃС‚СЊ РєРІР°РґСЂРёРєР°, РєРѕС‚РѕСЂР°СЏ РЅР°С…РѕРґРёС‚СЃСЏ РІРЅСѓС‚СЂРё
-            // РіР°Р±Р°СЂРёС‚РЅРѕРіРѕ Р±РѕРєСЃР°. РЎРЅР°С‡Р°Р»Р° СЃС‚СЂРѕРёС‚СЃСЏ РєРІР°РґСЂРёРє, Р·Р°С‚РµРј РІСЃСЏ СЃС†РµРЅР° РіСЂСѓРїРїРёСЂСѓРµС‚СЃСЏ . Р•СЃР»Рё СЌС‚Рѕ
-            // Р·Р°РјРєРЅСѓС‚Р°СЏ С„РёРіСѓСЂР°, С‚Рѕ РіР°Р±Р°СЂРёС‚РЅС‹Р№ Р±РѕРєСЃ РІС‹Р±РёСЂР°РµС‚СЃСЏ С‚Р°Рє, С‡С‚РѕР±С‹ РѕРЅ РѕР±СЂРµР·Р°Р» РµРµ С‡Р°СЃС‚СЊ, РІРёРґРЅС‹ Рё
-            // РІРЅРµС€РЅСЏСЏ Рё РІРЅСѓС‚СЂРµРЅРЅСЏСЏ РїРѕРІРµСЂС…РЅРѕСЃС‚Рё
+			renderable = new Triangle(v[0], v[1], v[2], colorModel);
 
-        } else if (obj.equals("SPH")) {
-            // 3. РЎС„РµСЂР°
-            // Р—Р°РґР°РЅРёРµ РІ С„Р°Р№Р»Рµ
-            // 1) SPH
-            strs = LineParseUtils.nextNormalizedLine(bufferedReader).split(" ");
-            ds = strsToDoubles(strs, 3);
-            Vertex v = new Vertex(ds[0], ds[1], ds[2]);
-            // 2) POINT1x POINT1y POINT1z // РєРѕРѕСЂРґРёРЅР°С‚С‹ С†РµРЅС‚СЂР°
-            // 3) r // СЂР°РґРёСѓСЃ СЃС„РµСЂС‹
-            str = LineParseUtils.nextNormalizedLine(bufferedReader);
-            double radius = Double.parseDouble(str);
-            // 4) Kar Kag Kab Kdr Kdg Kdb Ksr Ksg Ksb Power Kt N1 N2 // С†РІРµС‚ РґР»СЏ РІРЅРµС€РЅРµР№ СЃС‚РѕСЂРѕРЅС‹
-            ColorModel colorModel = parseColorModel(bufferedReader);
+			// 2. Квадрик // оставляем для желающих. Остальные должны просто
+			// пропустить при чтении файла.
+			// Какие - берете сами по вкусу. НЕ ОБЯЗАТЕЛЬНО.
+			// 1) QDR
+		} else if (obj.equals("QDR")) {
+			// wtf!?
+			// 2) A E H B C F D G I J // коэффициенты
+			strs = LineParseUtils.nextNormalizedLine(bufferedReader).split(" ");
+			// 3) POINT1x POINT1y POINT1z // габаритный бокс
+			strs = LineParseUtils.nextNormalizedLine(bufferedReader).split(" ");
+			// 4) POINT2x POINT2y POINT2z // габаритный бокс
+			strs = LineParseUtils.nextNormalizedLine(bufferedReader).split(" ");
+			// 5) Kar Kag Kab Kdr Kdg Kdb Ksr Ksg Ksb Power Kt N1 N2 // для
+			// внешней стороны
+			strs = LineParseUtils.nextNormalizedLine(bufferedReader).split(" ");
+			// 6) Kar Kag Kab Kdr Kdg Kdb Ksr Ksg Ksb Power Kt N1 N2 // для
+			// внутренней стороны
+			parseColorModel(bufferedReader);
+			// Т.е. берется и учитывается только та часть квадрика, которая
+			// находится внутри
+			// габаритного бокса. Сначала строится квадрик, затем вся сцена
+			// группируется . Если это
+			// замкнутая фигура, то габаритный бокс выбирается так, чтобы он
+			// обрезал ее часть, видны и
+			// внешняя и внутренняя поверхности
 
-            renderable = new Sphere(v, radius, colorModel);
-        } else {
-            throw new IllegalArgumentException("Unknown object " + str);
-        }
+		} else if (obj.equals("SPH")) {
+			// 3. Сфера
+			// Задание в файле
+			// 1) SPH
+			strs = LineParseUtils.nextNormalizedLine(bufferedReader).split(" ");
+			ds = strsToDoubles(strs, 3);
+			Vertex v = new Vertex(ds[0], ds[1], ds[2]);
+			// 2) POINT1x POINT1y POINT1z // координаты центра
+			// 3) r // радиус сферы
+			str = LineParseUtils.nextNormalizedLine(bufferedReader);
+			double radius = Double.parseDouble(str);
+			// 4) Kar Kag Kab Kdr Kdg Kdb Ksr Ksg Ksb Power Kt N1 N2 // цвет для
+			// внешней стороны
+			ColorModel colorModel = parseColorModel(bufferedReader);
 
+			renderable = new Sphere(v, radius, colorModel);
+		} else {
+			throw new IllegalArgumentException("Unknown object " + str);
+		}
 
-        return renderable;
-    }
+		return renderable;
+	}
 
-    private static ColorModel parseColorModel(BufferedReader bufferedReader) throws IOException {
-        String strs[] = null;
-        double ds[] = null;
-// 5) Kar Kag Kab Kdr Kdg Kdb Ksr Ksg Ksb Power Kt N1 N2
-        strs = LineParseUtils.nextNormalizedLine(bufferedReader).split(" ");
-        ds = strsToDoubles(strs, 13);
+	/**
+	 * Reads ColorModel
+	 * @param bufferedReader source
+	 * @return ColorModel
+	 * @throws IOException if I/O error occurs
+	 */
+	private static ColorModel parseColorModel(BufferedReader bufferedReader)
+			throws IOException {
+		String strs[] = null;
+		double ds[] = null;
+		// 5) Kar Kag Kab Kdr Kdg Kdb Ksr Ksg Ksb Power Kt N1 N2
+		strs = LineParseUtils.nextNormalizedLine(bufferedReader).split(" ");
+		ds = strsToDoubles(strs, 13);
 
-        Coefficient3D ambientCoefficient = new Coefficient3D(ds[0], ds[1], ds[2]);
-        Coefficient3D diffuseCoefficient = new Coefficient3D(ds[3], ds[4], ds[5]);
-        Coefficient3D specularCoefficient = new Coefficient3D(ds[6], ds[7], ds[8]);
-        double power = ds[9];
-        double transparencyCoefficient = ds[10];
-        double Refraction1 = ds[11];
-        double Refraction2 = ds[12];
-        ColorModel colorModel = new ColorModel(ambientCoefficient, diffuseCoefficient, specularCoefficient,
-                power, transparencyCoefficient,
-                Refraction1, Refraction2);
-        return colorModel;
-    }
+		Coefficient3D ambientCoefficient = new Coefficient3D(ds[0], ds[1],
+				ds[2]);
+		Coefficient3D diffuseCoefficient = new Coefficient3D(ds[3], ds[4],
+				ds[5]);
+		Coefficient3D specularCoefficient = new Coefficient3D(ds[6], ds[7],
+				ds[8]);
+		double power = ds[9];
+		double transparencyCoefficient = ds[10];
+		double Refraction1 = ds[11];
+		double Refraction2 = ds[12];
+		ColorModel colorModel = new ColorModel(ambientCoefficient,
+				diffuseCoefficient, specularCoefficient, power,
+				transparencyCoefficient, Refraction1, Refraction2);
+		return colorModel;
+	}
 
-    private static int[] strsToInts(String strs[], int count) {
-        int els[] = new int[count];
-        for (int i = 0; i < count; i++) {
-            els[i] = Integer.parseInt(strs[i]);
-        }
-        return els;
-    }
+	/**
+	 * Parses string array to array of ints
+	 * @param strs strings
+	 * @param count count
+	 * @return array of ints
+	 */
+	private static int[] strsToInts(String strs[], int count) {
+		int els[] = new int[count];
+		for (int i = 0; i < count; i++) {
+			els[i] = Integer.parseInt(strs[i]);
+		}
+		return els;
+	}
 
-    private static double[] strsToDoubles(String strs[], int count) {
-        double els[] = new double[count];
-        for (int i = 0; i < count; i++) {
-            els[i] = Double.parseDouble(strs[i]);
-        }
-        return els;
-    }
+	/**
+	 * Parses string array to array of dobules
+	 * @param strs strings
+	 * @param count count
+	 * @return array of doubles
+	 */
+	private static double[] strsToDoubles(String strs[], int count) {
+		double els[] = new double[count];
+		for (int i = 0; i < count; i++) {
+			els[i] = Double.parseDouble(strs[i]);
+		}
+		return els;
+	}
 
-    private static void appendInteger(FileWriter fw, int num) throws IOException {
-        fw.append(Integer.toString(num));
-    }
+	/**
+	 * Appends int to file
+	 * @param fw file writer
+	 * @param num number
+	 * @throws IOException if I/O error occurs
+	 */
+	private static void appendInteger(FileWriter fw, int num)
+			throws IOException {
+		fw.append(Integer.toString(num));
+	}
 
-    private static void appendDouble(FileWriter fw, double num) throws IOException {
-        fw.append(Double.toString(num));
-    }
+	/**
+	 * Appends double to file
+	 * @param fw file writer
+	 * @param num number
+	 * @throws IOException if I/O error occurs
+	 */
+	private static void appendDouble(FileWriter fw, double num)
+			throws IOException {
+		fw.append(Double.toString(num));
+	}
 
-    private static void appendNewLine(FileWriter fw) throws IOException {
-        fw.append("\r\n");
-    }
+	/**
+	 * Appends \r\n to file
+	 * @param fw file writer
+	 * @throws IOException if I/O error occurs
+	 */
+	private static void appendNewLine(FileWriter fw) throws IOException {
+		fw.append("\r\n");
+	}
 
-    public static void saveToFile(File file, Model model) throws IOException {
-        FileWriter fw = new FileWriter(file);
-// 1) Rb Gb Bb вЂ“ С†РІРµС‚ С„РѕРЅР° РІ С„РѕСЂРјР°С‚Рµ (0-255)
-        Color backgroundColor = model.getBackgroundColor();
-        appendInteger(fw, backgroundColor.getRed());
-        fw.append(' ');
-        appendInteger(fw, backgroundColor.getGreen());
-        fw.append(' ');
-        appendInteger(fw, backgroundColor.getBlue());
-        appendNewLine(fw);
-// 2) gamma вЂ“ РµСЃР»Рё 1.0, С‚Рѕ Р±РµР· РіР°РјРјР°-РєРѕСЂСЂРµРєС†РёРё, РёРЅР°С‡Рµ СЌС‚Рѕ Р·РЅР°С‡РµРЅРёРµ РіР°РјРјС‹
-        appendDouble(fw, model.getGamma());
-        appendNewLine(fw);
-// 3) ntree вЂ“ РіР»СѓР±РёРЅР° РґРµСЂРµРІР° С‚СЂР°СЃСЃРёСЂРѕРІРєРё. Р—РґРµСЃСЊ Р·РЅР°С‡РµРЅРёРµ 1. Р•СЃР»Рё РґСЂСѓРіРѕРµ, С‚Рѕ СЃС‡РёС‚Р°С‚СЊ = 1
-        appendInteger(fw, model.getNtree());
-        appendNewLine(fw);
-// 4) Ar Ag Ab вЂ“ СЂР°СЃСЃРµСЏРЅРЅС‹Р№ СЃРІРµС‚, С‡РёСЃР»Р° РІ С„РѕСЂРјР°С‚Рµ [0,1], РЅР°РїСЂРёРјРµСЂ, (0.2, 0.3, 0.0). РћР±С‹С‡РЅРѕ СЂР°РІРЅС‹Рµ - (0.3, 0.3, 0.3)
-        fw.append(model.getAmbient().toString());
-        appendNewLine(fw);
-// 5) nl вЂ“ С‡РёСЃР»Рѕ РёСЃС‚РѕС‡РЅРёРєРѕРІ СЃРІРµС‚Р°. Р”РѕСЃС‚Р°С‚РѕС‡РЅРѕ 1. Р•СЃР»Рё Р±РѕР»СЊС€Рµ, Р° РІР°С€Р° РїСЂРѕРі РЅРµ СѓРјРµРµС‚, С‚Рѕ РЅР°РґРѕ РІР·СЏС‚СЊ РѕРґРёРЅ, Р° РѕСЃС‚Р°Р»СЊРЅС‹Рµ РїСЂРѕСЃС‚Рѕ РїСЂРѕРїСѓСЃС‚РёС‚СЊ РїСЂРё С‡С‚РµРЅРёРё С„Р°Р№Р»Р°
-        List<Light> lights = model.getLights();
-        int lightsCount = lights.size();
-        appendInteger(fw, lightsCount);
-        appendNewLine(fw);
-// 6) Р”Р°Р»РµРµ nl СЃС‚СЂРѕРє С‚РёРїР° "Lxi Lyi Lzi Ri Gi Bi" СЃ РєРѕРѕСЂРґРёРЅР°С‚Р°РјРё Рё РёРЅС‚РµРЅСЃРёРІРЅРѕСЃС‚СЏРјРё (РѕС‚ 0 РґРѕ 1 РїРѕ С†РІРµС‚Р°Рј). РћРЅРё РѕРїРёСЃС‹РІР°СЋС‚ С‚РѕС‡РµС‡РЅС‹Рµ РёСЃС‚РѕС‡РЅРёРєРё СЃРІРµС‚Р°.
-        for (Light light : lights) {
-            fw.append(light.toString());
-            appendNewLine(fw);
-        }
-// 7) N вЂ“ С‡РёСЃР»Рѕ РїСЂРёРјРёС‚РёРІРѕРІ. Р—РґРµСЃСЊ СЃС‚Р°РІРёС‚СЊ С‡РёСЃР»Рѕ РїСЂРёРјРёС‚РёРІРѕРІ: СЃСѓРјРјР° С‡РёСЃР»Р° С‚СЂРі Рё СЃС„РµСЂ.
-        List<Renderable> renderables = model.getRenderables();
-        int renderablesCount = renderables.size();
-        appendInteger(fw, renderablesCount);
-        appendNewLine(fw);
+	/**
+	 * Saves model to file
+	 * @param file file
+	 * @param model model
+	 * @throws IOException if I/O error occurs
+	 */
+	public static void saveToFile(File file, Model model) throws IOException {
+		FileWriter fw = new FileWriter(file);
+		// 1) Rb Gb Bb – цвет фона в формате (0-255)
+		Color backgroundColor = model.getBackgroundColor();
+		appendInteger(fw, backgroundColor.getRed());
+		fw.append(' ');
+		appendInteger(fw, backgroundColor.getGreen());
+		fw.append(' ');
+		appendInteger(fw, backgroundColor.getBlue());
+		appendNewLine(fw);
+		// 2) gamma – если 1.0, то без гамма-коррекции, иначе это значение гаммы
+		appendDouble(fw, model.getGamma());
+		appendNewLine(fw);
+		// 3) ntree – глубина дерева трассировки. Здесь значение 1. Если другое,
+		// то считать = 1
+		appendInteger(fw, model.getNtree());
+		appendNewLine(fw);
+		// 4) Ar Ag Ab – рассеянный свет, числа в формате [0,1], например, (0.2,
+		// 0.3, 0.0). Обычно равные - (0.3, 0.3, 0.3)
+		fw.append(model.getAmbient().toString());
+		appendNewLine(fw);
+		// 5) nl – число источников света. Достаточно 1. Если больше, а ваша
+		// прог не умеет, то надо взять один, а остальные просто пропустить при
+		// чтении файла
+		List<Light> lights = model.getLights();
+		int lightsCount = lights.size();
+		appendInteger(fw, lightsCount);
+		appendNewLine(fw);
+		// 6) Далее nl строк типа "Lxi Lyi Lzi Ri Gi Bi" с координатами и
+		// интенсивностями (от 0 до 1 по цветам). Они описывают точечные
+		// источники света.
+		for (Light light : lights) {
+			fw.append(light.toString());
+			appendNewLine(fw);
+		}
+		// 7) N – число примитивов. Здесь ставить число примитивов: сумма числа
+		// трг и сфер.
+		List<Renderable> renderables = model.getRenderables();
+		int renderablesCount = renderables.size();
+		appendInteger(fw, renderablesCount);
+		appendNewLine(fw);
 
-// 8) Р”Р°Р»РµРµ РёРґСѓС‚ СЃС‚СЂРѕРєРё СЃ РѕРїРёСЃР°РЅРёСЏРјРё РїСЂРёРјРёС‚РёРІРѕРІ.
-        for (Renderable renderable : renderables) {
-            fw.append(renderable.toString());
-            appendNewLine(fw);
-        }
+		// 8) Далее идут строки с описаниями примитивов.
+		for (Renderable renderable : renderables) {
+			fw.append(renderable.toString());
+			appendNewLine(fw);
+		}
 
-        fw.close();
-    }
+		fw.close();
+	}
 }

@@ -3,7 +3,7 @@ package FIT_8201_Sviridov_Quad.transformations;
 import FIT_8201_Sviridov_Quad.Vertex;
 
 /**
- *
+ * Interface for transformations
  * @author alstein
  */
 public interface Transformation {
@@ -23,5 +23,9 @@ public interface Transformation {
      */
     public void compose(Transformation leftTransformation);
 
+    /**
+     * Returns matrix representation of the transformation
+     * @return matrix representation of the transformation
+     */
     public double[][] getMatrixRepresentation();
 }

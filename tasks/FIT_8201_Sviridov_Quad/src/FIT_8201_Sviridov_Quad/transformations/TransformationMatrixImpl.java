@@ -5,7 +5,7 @@ import java.text.NumberFormat;
 import java.util.Locale;
 
 /**
- *
+ * Astract class for basic implementation of the transformation using matrices
  * @author alstein
  */
 public abstract class TransformationMatrixImpl implements Transformation {
