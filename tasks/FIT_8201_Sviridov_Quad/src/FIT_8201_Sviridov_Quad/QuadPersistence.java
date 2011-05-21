@@ -1,6 +1,4 @@
-package FIT_8201_Sviridov_Quad;
-
-import FIT_8201_Sviridov_Quad.primitives.Renderable;
+package FIT_8201_Sviridov_Quad;import FIT_8201_Sviridov_Quad.primitives.Renderable;
 import FIT_8201_Sviridov_Quad.primitives.Sphere;
 import FIT_8201_Sviridov_Quad.primitives.Triangle;
 import FIT_8201_Sviridov_Quad.utils.LineParseUtils;
@@ -12,16 +10,12 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.List;
-
-/**
+import java.util.List;/**
  * Class for model persistence
  * 
  * @author alstein
  */
-public class QuadPersistence {
-
-	/**
+public class QuadPersistence {	/**
 	 * Returns model read from file
 	 * 
 	 * @param file
@@ -39,81 +33,43 @@ public class QuadPersistence {
 		String str = null;
 		String strs[] = null;
 		double ds[] = null;
-		int is[] = null;
-
-		Model model = new Model();
-
-		// 1) Rb Gb Bb – цвет фона в формате (0-255)
+		int is[] = null;		Model model = new Model();		
 		strs = LineParseUtils.nextNormalizedLine(bufferedReader).split(" ");
 		is = strsToInts(strs, 3);
-		Color bgColor = new Color(is[0], is[1], is[2]);
-
-		model.setBackgroundColor(bgColor);
-
-		// 2) gamma – если 1.0, то без гамма-коррекции, иначе это значение гаммы
+		Color bgColor = new Color(is[0], is[1], is[2]);		model.setBackgroundColor(bgColor);		
 		str = LineParseUtils.nextNormalizedLine(bufferedReader);
-		double gamma = Double.parseDouble(str);
-
-		model.setGamma(gamma);
-
-		// 3) ntree – глубина дерева трассировки. Здесь значение 1. Если другое,
-		// то считать = 1
+		double gamma = Double.parseDouble(str);		model.setGamma(gamma);		
+		
 		str = LineParseUtils.nextNormalizedLine(bufferedReader);
 		int ntree = Integer.parseInt(str);
 		if (ntree != 1) {
 			ntree = 1;
-		}
-
-		model.setNtree(ntree);
-
-		// 4) Ar Ag Ab – рассеянный свет, числа в формате [0,1], например, (0.2,
-		// 0.3, 0.0). Обычно равные - (0.3, 0.3, 0.3)
+		}		model.setNtree(ntree);		
+		
 		strs = LineParseUtils.nextNormalizedLine(bufferedReader).split(" ");
 		ds = strsToDoubles(strs, 3);
-		Coefficient3D ambient = new Coefficient3D(ds[0], ds[1], ds[2]);
-
-		model.setAmbient(ambient);
-
-		// 5) nl – число источников света. Достаточно 1. Если больше, а ваша
-		// прог не умеет, то надо взять один, а остальные просто пропустить при
-		// чтении файла
-		// 6) Далее nl строк типа "Lxi Lyi Lzi Ri Gi Bi" с координатами и
-		// интенсивностями (от 0 до 1 по цветам). Они описывают точечные
-		// источники света.
+		Coefficient3D ambient = new Coefficient3D(ds[0], ds[1], ds[2]);		model.setAmbient(ambient);		
+		
 		str = LineParseUtils.nextNormalizedLine(bufferedReader);
 		int lightSourcesCount = Integer.parseInt(str);
 		for (int i = 0; i < lightSourcesCount; ++i) {
-			// coordinates color
+			
 			strs = LineParseUtils.nextNormalizedLine(bufferedReader).split(" ");
 			ds = strsToDoubles(strs, 6);
 			Vertex origin = new Vertex(ds[0], ds[1], ds[2]);
-			Coefficient3D color = new Coefficient3D(ds[3], ds[4], ds[5]);
-
-			Light light = new Light(origin, color);
+			Coefficient3D color = new Coefficient3D(ds[3], ds[4], ds[5]);			Light light = new Light(origin, color);
 			model.addLight(light);
-		}
-
-		// 7) N – число примитивов. Здесь ставить число примитивов: сумма числа
-		// трг и сфер.
+		}		
+		
 		str = LineParseUtils.nextNormalizedLine(bufferedReader);
-		int objectsCount = Integer.parseInt(str);
-
-		// 8) Далее идут строки с описаниями примитивов.
-
-		for (int i = 0; i < objectsCount; ++i) {
+		int objectsCount = Integer.parseInt(str);				for (int i = 0; i < objectsCount; ++i) {
 			Renderable renderable = parseRenderable(bufferedReader);
 			if (renderable != null) {
 				model.addRenderable(renderable);
 			}
-		}
-
-		model.finishModel();
-
-		bufferedReader.close();
+		}		model.finishModel();		bufferedReader.close();
 		return model;
-	}
-
-	/**
+	}	/**
 	 * Reads Renderable from file
 	 * 
 	 * @param bufferedReader
@@ -128,14 +84,10 @@ public class QuadPersistence {
 		String str = null;
 		double ds[] = null;
 		String obj = LineParseUtils.nextNormalizedLine(bufferedReader);
-		// Могут быть следующие примитивы
+		
 		Renderable renderable = null;
-		// 1. Треугольник
-		// 1) TRG
+		
 		if (obj.equals("TRG")) {
-			// 2) POINT1x POINT1y POINT1z // координаты одной из вершин
-			// 3) POINT2x POINT2y POINT2z // координаты второй
-			// 4) POINT3x POINT3y POINT3z // координаты последней вершины
 			Vertex v[] = new Vertex[3];
 			for (int i = 0; i < 3; ++i) {
 				strs = LineParseUtils.nextNormalizedLine(bufferedReader).split(
@@ -144,60 +96,31 @@ public class QuadPersistence {
 				Vertex vertex = new Vertex(ds[0], ds[1], ds[2]);
 				v[i] = vertex;
 			}
-			// 5) Kar Kag Kab Kdr Kdg Kdb Ksr Ksg Ksb Power Kt N1 N2
-			ColorModel colorModel = parseColorModel(bufferedReader);
-
-			renderable = new Triangle(v[0], v[1], v[2], colorModel);
-
-			// 2. Квадрик // оставляем для желающих. Остальные должны просто
-			// пропустить при чтении файла.
-			// Какие - берете сами по вкусу. НЕ ОБЯЗАТЕЛЬНО.
-			// 1) QDR
+			ColorModel colorModel = parseColorModel(bufferedReader);			
+			renderable = new Triangle(v[0], v[1], v[2], colorModel);			
 		} else if (obj.equals("QDR")) {
-			// wtf!?
-			// 2) A E H B C F D G I J // коэффициенты
+			
 			strs = LineParseUtils.nextNormalizedLine(bufferedReader).split(" ");
-			// 3) POINT1x POINT1y POINT1z // габаритный бокс
 			strs = LineParseUtils.nextNormalizedLine(bufferedReader).split(" ");
-			// 4) POINT2x POINT2y POINT2z // габаритный бокс
 			strs = LineParseUtils.nextNormalizedLine(bufferedReader).split(" ");
-			// 5) Kar Kag Kab Kdr Kdg Kdb Ksr Ksg Ksb Power Kt N1 N2 // для
-			// внешней стороны
 			strs = LineParseUtils.nextNormalizedLine(bufferedReader).split(" ");
-			// 6) Kar Kag Kab Kdr Kdg Kdb Ksr Ksg Ksb Power Kt N1 N2 // для
-			// внутренней стороны
 			parseColorModel(bufferedReader);
-			// Т.е. берется и учитывается только та часть квадрика, которая
-			// находится внутри
-			// габаритного бокса. Сначала строится квадрик, затем вся сцена
-			// группируется . Если это
-			// замкнутая фигура, то габаритный бокс выбирается так, чтобы он
-			// обрезал ее часть, видны и
-			// внешняя и внутренняя поверхности
-
 		} else if (obj.equals("SPH")) {
-			// 3. Сфера
-			// Задание в файле
-			// 1) SPH
 			strs = LineParseUtils.nextNormalizedLine(bufferedReader).split(" ");
 			ds = strsToDoubles(strs, 3);
 			Vertex v = new Vertex(ds[0], ds[1], ds[2]);
-			// 2) POINT1x POINT1y POINT1z // координаты центра
-			// 3) r // радиус сферы
+			
 			str = LineParseUtils.nextNormalizedLine(bufferedReader);
 			double radius = Double.parseDouble(str);
-			// 4) Kar Kag Kab Kdr Kdg Kdb Ksr Ksg Ksb Power Kt N1 N2 // цвет для
-			// внешней стороны
-			ColorModel colorModel = parseColorModel(bufferedReader);
-
+			
+			ColorModel colorModel = parseColorModel(bufferedReader);			
 			renderable = new Sphere(v, radius, colorModel);
 		} else {
 			throw new IllegalArgumentException("Unknown object " + str);
-		}
-
+		}		
 		return renderable;
-	}
-
+	}	
+	
 	/**
 	 * Reads ColorModel
 	 * @param bufferedReader source
@@ -208,11 +131,9 @@ public class QuadPersistence {
 			throws IOException {
 		String strs[] = null;
 		double ds[] = null;
-		// 5) Kar Kag Kab Kdr Kdg Kdb Ksr Ksg Ksb Power Kt N1 N2
+		
 		strs = LineParseUtils.nextNormalizedLine(bufferedReader).split(" ");
-		ds = strsToDoubles(strs, 13);
-
-		Coefficient3D ambientCoefficient = new Coefficient3D(ds[0], ds[1],
+		ds = strsToDoubles(strs, 13);		Coefficient3D ambientCoefficient = new Coefficient3D(ds[0], ds[1],
 				ds[2]);
 		Coefficient3D diffuseCoefficient = new Coefficient3D(ds[3], ds[4],
 				ds[5]);
@@ -226,9 +147,7 @@ public class QuadPersistence {
 				diffuseCoefficient, specularCoefficient, power,
 				transparencyCoefficient, Refraction1, Refraction2);
 		return colorModel;
-	}
-
-	/**
+	}	/**
 	 * Parses string array to array of ints
 	 * @param strs strings
 	 * @param count count
@@ -240,9 +159,7 @@ public class QuadPersistence {
 			els[i] = Integer.parseInt(strs[i]);
 		}
 		return els;
-	}
-
-	/**
+	}	/**
 	 * Parses string array to array of dobules
 	 * @param strs strings
 	 * @param count count
@@ -254,9 +171,7 @@ public class QuadPersistence {
 			els[i] = Double.parseDouble(strs[i]);
 		}
 		return els;
-	}
-
-	/**
+	}	/**
 	 * Appends int to file
 	 * @param fw file writer
 	 * @param num number
@@ -265,9 +180,7 @@ public class QuadPersistence {
 	private static void appendInteger(FileWriter fw, int num)
 			throws IOException {
 		fw.append(Integer.toString(num));
-	}
-
-	/**
+	}	/**
 	 * Appends double to file
 	 * @param fw file writer
 	 * @param num number
@@ -276,18 +189,14 @@ public class QuadPersistence {
 	private static void appendDouble(FileWriter fw, double num)
 			throws IOException {
 		fw.append(Double.toString(num));
-	}
-
-	/**
+	}	/**
 	 * Appends \r\n to file
 	 * @param fw file writer
 	 * @throws IOException if I/O error occurs
 	 */
 	private static void appendNewLine(FileWriter fw) throws IOException {
 		fw.append("\r\n");
-	}
-
-	/**
+	}	/**
 	 * Saves model to file
 	 * @param file file
 	 * @param model model
@@ -295,7 +204,7 @@ public class QuadPersistence {
 	 */
 	public static void saveToFile(File file, Model model) throws IOException {
 		FileWriter fw = new FileWriter(file);
-		// 1) Rb Gb Bb – цвет фона в формате (0-255)
+		
 		Color backgroundColor = model.getBackgroundColor();
 		appendInteger(fw, backgroundColor.getRed());
 		fw.append(' ');
@@ -303,44 +212,33 @@ public class QuadPersistence {
 		fw.append(' ');
 		appendInteger(fw, backgroundColor.getBlue());
 		appendNewLine(fw);
-		// 2) gamma – если 1.0, то без гамма-коррекции, иначе это значение гаммы
+		
 		appendDouble(fw, model.getGamma());
 		appendNewLine(fw);
-		// 3) ntree – глубина дерева трассировки. Здесь значение 1. Если другое,
-		// то считать = 1
+		
 		appendInteger(fw, model.getNtree());
 		appendNewLine(fw);
-		// 4) Ar Ag Ab – рассеянный свет, числа в формате [0,1], например, (0.2,
-		// 0.3, 0.0). Обычно равные - (0.3, 0.3, 0.3)
+		
 		fw.append(model.getAmbient().toString());
 		appendNewLine(fw);
-		// 5) nl – число источников света. Достаточно 1. Если больше, а ваша
-		// прог не умеет, то надо взять один, а остальные просто пропустить при
-		// чтении файла
+		
 		List<Light> lights = model.getLights();
 		int lightsCount = lights.size();
 		appendInteger(fw, lightsCount);
 		appendNewLine(fw);
-		// 6) Далее nl строк типа "Lxi Lyi Lzi Ri Gi Bi" с координатами и
-		// интенсивностями (от 0 до 1 по цветам). Они описывают точечные
-		// источники света.
+		
 		for (Light light : lights) {
 			fw.append(light.toString());
 			appendNewLine(fw);
 		}
-		// 7) N – число примитивов. Здесь ставить число примитивов: сумма числа
-		// трг и сфер.
+		
 		List<Renderable> renderables = model.getRenderables();
 		int renderablesCount = renderables.size();
 		appendInteger(fw, renderablesCount);
-		appendNewLine(fw);
-
-		// 8) Далее идут строки с описаниями примитивов.
+		appendNewLine(fw);		
 		for (Renderable renderable : renderables) {
 			fw.append(renderable.toString());
 			appendNewLine(fw);
-		}
-
-		fw.close();
+		}		fw.close();
 	}
 }
